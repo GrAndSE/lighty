@@ -1,5 +1,5 @@
 """ Pakage provides method to working with templates """
 
-import templatetags
+import tag
 
 from template import Template as Template
