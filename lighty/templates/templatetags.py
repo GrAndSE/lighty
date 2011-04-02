@@ -21,16 +21,17 @@ tag_manager.register(
         loader_required=True
 )
 
-def extends(token, template, loader):
+def extend(token, template, loader):
     """Tag used to create tamplates hierarhy
     """
     print token, template, loader
-    #tmpl            = loader.
+    #tmpl = loader.get_template()
+    #tmpl            = loader
     return ''
 
 tag_manager.register(
-        name='extends',
-        tag=extends,
+        name='extend',
+        tag=extend,
         template_required=True,
         loader_required=True
 )

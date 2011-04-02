@@ -4,10 +4,10 @@ from collections import deque
 try:
     import cStringIO as StringIO
 except:
-    try:
-        import StringIO
-    except:
-        import io as StringIO
+#    try:
+#        import StringIO
+#    except:
+#        import io as StringIO
     pass
 
 
@@ -73,7 +73,6 @@ class Template(object):
                 if char == '{':
                     current = Template.ECHO
                 elif char == '%':
-                    print 'Start tag'
                     current = Template.TAG
                 else:
                     current = Template.TEXT
@@ -90,8 +89,7 @@ class Template(object):
                 if char == '%':
                     current = Template.CLOSE
                     token   = token.strip()
-                    print(token)
-                    name    = token.split(None, 1)[0]
+                    name    = token.split(' ', 1)[0]
                     if name.startswith('end'):
                         name    = name[3:]
                         tag     = tag_stack.pop()
@@ -100,16 +98,21 @@ class Template(object):
                             block   = cmds
                             cmds    = cmd_stack.pop()
                             token   = token_stack.pop()
-                            print('Block: ', block)
-                            print('Commands: ', cmds)
                             cmds.append(self.tag(name, token, block))
                         else:
                             raise Exception("Invalid closing tag: 'end%s' except 'end%s'" % (name, tag))
-                    elif tag_manager.is_block_tag(name):
-                        cmd_stack.append(cmds)
-                        tag_stack.append(name)
-                        token_stack.append(token)
-                        cmds = []
+                    else:
+                        if ' ' in token:
+                            token = token.split(' ', 1)[1]
+                        else:
+                            token = ''
+                        if tag_manager.is_block_tag(name):
+                            cmd_stack.append(cmds)
+                            tag_stack.append(name)
+                            token_stack.append(token)
+                            cmds = []
+                        else:
+                            cmds.append(self.tag(name, token, ()))
                     token = ''
                 else:
                     token += str(char)

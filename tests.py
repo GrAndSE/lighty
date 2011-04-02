@@ -5,7 +5,7 @@ base = """<!DOCTYPE html>
   {% block head %}{% endblock %}
 </head>
 <body>
-  {% block content %}{% endbock %}
+  {% block content %}{% endblock %}
 </body>
 </html>"""
 extended = """{% extend "base.html" %}

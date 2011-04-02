@@ -28,7 +28,7 @@ class TagManager(object):
     def execute(self, name, token, context, block, template, loader):
         """ Execute tag """
         self.is_tag_exists(name)
-        tag = self.tags
+        tag = self.tags[name]
         args = {
             'token': token
         }
@@ -42,5 +42,7 @@ class TagManager(object):
         """Check is tag with specified name is block tag
         """
         self.is_tag_exists(name)
+        return self.tags[name][1]
+
 
 tag_manager = TagManager()
