@@ -1,3 +1,16 @@
+from lighty.templates.tag import parse_token
+
+assert ['test.html'] == parse_token('"test.html"'),\
+        'Remove brackets failed: %s' % parse_token('"test.html"')
+assert ['test\'html'] == parse_token('"test\'html"'),\
+        'Remove brackets from sentence with inner brackets failed: %s' %\
+        parse_token('"test\'html"')
+assert ['a', 'in', 'b'] == parse_token('a in b'),\
+        'Simple token parsing failed: %s' % parse_token('a in b')
+assert ['a', 'as', 'Let me in'] == parse_token('a as "Let me in"'),\
+        'Token with sentence parse failed: %s' %\
+        parse_token('a as "Let me in"')
+
 base = """<!DOCTYPE html>
 <html>
 <head>

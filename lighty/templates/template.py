@@ -52,8 +52,9 @@ class Template(object):
         return execute_tag
 
     def parse(self, text):
-        """ Parse template string and create appropriate command list into this
-        template instance """
+        """Parse template string and create appropriate command list into this
+        template instance 
+        """
         current = Template.TEXT
         token   = ''
         cmds    = self.commands
