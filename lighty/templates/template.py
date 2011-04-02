@@ -4,10 +4,10 @@ from collections import deque
 try:
     import cStringIO as StringIO
 except:
-    #    try:
-    #    import StringIO
-    #except:
-    #    import io as StringIO
+    try:
+        import StringIO
+    except:
+        import io as StringIO
     pass
 
 
@@ -73,6 +73,7 @@ class Template(object):
                 if char == '{':
                     current = Template.ECHO
                 elif char == '%':
+                    print 'Start tag'
                     current = Template.TAG
                 else:
                     current = Template.TEXT

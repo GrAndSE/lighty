@@ -1,5 +1,0 @@
-block head
-endblock
-block content
-endblock
-[<function print_value at 0xb77a08ec>, <function print_value at 0xb77a0924>, <function print_value at 0xb77a095c>, <function execute_tag at 0xb77a0994>, <function print_value at 0xb77a09cc>, <function execute_tag at 0xb77a0a04>]
