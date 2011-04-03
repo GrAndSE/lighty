@@ -18,7 +18,7 @@ base = """<!DOCTYPE html>
   {% block head %}{% endblock %}
 </head>
 <body>
-  {% block content %}{% endblock %}
+  {% block content %}Some contents{% endblock %}
 </body>
 </html>"""
 extended = """{% extend "base.html" %}
@@ -28,11 +28,11 @@ extended = """{% extend "base.html" %}
 
 from lighty.templates import Template
 
-base_template = Template()
+base_template = Template(name='base.html')
 base_template.parse(base)
 print(base_template.commands)
 print(base_template.execute({'title': 'Hello'}))
-extend_template = Template()
+extend_template = Template(loader=base_template.loader)
 extend_template.parse(extended)
 print(extend_template.commands)
 print(extend_template.execute({'title': 'Hello'}))

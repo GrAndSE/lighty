@@ -31,7 +31,7 @@ class Template(object):
         self.loader = loader
         self.loader.register(name, self)
         self.commands = []
-
+        self.context = {}
 
     @staticmethod
     def variable(name):
@@ -46,10 +46,18 @@ class Template(object):
         return print_value
 
     def tag(self, name, token, block):
-        def execute_tag(context):
-            return tag_manager.execute(name, token, context, block, 
-                                        self, self.loader)
-        return execute_tag
+        if tag_manager.is_lazy_tag(name):
+            def execute_tag(context):
+                return tag_manager.execute(name, token, context, block, 
+                                           self, self.loader)
+            return execute_tag
+        else:
+            result = tag_manager.execute(name, token, self.context, block, 
+                                         self, self.loader)
+            if callable(result):
+                return result
+            else:
+                return lambda context: ''
 
     def parse(self, text):
         """Parse template string and create appropriate command list into this
@@ -129,12 +137,18 @@ class Template(object):
             raise Exception('Unexpected end of input - not all tags closed')
         self.commands = cmds
 
-    def exec_cmd(self, context):
-        for command in self.commands:
-            yield command(context)
-
     def execute(self, context):
+        """Execute all commands on a specified context
+
+        Arguments:
+            context: dict contains varibles
+        """
         result = StringIO.StringIO()
-        for cmd in self.exec_cmd(context):
-            result.write(cmd)
+        for cmd in self.commands:
+            result.write(cmd(context))
         return result.getvalue()
+
+    def __call__(self, context):
+        """Alias for execute()
+        """
+        return self.execute(context)

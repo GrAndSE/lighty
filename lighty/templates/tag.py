@@ -49,7 +49,8 @@ class TagManager(object):
         self.tags = {}
 
     def register(self, name, tag, is_block_tag=False, context_required=False,
-                 template_required=False, loader_required=False):
+                 template_required=False, loader_required=False, 
+                 is_lazy_tag=True):
         """Register new tag
         """
         self.tags[name] = (
@@ -57,7 +58,8 @@ class TagManager(object):
             is_block_tag,
             context_required,
             template_required,
-            loader_required
+            loader_required,
+            is_lazy_tag
         )
 
     def is_tag_exists(self, name):
@@ -65,12 +67,24 @@ class TagManager(object):
         """
         if name not in self.tags:
             raise Exception("Tag '%s' is not registered" % name)
+        return self.tags[name]
+
+    def is_block_tag(self, name):
+        """Check is tag with specified name is block tag
+        """
+        return self.is_tag_exists(name)[1]
+
+    def is_lazy_tag(self, name):
+        """Check is tag with specified name is lazy tag
+        Lazy tag means that it would be executed on template execution. But
+        some tags required to be executed on template parsing time.
+        """
+        return self.is_tag_exists(name)[5]
 
     def execute(self, name, token, context, block, template, loader):
         """Execute tag 
         """
-        self.is_tag_exists(name)
-        tag = self.tags[name]
+        tag = self.is_tag_exists(name)
         args = {
             'token': token
         }
@@ -79,12 +93,6 @@ class TagManager(object):
         if tag[3]: args['template'] = template
         if tag[4]: args['loader'] = loader
         return tag[0](**args)
-
-    def is_block_tag(self, name):
-        """Check is tag with specified name is block tag
-        """
-        self.is_tag_exists(name)
-        return self.tags[name][1]
 
 
 tag_manager = TagManager()
