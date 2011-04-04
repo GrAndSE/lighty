@@ -57,6 +57,7 @@ def fuzzy_equals(first, second):
     while i < length:
         if first_repr[i] != second_repr[i]:
             return False
+        i += 1
     
     return True
 

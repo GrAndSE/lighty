@@ -135,6 +135,9 @@ class Template(object):
         # Check stack length - detect unclosed tags
         if len(cmd_stack) > 0:
             raise Exception('Unexpected end of input - not all tags closed')
+        # Last value
+        if len(token) > 0:
+            cmds.append(Template.constant(token))
         self.commands = cmds
 
     def execute(self, context):
