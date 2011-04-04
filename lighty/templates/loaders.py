@@ -1,5 +1,6 @@
 """ Package provides template loaders """
 
+
 class TemplateLoader(object):
     """ Class fot managing templates """
 
@@ -9,7 +10,6 @@ class TemplateLoader(object):
         # Create new templates dictionary
         self.templates = {}
         # TODO: do something with settings
-
 
     def register(self, name, template):
         """ Add loaded or generated template """

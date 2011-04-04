@@ -1,5 +1,9 @@
 """ Pakage provides method to working with templates """
 
-import tag
+from loaders import TemplateLoader as Loader
+from template import Template as BaseTemplate
 
-from template import Template as Template
+from templatetags import *
+
+TemplateLoader = Loader
+Template = BaseTemplate
