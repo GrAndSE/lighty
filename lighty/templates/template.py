@@ -34,9 +34,22 @@ class Template(object):
         self.context = {}
 
     @staticmethod
+    def get_field(obj, field):
+        if hasattr(obj, field):
+            return getattr(obj, field)
+        elif hasattr(obj, '__getitem__') and hasattr(obj, '__contains__'):
+            return obj[field]
+        raise Exception, 'Could not get %s from %s' % (field, obj)
+
+    @staticmethod
     def variable(name):
-        def print_value(context):
-            return context[name]
+        fields = name.split('.')
+        if len(fields) > 1:
+            def print_value(context):
+                fields[0] = context[fields[0]]
+                return reduce(Template.get_field, fields)
+        else:
+            print_value = lambda context: context[name]
         return print_value
 
     @staticmethod
