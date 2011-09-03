@@ -4,7 +4,7 @@ import unittest
 
 from lighty.templates.tag import parse_token
 
-class FormFieldsTestCase(unittest.TestCase):
+class ParseTokenTestCase(unittest.TestCase):
     ''' Test form fields '''
 
     def setUp(self):
@@ -34,3 +34,11 @@ class FormFieldsTestCase(unittest.TestCase):
         needed = ['a', 'as', 'Let me in']
         assert parsed == needed, 'Token with sentence parsing failed: %s' % (
                                  ' '.join((parsed, 'except', needed)))
+
+def test():
+    suite = unittest.TestSuite()
+    suite.addTest(ParseTokenTestCase('testCleanBrackets'))
+    suite.addTest(ParseTokenTestCase("testCleanInnerBrackets"))
+    suite.addTest(ParseTokenTestCase("testParseSimpleTokens"))
+    suite.addTest(ParseTokenTestCase("testParseTokensWithSentence"))
+    return suite
