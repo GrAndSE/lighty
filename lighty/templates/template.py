@@ -12,7 +12,8 @@ except:
 
 
 from loaders import TemplateLoader
-from tag import tag_manager
+from filter import filter_manager
+from tag import tag_manager, parse_token
 
 
 class Template(object):
@@ -51,7 +52,8 @@ class Template(object):
                 fields[0] = context[fields[0]]
                 return reduce(Template.get_field, fields)
         else:
-            print_value = lambda context: context[name]
+            def print_value(context): 
+                return context[name]
         return print_value
 
     @staticmethod
@@ -62,9 +64,31 @@ class Template(object):
 
     @staticmethod
     def filter(value):
-        def apply_filter(context):
-            return ''
-        return apply_filter
+        '''Parse the tamplte filter
+        '''
+        parts   = value.split('|')
+        variable= parts[0]
+        filters = []
+        for token in parts[1:]:
+            if ':' in token:
+                parsed = token.split(':')
+                if len(parsed) > 1:
+                    filter, args_token = parsed
+                    args    = parse_token(args_token)
+                else:
+                    filter  = parsed
+                    args    = ()
+            else:
+                filter = token
+                args = ()
+            filters.append((filter, args))
+        def apply_filters(context):
+            def apply_filter(value, pair):
+                filter, args = pair
+                return filter_manager.apply(filter, value, args, context)
+            filters.insert(0, Template.variable(variable)(context))
+            return str(reduce(apply_filter, filters))
+        return apply_filters
         
     def tag(self, name, token, block):
         if tag_manager.is_lazy_tag(name):

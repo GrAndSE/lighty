@@ -3,16 +3,20 @@
 import unittest
 
 from lighty.templates import Template
+from lighty.templates.filter import filter_manager
 
 
 def simple_filter(value):
     return str(value).upper()
+filter_manager.register(simple_filter)
 
 def argument_filter(value, arg):
-    return str(value).upper() + ', ' + str(arg)
+    return str(value) + ', ' + str(arg)
+filter_manager.register(argument_filter)
 
 def multiarg_filter(value, *args):
-    return ', '.join([str(arg) for arg in args + [value]])
+    return ', '.join([str(arg) for arg in (value, ) + args])
+filter_manager.register(multiarg_filter)
 
 
 class TemplateFiltersTestCase(unittest.TestCase):
@@ -38,7 +42,7 @@ class TemplateFiltersTestCase(unittest.TestCase):
     def testMultiargFilter(self):
         multiarg_template = Template(name='multiarg-filter.html')
         multiarg_template.parse(
-                            '{{ simple_var|multiarg_filter:"John","Peter" }}')
+                            '{{ simple_var|multiarg_filter:"John" "Peter" }}')
         result = multiarg_template.execute({'simple_var': 'Hello'})
         self.assertResult(result, 'Hello, John, Peter')
 

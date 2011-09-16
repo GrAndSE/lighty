@@ -36,7 +36,7 @@ def parse_token(token):
             else:
                 sentence.append(word)
     return tokens
-                
+
 
 class TagManager(object):
     """Class used for tags manipulation 

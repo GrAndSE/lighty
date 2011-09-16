@@ -19,8 +19,16 @@ class FilterManager(object):
             raise Exception("Filter '%s' is not registered" % name)
         return self.filters[name]
 
-    def apply(self, filter, value, args):
+    def register(self, filter):
+        '''Register filter in manager
+        '''
+        self.filters[filter.__name__] = filter
+
+    def apply(self, filter, value, args, context):
         '''Apply filter to values
         '''
         filter_func = self.is_filter_exists(filter)
         return filter_func(value, *args)
+
+
+filter_manager = FilterManager()
