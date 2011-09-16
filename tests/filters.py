@@ -24,7 +24,7 @@ class TemplateFiltersTestCase(unittest.TestCase):
     """
 
     def assertResult(self, result, value):
-        assert result == value, 'Error emplate execution: %s' % ' '.join((
+        assert result == value, 'Error template execution: %s' % ' '.join((
                                      result, 'except', value))
 
     def testSimpleFilter(self):
@@ -46,10 +46,28 @@ class TemplateFiltersTestCase(unittest.TestCase):
         result = multiarg_template.execute({'simple_var': 'Hello'})
         self.assertResult(result, 'Hello, John, Peter')
 
+    def testMultiFilter(self):
+        multifilter_template = Template(name='multifilter.html')
+        multifilter_template.parse(
+                    '{{ simple_var|simple_filter|argument_filter:"world" }}')
+        result = multifilter_template.execute({'simple_var': 'Hello'})
+        self.assertResult(result, 'HELLO, world')
+
+    def testVaribaleArgFilter(self):
+        varargfilter_template = Template(name='vararg-filter.html')
+        varargfilter_template.parse('{{ simple_var|argument_filter:arg }}')
+        result = varargfilter_template.execute({
+                'simple_var':   'Hello',
+                'arg':          'world'
+        })
+        self.assertResult(result, 'Hello, world')
+
 
 def test():
     suite = unittest.TestSuite()
     suite.addTest(TemplateFiltersTestCase('testSimpleFilter'))
     suite.addTest(TemplateFiltersTestCase('testArgFilter'))
     suite.addTest(TemplateFiltersTestCase('testMultiargFilter'))
+    suite.addTest(TemplateFiltersTestCase('testMultiFilter'))
+    suite.addTest(TemplateFiltersTestCase('testVaribaleArgFilter'))
     return suite
