@@ -15,7 +15,9 @@ Features:
 - Stupid simple syntax almost compatible with django-template
 - Pure python
 - Simple and compact code
-- Simple but powerfull tag declaration - it's easy to create your on block tags 
+- Template filters with multiply arguments
+- Simple but powerfull tag declaration - it's easy to create your own block 
+  tags with writing single function
 - Custom template tags can modify template on fly
 
 Example:
@@ -39,8 +41,9 @@ Example:
 TODO:
 -----
 
-- Filters
-- Access to object fields
+- More default tags
+- More default filters
+- Variable arguments in filters (now all varaibles passed as strings)
 - Some execution optimizations
 - More tests
-= Documentation
+- Documentation
