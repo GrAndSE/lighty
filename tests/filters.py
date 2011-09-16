@@ -20,13 +20,13 @@ class TemplateFiltersTestCase(unittest.TestCase):
     """
 
     def assertResult(self, result, value):
-        assert result == value, 'Error emplate execution: %s' % ' '.join(
-                                     result, 'except', value)
+        assert result == value, 'Error emplate execution: %s' % ' '.join((
+                                     result, 'except', value))
 
     def testSimpleFilter(self):
         simple_template = Template(name='simple-filter.html')
         simple_template.parse("{{ simple_var|simple_filter }}")
-        result = simple_filter.execute({'simple_var': 'Hello'})
+        result = simple_template.execute({'simple_var': 'Hello'})
         self.assertResult(result, 'HELLO')
 
     def testArgFilter(self):

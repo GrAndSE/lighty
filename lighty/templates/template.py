@@ -16,17 +16,19 @@ from tag import tag_manager
 
 
 class Template(object):
-    """ Class represents template """
-
+    """Class represents template
+    """
     TEXT    = 1
     TOKEN   = 2
     ECHO    = 3
-    TAG     = 4
-    STRING  = 5
-    CLOSE   = 6
+    FILTER  = 4
+    TAG     = 5
+    STRING  = 6
+    CLOSE   = 7
 
     def __init__(self, loader=TemplateLoader(), name="unnamed"):
-        """ Create new template instance """
+        """Create new template instance
+        """
         super(Template, self).__init__()
         self.loader = loader
         self.loader.register(name, self)
@@ -54,10 +56,16 @@ class Template(object):
 
     @staticmethod
     def constant(value):
-        def print_value(context):
+        def print_constant(context):
             return value
-        return print_value
+        return print_constant
 
+    @staticmethod
+    def filter(value):
+        def apply_filter(context):
+            return ''
+        return apply_filter
+        
     def tag(self, name, token, block):
         if tag_manager.is_lazy_tag(name):
             def execute_tag(context):
@@ -99,12 +107,20 @@ class Template(object):
                 else:
                     current = Template.TEXT
                     token = '{'+str(char)
-            elif current == Template.ECHO:
+            elif current == Template.ECHO or current == Template.FILTER:
                 if char == '}':
-                    current = Template.CLOSE
                     if len(token) > 0:
-                        cmds.append(Template.variable(token.strip()))
+                        token = token.strip()
+                        if current == Template.ECHO:
+                            cmd = Template.variable(token)
+                        else:
+                            cmd = Template.filter(token)
+                        cmds.append(cmd)
                         token = ''
+                    current = Template.CLOSE
+                elif char == '|':
+                    current = Template.FILTER
+                    token += str(char)
                 else:
                     token += str(char)
             elif current == Template.TAG:

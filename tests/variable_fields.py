@@ -19,8 +19,8 @@ class VariableFieldTestCase(unittest.TestCase):
         self.deep_template.parse('{{ object.field.field }}')
 
     def assertResult(self, result):
-        assert result == self.value, 'Error emplate execution: %s' % ' '.join(
-                                     result, 'except', self.value)
+        assert result == self.value, 'Error emplate execution: %s' % ' '.join((
+                                     result, 'except', self.value))
 
     def testSimpleVariable(self):
         result = self.variable_template.execute({'simple_var': 'value'})
