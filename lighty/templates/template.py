@@ -31,10 +31,11 @@ class Template(object):
         """Create new template instance
         """
         super(Template, self).__init__()
-        self.loader = loader
+        self.loader     = loader
+        self.name       = name
+        self.commands   = []
+        self.context    = {}
         self.loader.register(name, self)
-        self.commands = []
-        self.context = {}
 
     @staticmethod
     def get_field(obj, field):
@@ -198,13 +199,44 @@ class Template(object):
 
         Arguments:
             context: dict contains varibles
+        Returns:
+            string contains the whole result
         """
         result = StringIO.StringIO()
         for cmd in self.commands:
             result.write(cmd(context))
-        return result.getvalue()
+        value = result.getvalue()
+        result.close()
+        return value
 
     def __call__(self, context):
         """Alias for execute()
         """
         return self.execute(context)
+
+    def partial(self, context, name='', key_args=()):
+        """Execute all commands on a specified context and cache the result as
+        another template ready for execution
+
+        Arguments:
+            context: dict contains variables
+        Returns:
+            another template contains the result
+        """
+        result = Template(loader=self.loader, name=name)
+        buffer = StringIO.StringIO()
+        for cmd in self.commands:
+            try:
+                buffer.write(cmd(context))
+            except Exception:
+                value = buffer.getvalue()
+                if len(value) > 0:
+                    result.commands.append(Template.constant(value))
+                result.commands.append(cmd)
+                buffer.close()
+                buffer = StringIO.StringIO()
+        value = buffer.getvalue()
+        buffer.close()
+        if len(value) > 0:
+            result.commands.append(Template.constant(value))
+        return result
