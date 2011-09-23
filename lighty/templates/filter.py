@@ -24,11 +24,16 @@ class FilterManager(object):
         '''
         self.filters[filter.__name__] = filter
 
-    def apply(self, filter, value, args, context):
+    def apply(self, filter, value, args, arg_types, context):
         '''Apply filter to values
         '''
         filter_func = self.is_filter_exists(filter)
-        return filter_func(value, *args)
+        new_args = []
+        i = 0
+        while i < len(args):
+            new_args.append(arg_types[i] and args[i] or context[args[i]])
+            i += 1
+        return filter_func(value, *new_args)
 
 
 filter_manager = FilterManager()

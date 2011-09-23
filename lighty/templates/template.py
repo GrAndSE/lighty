@@ -74,18 +74,18 @@ class Template(object):
                 parsed = token.split(':')
                 if len(parsed) > 1:
                     filter, args_token = parsed
-                    args    = parse_token(args_token)
+                    args, types = parse_token(args_token)
                 else:
-                    filter  = parsed
-                    args    = ()
+                    filter      = parsed
+                    args, types = (), ()
             else:
                 filter = token
-                args = ()
-            filters.append((filter, args))
+                args, types = (), ()
+            filters.append((filter, args, types))
         def apply_filters(context):
             def apply_filter(value, pair):
-                filter, args = pair
-                return filter_manager.apply(filter, value, args, context)
+                filter, args, types = pair
+                return filter_manager.apply(filter, value, args, types, context)
             filters.insert(0, Template.variable(variable)(context))
             return str(reduce(apply_filter, filters))
         return apply_filters
