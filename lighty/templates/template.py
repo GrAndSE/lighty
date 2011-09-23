@@ -1,6 +1,7 @@
 """ Package provides template class """
 
 from collections import deque
+from decimal import Decimal
 try:
     import cStringIO as StringIO
 except:
@@ -92,7 +93,10 @@ class Template(object):
                 else:
                     raise Exception('Template filter syntax error')
             else:
-                filters.insert(0, Template.variable(variable)(context))
+                try:
+                    filters.insert(0, Decimal(variable))
+                except:
+                    filters.insert(0, Template.variable(variable)(context))
             return str(reduce(apply_filter, filters))
         return apply_filters
         
