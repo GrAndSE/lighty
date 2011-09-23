@@ -86,7 +86,13 @@ class Template(object):
             def apply_filter(value, pair):
                 filter, args, types = pair
                 return filter_manager.apply(filter, value, args, types, context)
-            filters.insert(0, Template.variable(variable)(context))
+            if variable[0] == '"' or variable[0] == "'":
+                if variable[0] == variable[-1]:
+                    filters.insert(0, variable[1:-1])
+                else:
+                    raise Exception('Template filter syntax error')
+            else:
+                filters.insert(0, Template.variable(variable)(context))
             return str(reduce(apply_filter, filters))
         return apply_filters
         

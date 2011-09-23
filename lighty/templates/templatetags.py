@@ -38,7 +38,7 @@ tag_manager.register(
 def extend(token, template, loader):
     """Tag used to create tamplates hierarhy
     """
-    tokens = parse_token(token)
+    tokens = parse_token(token)[0]
     template.parent = loader.get_template(tokens[0])
     if not hasattr(template, 'blocks'):
         template.blocks = template.parent.blocks.copy()
