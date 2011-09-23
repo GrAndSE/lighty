@@ -17,14 +17,15 @@ def parse_token(token):
             if idx >= 0:
                 delim = word[idx]
                 if idx > 0:
-                    token_types.append()
+                    token_types.append(STRING)
                     tokens.append(word[0:idx])
                 word = word[idx+1:]
                 if delim in word:
                     parts = word.split(delim)
                     tokens.append(parts[0])
+                    token_types.append(STRING)
                     if len(parts) > 1 and len(parts[1]) > 0:
-                        token_types.append(STRING)
+                        token_types.append(VARIABLE)
                         tokens.append(parts[1])
                     delim = None
                 else:
@@ -33,14 +34,16 @@ def parse_token(token):
                 tokens.append(word)
                 try:
                     float(word)
-                    token_types.append(NUMBER)
                 except:
                     token_types.append(VARIABLE)
+                else:
+                    token_types.append(NUMBER)
         else:
             if delim in word:
                 parts = word.split(delim)
                 sentence.append(parts[0])
                 tokens.append(" ".join(sentence))
+                token_types.append(STRING)
                 if len(parts) > 1 and len(parts[1]) > 0:
                     token_types.append(STRING)
                     tokens.append(parts[1])
