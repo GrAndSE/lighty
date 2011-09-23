@@ -1,6 +1,7 @@
 '''Package contains default template tags
 '''
 from decimal import Decimal, ROUND_DOWN, ROUND_HALF_UP
+from operator import itemgetter
 import random as random_module
 
 from filter import filter_manager
@@ -115,17 +116,15 @@ def lower(value):
 def dictsort(value, key, order=''):
     '''Sort dict
     '''
-    return sorted(value, key=key, reverse=(order != ''))
+    return sorted(value, key=itemgetter(key), reverse=(order != ''))
 filter_manager.register(dictsort)
 
 def get(value, index):
     '''Get item with specified index
     '''
     if issubclass(value.__class__, dict):
-        index = value[value.keys()[index]]
-    if index in value:
-        return value[index]
-    return ''
+        return value[sorted(value.keys())[index]]
+    return value[index]
 filter_manager.register(get)
 
 def first(value):
@@ -160,8 +159,8 @@ def random(value):
     return get(value, random_module.random(len(value)))
 filter_manager.register(random)
 
-def sort(value):
+def sort(value, order=''):
     '''Sort list
     '''
-    return sorted(value)
+    return sorted(value, reverse=(order != ''))
 filter_manager.register(sort)

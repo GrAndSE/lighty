@@ -14,6 +14,8 @@ class DefaultFiltersTestCase(unittest.TestCase):
         assert result == value, 'Error on filter "%s" applying: %s' % (
                            name, ' '.join((str(result), 'except', str(value))))
 
+    # numerical filters
+
     def testSum(self):
         result = templatefilters.sum(1, 2, 3, 4)
         self.assertResult('sum', result, 10)
@@ -35,6 +37,8 @@ class DefaultFiltersTestCase(unittest.TestCase):
         self.assertResult('floatround("%s")' % value, result, Decimal('12'))
         result  = templatefilters.floatround(value, '1')
         self.assertResult('floatround("%s")' % value, result, Decimal('12.5'))
+
+    # string filters
 
     def testUpper(self):
         result  = templatefilters.upper('hello')
@@ -61,6 +65,56 @@ class DefaultFiltersTestCase(unittest.TestCase):
         result  = templatefilters.stringformat(value, format)
         self.assertResult(name, result, '%4f' % value)
 
+    # list filters
+
+    def testJoin(self):
+        value   = (1, 2, 3, 4)
+        result  = templatefilters.join(value, ',')
+        self.assertResult('join(%s)' % str(value), result, '1,2,3,4')
+
+    def testLength(self):
+        value   = (1, 2, 3, 4)
+        result  = templatefilters.length(value)
+        self.assertResult('length(%s)' % str(value), result, 4)
+
+    def testFirst(self):
+        value   = (1, 2, 3, 4)
+        result  = templatefilters.first(value)
+        self.assertResult('first(%s)' % str(value), result, 1)
+        value   = {'first': 1, 'last': 4}
+        result  = templatefilters.first(value)
+        self.assertResult('first(%s)' % str(value), result, 1)
+
+    def testLast(self):
+        value   = (1, 2, 3, 4)
+        result  = templatefilters.last(value)
+        self.assertResult('last(%s)' % str(value), result, 4)
+        value   = {'first': 1, 'last': 4}
+        result  = templatefilters.last(value)
+        self.assertResult('last(%s)' % str(value), result, 4)
+
+    def testSort(self):
+        value   = (4, 5, 3, 1, 2)
+        result  = templatefilters.sort(value)
+        self.assertResult('sort(%s)' % str(value), result, [1, 2, 3, 4, 5])
+        result  = templatefilters.sort(value, order=True)
+        self.assertResult('sort(%s, order=True)' % str(value), result,
+                          [5, 4, 3, 2, 1])
+
+    def testDictSort(self):
+        value   = ({'name': 'first', 'age': 12},
+                   {'name': 'second', 'age': 10},
+                   {'name': 'third', 'age': 11})
+        result  = templatefilters.dictsort(value, 'age')
+        self.assertResult('dictsort(%s)' % str(value), result, 
+                          [{'name': 'second', 'age': 10},
+                           {'name': 'third', 'age': 11},
+                           {'name': 'first', 'age': 12}])
+        result  = templatefilters.dictsort(value, 'age', order=True)
+        self.assertResult('dictsort(%s, order=True)' % str(value), result,
+                          [{'name': 'first', 'age': 12},
+                           {'name': 'third', 'age': 11},
+                           {'name': 'second', 'age': 10}])
 
 
 def test():
@@ -73,4 +127,10 @@ def test():
     suite.addTest(DefaultFiltersTestCase('testLower'))
     suite.addTest(DefaultFiltersTestCase('testCapfirst'))
     suite.addTest(DefaultFiltersTestCase('testAddSlashes'))
+    suite.addTest(DefaultFiltersTestCase('testJoin'))
+    suite.addTest(DefaultFiltersTestCase('testLength'))
+    suite.addTest(DefaultFiltersTestCase('testFirst'))
+    suite.addTest(DefaultFiltersTestCase('testLast'))
+    suite.addTest(DefaultFiltersTestCase('testSort'))
+    suite.addTest(DefaultFiltersTestCase('testDictSort'))
     return suite
