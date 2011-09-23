@@ -16,6 +16,7 @@ Features:
 - Pure python
 - Simple and compact code
 - Template filters with multiply arguments
+- Basic template filters included (now just 14 template filters)
 - Simple but powerfull tag declaration - it's easy to create your own block 
   tags with writing single function
 - Custom template tags can modify template on fly
@@ -41,9 +42,8 @@ Example:
 TODO:
 -----
 
-- More default tags
-- More default filters
-- Variable arguments in filters (now all varaibles passed as strings)
+- More default tags (now there is no if, for, with and load tags)
+- More default filters (date formatiing, strings saving, etc.)
 - Some execution optimizations
-- More tests
+- More tests (in progress)
 - Documentation
