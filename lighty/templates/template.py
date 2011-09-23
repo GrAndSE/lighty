@@ -1,6 +1,7 @@
 """ Package provides template class """
 
 from collections import deque
+from decimal import Decimal
 try:
     import cStringIO as StringIO
 except:
@@ -75,19 +76,28 @@ class Template(object):
                 parsed = token.split(':')
                 if len(parsed) > 1:
                     filter, args_token = parsed
-                    args    = parse_token(args_token)
+                    args, types = parse_token(args_token)
                 else:
-                    filter  = parsed
-                    args    = ()
+                    filter      = parsed
+                    args, types = (), ()
             else:
                 filter = token
-                args = ()
-            filters.append((filter, args))
+                args, types = (), ()
+            filters.append((filter, args, types))
         def apply_filters(context):
             def apply_filter(value, pair):
-                filter, args = pair
-                return filter_manager.apply(filter, value, args, context)
-            filters.insert(0, Template.variable(variable)(context))
+                filter, args, types = pair
+                return filter_manager.apply(filter, value, args, types, context)
+            if variable[0] == '"' or variable[0] == "'":
+                if variable[0] == variable[-1]:
+                    filters.insert(0, variable[1:-1])
+                else:
+                    raise Exception('Template filter syntax error')
+            else:
+                try:
+                    filters.insert(0, Decimal(variable))
+                except:
+                    filters.insert(0, Template.variable(variable)(context))
             return str(reduce(apply_filter, filters))
         return apply_filters
         

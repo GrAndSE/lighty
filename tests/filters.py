@@ -33,6 +33,18 @@ class TemplateFiltersTestCase(unittest.TestCase):
         result = simple_template.execute({'simple_var': 'Hello'})
         self.assertResult(result, 'HELLO')
 
+    def testStringConstFilter(self):
+        simple_template = Template(name="consts-filter.html")
+        simple_template.parse('{{ "hello"|simple_filter }}')
+        result = simple_template.execute({})
+        self.assertResult(result, 'HELLO')
+
+    def testNumericConstFilter(self):
+        simple_template = Template(name="consts-filter.html")
+        simple_template.parse('{{ 1|simple_filter }}')
+        result = simple_template.execute({})
+        self.assertResult(result, '1')
+
     def testArgFilter(self):
         argument_template = Template(name='argument-filter.html')
         argument_template.parse('{{ simple_var|argument_filter:"world" }}')
@@ -66,6 +78,8 @@ class TemplateFiltersTestCase(unittest.TestCase):
 def test():
     suite = unittest.TestSuite()
     suite.addTest(TemplateFiltersTestCase('testSimpleFilter'))
+    suite.addTest(TemplateFiltersTestCase('testStringConstFilter'))
+    suite.addTest(TemplateFiltersTestCase('testNumericConstFilter'))
     suite.addTest(TemplateFiltersTestCase('testArgFilter'))
     suite.addTest(TemplateFiltersTestCase('testMultiargFilter'))
     suite.addTest(TemplateFiltersTestCase('testMultiFilter'))
