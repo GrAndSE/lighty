@@ -1,11 +1,32 @@
-# A relatively simple WSGI application. It's going to print out the
-# environment dictionary after being updated by setup_testing_defaults
-def handler(environ, start_response):
-    status = '200 OK'
-    headers = [('Content-type', 'text/plain')]
+from lighty.exceptions import ApplicationException, NotFoundException
 
-    start_response(status, headers)
 
-    ret = ["%s: %s\n" % (key, value)
-           for key, value in environ.iteritems()]
-    return ret
+class WSGIApplication(object):
+    '''Main application handler
+    '''
+
+    def __init__(self):
+        '''Create new application handler instance
+        '''
+        super(WSGIApplication, self).__init__()
+
+    
+    def handler(self, environ, start_response):
+        '''Basic function for responsing
+        '''
+        headers = [('Content-type', 'text/plain')]
+
+        try:
+            # Create new request and process middleware
+            status = '200 OK'
+            msg = 'All is fine'
+        except NotFoundException as exc:
+            status = '404 Page was now found'
+            msg = str(exc)
+        except ApplicationException as exc:
+            status = '500 Internal Server Error'
+            msg = str(exc)
+        finally:
+            start_response(status, headers)
+            return status + '\n' + msg
+
