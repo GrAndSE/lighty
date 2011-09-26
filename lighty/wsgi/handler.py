@@ -26,11 +26,10 @@ class WSGIApplication(object):
         '''
         headers = [('Content-type', 'text/plain')]
 
-
         try:
             # Create new request and process middleware
-            print environ
             view    = self.resolve(environ['PATH_INFO'])
+            if issubclass(view.__class__, Exception): raise view
             msg     = view()
             status  = '200 OK'
         except NotFoundException as exc:
@@ -45,4 +44,3 @@ class WSGIApplication(object):
         finally:
             start_response(status, headers)
             return status + '\n' + msg
-

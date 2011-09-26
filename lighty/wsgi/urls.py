@@ -6,7 +6,8 @@ from functools import partial
 
 PATH_PATTERN = re.compile('^(?P<module>(([\\w\\d]+\\.)*[\\w\\d]+))\\.(?P<function>([\\w\\d]+))$')
 
-from lighty.exceptions import ApplicationException
+from lighty.exceptions import ApplicationException, NotFoundException
+
 
 def load_view(view):
     '''Load view for name if needed
@@ -14,16 +15,16 @@ def load_view(view):
     if callable(view):
         return view
     elif not type(view) is str:
-        raise ApplicationException('Error url creation')
+        return ApplicationException('Error url creation')
     explain     = PATH_PATTERN.match(view)
     if not explain:
-        raise ApplicationException('%s could not be loaded' % view)
+        return ApplicationException('%s could not be loaded' % view)
     func_name   = explain.group('function')
     pack_name   = explain.group('module')
     module      = __import__(pack_name, globals(), locals(), func_name)
     func        = getattr(module, explain.group('function'))
     if not callable(func):
-        raise ApplicationException('%s.%s is not callable' % 
+        return ApplicationException('%s.%s is not callable' % 
                                     (pack_name, func_name))
     return func
 
@@ -44,3 +45,4 @@ def resolve(urls, path):
             call_args = copy.copy(args)
             call_args.update(match.groupdict())
             return partial(view, **call_args)
+    return NotFoundException('There is no pattern matching path %s' % path)
