@@ -41,11 +41,19 @@ class PatternMatchingTestCase(unittest.TestCase):
 
     def testCharArgUrl(self):
         func = resolve(self.urls, '/arg/a', method='GET').func
-        assert func == one_arg_func_char, 'Non char argument function for /arg/12'
+        assert func == one_arg_func_char, 'Non char argument function for /arg/a'
 
     def testStrArgUrl(self):
         func = resolve(self.urls, '/arg/a-1', method='GET').func
-        assert func == one_arg_func_str, 'Non str argument function for /arg/12'
+        assert func == one_arg_func_str, 'Non str argument function for /arg/a-1'
+
+    def testDefaultArgUrl(self):
+        func = resolve(self.urls, '/default_arg/adftr/', method='GET').func
+        assert func == one_arg_func, 'One arg function required for /default_arg/adftr/'
+
+    def testTwoArgUrl(self):
+        func = resolve(self.urls, '/args/test/7/', method='GET').func
+        assert func == two_arg_func, 'Two arg function required for /args/test/7/'
 
 
 def test():
@@ -55,4 +63,6 @@ def test():
     suite.addTest(PatternMatchingTestCase('testIntArgUrl'))
     suite.addTest(PatternMatchingTestCase('testFloatArgUrl'))
     suite.addTest(PatternMatchingTestCase('testStrArgUrl'))
+    suite.addTest(PatternMatchingTestCase('testDefaultArgUrl'))
+    suite.addTest(PatternMatchingTestCase('testTwoArgUrl'))
     return suite
