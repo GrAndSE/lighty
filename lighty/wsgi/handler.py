@@ -1,7 +1,9 @@
-from lighty.exceptions import ApplicationException, NotFoundException
+import sys, traceback
 
-from urls import resolve, url
 from functools import partial
+
+from lighty.exceptions import ApplicationException, NotFoundException
+from urls import resolve, url
 
 
 def test():
@@ -28,17 +30,21 @@ class WSGIApplication(object):
 
         try:
             # Create new request and process middleware
-            view    = self.resolve(environ['PATH_INFO'])
+            view    = self.resolve(environ['PATH_INFO'],
+                                   environ['REQUEST_METHOD'])
             if issubclass(view.__class__, Exception): raise view
             msg     = view()
             status  = '200 OK'
         except NotFoundException as exc:
+            traceback.print_exc(file=sys.stdout)
             status = '404 Page was now found'
             msg = str(exc)
         except ApplicationException as appexc:
+            traceback.print_exc(file=sys.stdout)
             status = '500 Internal Server Error'
             msg = appexc and str(appexc)
         except Exception as exc:
+            traceback.print_exc(file=sys.stdout)
             status = '500 Internal Server Error'
             msg = str(exc)
         finally:
