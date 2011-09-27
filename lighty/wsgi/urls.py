@@ -39,7 +39,7 @@ def escape_url(url):
 VARIABLE_PATTERN = re.compile('(<[\w_]+[:]?[\w]{0,5}>)')
 TYPE_PATTERNS = {
         'int':  '[\\d]+',
-        'str':  '[\\w\\d_\\-]+',
+        'str':  '[\\w\\d_\\-\\.\\,]+',
         'char': '[\\w\\d]',
         'float':'([\\d]+(\\.[\\d]*)?)',
 }
@@ -50,14 +50,14 @@ def make_pattern(url, constr):
         name, type  = ':' in actual and actual.split(':') or (actual, 'str')
         regexp      = name in constr and constr[name] or TYPE_PATTERNS[type]
         return url.replace(pattern, '(?P<%s>%s)' % (name, regexp))
-    return reduce(replace_pattern, [url] + VARIABLE_PATTERN.findall(url))
+    return reduce(replace_pattern, [url+'$'] + VARIABLE_PATTERN.findall(url))
 
 HTTP_METHODS = ['GET', 'POST', 'PUT', 'DELETE']
 
 def url(pattern, view, name='', args={}, constraints={}, methods=HTTP_METHODS):
     '''Prepare url for application
     '''
-    url_expr    = re.compile(pattern)
+    url_expr    = re.compile(make_pattern(pattern, constraints))
     view_func   = load_view(view)
     url_name    = name is not '' and name or view_func
     return url_expr, pattern, view_func, url_name, args, constraints, methods
