@@ -27,8 +27,7 @@ class WSGIApplication(object):
         '''Basic function for responsing
         '''
         # Create new request and process middleware
-        view    = self.resolve(environ['PATH_INFO'],
-                               environ['REQUEST_METHOD'])
+        view    = self.resolve(environ['PATH_INFO'], environ['REQUEST_METHOD'])
         response = Response(issubclass(view.__class__, Exception) and str(view)
                             or view())
         response.status = ((view.__class__ == NotFoundException and
