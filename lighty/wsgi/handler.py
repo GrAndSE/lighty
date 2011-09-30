@@ -1,10 +1,13 @@
 import sys, traceback
 
 from functools import partial
+from lighty.conf import settings
 
 from lighty.exceptions import ApplicationException, NotFoundException
 from urls import resolve, url
 
+
+settings.load_settings('settings')
 
 def test():
     return 'All ok'
