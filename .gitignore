@@ -2,3 +2,6 @@
 *.swp
 libs/
 apps/
+lighty/db
+lighty/templates
+settings.py
