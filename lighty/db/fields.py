@@ -8,6 +8,11 @@ from functor import BaseField, NumericField, SequenceField
 class Field(BaseField):
     '''Base field class
     '''
+    __slots__ = ('name', 'model', 'verbose_name', 'primary_key', 'db_index',
+                 'unique', 'blank', 'null', 'choices', 'default', 'editable',
+                 'error_messages', 'validators', 'help_text', 'db_column',
+                 'db_tablespace', 'unique_for_date', 'unique_for_month',
+                 'unique_for_year')
 
     def __init__(self, verbose_name=None, primary_key=False, db_index=False, 
                        unique=False, blank=False, null=False, 

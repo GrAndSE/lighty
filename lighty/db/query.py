@@ -15,10 +15,10 @@ class Query(object):
         self.operand    = operand
         if from_query is not None:
             self.model  = from_query.model
+        elif operand is not None:
+            self.model  = operand.model
         elif model is not None:
             self.model  = model
-        elif operand is not None:
-            raise NotImplemented('We also can get model from field data')
         else:
             raise AttributeError('Query requires model to be specified')
 

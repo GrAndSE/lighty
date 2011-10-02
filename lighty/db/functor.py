@@ -75,19 +75,19 @@ class SequenceField(BaseField):
 class FieldFunctor(BaseField):
     '''Class used to keep operations history
     '''
-    __slots__ = ('parent', 'operator', 'operand', 'model_class')
+    __slots__ = ('parent', 'operator', 'operand', 'model')
 
     def __init__(self, parent, operator, operand):
         super(FieldFunctor, self).__init__()
         if (issubclass(operand.__class__, BaseField) and 
-            parent.model_class == operand.model_class):
+            parent.model == operand.model):
             raise AttributeError('Different model classes %s and %s for '
-                                 'operator %s' % (parent.model_class,
-                                 operand.model_class, operator))
+                                 'operator %s' % (parent.model,
+                                 operand.model, operator))
         self.parent     = parent
         self.operator   = operator
         self.operand    = operand
-        self.model_class= parent.model_class
+        self.model      = parent.model
 
     def __and__(self, other):
         return self.create_functor('and', other)
