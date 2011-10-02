@@ -31,7 +31,7 @@ class ModelBase(type):
             return super_new(cls, name, bases, attrs)
         # 
         new_attrs = {}
-        new_attrs['_fields'] = {}
+        new_attrs['_fields'] = set()
         field_source = {}
 
         def get_attr_source(name, cls):
@@ -42,8 +42,7 @@ class ModelBase(type):
         defined = set()
         for parent in parents:
             if hasattr(parent, '_fields'):
-                field_keys = set(parent._fields.keys())
-                duplicate_field_keys = defined & field_keys
+                duplicate_field_keys = defined & parent._fields
                 for dupe_field_name in duplicate_field_keys:
                     field_source[dupe_field_name] = get_attr_source(
                                 dupe_field_name, field_source[dupe_field_name])
@@ -54,33 +53,30 @@ class ModelBase(type):
                                 'inherited from both %s and %s.'
                                 % (dupe_field_name, old_source.__name__, 
                                 new_source.__name__))
-                field_keys -= duplicate_field_keys
-                if field_keys:
-                    defined |= field_keys
-                    field_source.update(dict.fromkeys(field_keys, parent))
-                    new_attrs['_fields'].update(parent._fields)
+                defined |= parent._fields
+                field_source.update(dict.fromkeys(parent._fields, parent))
+                new_attrs.update(parent._fields)
 
         new_attrs['_key_name'] = None
 
         for attr_name in attrs.keys():
             attr = attrs[attr_name]
             if isinstance(attr, fields.Field):
-                #check_reserved_word(attr_name)
                 if attr_name in defined:
-                    raise DuplicateFieldError('Duplicate field: %s' % attr_name)
+                    raise DuplicateFieldError('Duplicate field: %s. It was ' 
+                                'defined in %s already' % (attr_name, 
+                                get_attr_source(attr_name, 
+                                                field_source[attr_name])))
                 defined.add(attr_name)
-                new_attrs['_fields'][attr_name] = attr
                 attr.__config__(cls, attr_name)
-                new_attrs[attr_name] = None
-            else:
-                new_attrs[attr_name] = attr
+            new_attrs[attr_name] = attr
+
+        new_attrs['_fields'] = defined
 
         # Initialize properties
         new_attrs['_unindexed_properties'] = frozenset(
-            new_attrs['_fields'][field].name
-            for field in new_attrs['_fields']
-            if not new_attrs['_fields'][field].primary_key and
-               not new_attrs['_fields'][field].db_index)
+            new_attrs[field].name for field in new_attrs['_fields']
+            if not (new_attrs[field].primary_key or new_attrs[field].db_index))
 
         # Create class instance
         return super_new(cls, name, bases, new_attrs)
