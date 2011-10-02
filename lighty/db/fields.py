@@ -2,8 +2,10 @@
 '''
 import lighty.validators
 
+from functor import BaseField, NumericField, SequenceField
 
-class Field(object):
+
+class Field(BaseField):
     '''Base field class
     '''
 
@@ -71,7 +73,7 @@ class Field(object):
 
 
 
-class IntegerField(Field):
+class IntegerField(Field, NumericField):
     '''An integer. The admin represents this as an <input type="text"> (a 
     single-line input).
     '''
@@ -131,7 +133,7 @@ class PositiveSmallIntegerField(PositiveIntegerField):
 
 
 
-class FloatField(Field):
+class FloatField(Field, NumericField):
 	'''
 	A floating-point number represented in Python by a float instance.
 
@@ -143,7 +145,7 @@ class FloatField(Field):
 
 
 
-class DecimalField(Field):
+class DecimalField(Field, NumericField):
 	'''
 	A fixed-precision decimal number, represented in Python by a Decimal 
 	instance.
@@ -193,7 +195,7 @@ class NullBooleanField(BooleanField):
 
 
 
-class CharField(Field):
+class CharField(Field, SequenceField):
     '''A string field, for small- to large-sized strings.
 
     For large amounts of text, use TextField.
@@ -353,7 +355,7 @@ class SlugField(CharField):
 
 
 
-class DateField(Field):
+class DateField(Field, NumericField):
     '''A date, represented in Python by a datetime.date instance. 
     '''
 
@@ -386,7 +388,7 @@ class DateField(Field):
 
 
 
-class DateTimeField(DateField):
+class DateTimeField(DateField, NumericField):
     '''A date and time, represented in Python by a datetime.datetime instance. 
     Takes the same extra arguments as DateField.
     '''
@@ -404,7 +406,7 @@ class DateTimeField(DateField):
         return datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
 
 
-class TimeField(DateField):
+class TimeField(DateField, NumericField):
     '''A time, represented in Python by a datetime.time instance. Accepts the 
     same auto-population options as DateField.
     '''
@@ -420,7 +422,7 @@ class TimeField(DateField):
         return strptime(value, "%H:%M:%S")
 
 
-class TextField(Field):
+class TextField(Field, SequenceField):
 	'''
 	A large text field. The admin represents this as a <textarea> (a 
 	multi-line input).

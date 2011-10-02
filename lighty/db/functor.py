@@ -25,6 +25,9 @@ class BaseField(object):
     def __ne__(self, other):
         return self.create_functor('!=', other)
 
+    def __add__(self, other):
+        return self.create_functor('+', other)
+
 
 class NumericField(BaseField):
     '''Base class for any numerical fields. It can be used to create:
@@ -33,9 +36,6 @@ class NumericField(BaseField):
         floats
         decimals
     '''
-    def __add__(self, other):
-        return self.create_functor('+', other)
-
     def __sub__(self, other):
         return self.create_functor('-', other)
 
