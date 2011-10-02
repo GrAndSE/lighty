@@ -125,7 +125,13 @@ class Model(object):
         self._app       = None
         self._key_name  = key_name or '_id'
         self._is_saved  = not is_new
+        # Update value
         self.__dict__.update(kwds)
+        # Set the default values for unsetted fields
+        cls = self.__class__
+        for field_name in self._fields:
+            if field_name not in kwds:
+                self.__dict__[field_name] = cls.__dict__[field_name].default
 
     def key(self):
         """Unique key for this entity.
