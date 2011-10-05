@@ -1,4 +1,4 @@
-import fields
+import fields, query
 
 
 class DuplicateFieldError(Exception):
@@ -57,7 +57,7 @@ class ModelBase(type):
                 field_source.update(dict.fromkeys(parent._fields, parent))
                 new_attrs.update(parent._fields)
 
-        new_attrs['_key_name'] = None
+        new_attrs['_key_name']  = None
 
         for attr_name in attrs.keys():
             attr = attrs[attr_name]
@@ -69,6 +69,9 @@ class ModelBase(type):
                                                 field_source[attr_name])))
                 defined.add(attr_name)
                 attr.__config__(cls, attr_name)
+            elif isinstance(attr, type) and issubclass(attr, query.Query):
+                new_attrs[attr_name] = attr(model=name)
+                continue
             new_attrs[attr_name] = attr
 
         new_attrs['_fields'] = defined
@@ -97,6 +100,7 @@ class Model(object):
     """
 
     __metaclass__ = ModelBase
+
 
     def __init__(self, key_name=None, is_new=True, **kwds):
         """Creates a new instance of this model.

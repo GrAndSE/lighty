@@ -60,10 +60,10 @@ class Field(BaseField):
                     self.unique_for_month 	= False
                     self.unique_for_year 	= unique_for_year
 
-    def __config__(self, model_class, field_name):
+    def __config__(self, model_name, field_name):
         """
         """
-        self.model = model_class
+        self.model = model_name
         self.name  = field_name
 
     def get_value_for_datastore(self, model):
