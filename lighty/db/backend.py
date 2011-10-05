@@ -21,17 +21,12 @@ class Datastore(object):
     def get(self, model, **kwargs):
         '''Get item using number of arguments
         '''
-        return self.db[model].find_one(**kwargs)
+        return self.db[model.entity_name].find_one(**kwargs)
 
     def put(self, model, item):
         '''Put item into datastore
         '''
-        return self.db[model].save(item)
-
-    def find(self, model, **kwargs):
-        '''Get items for parameters
-        '''
-        return self.db[model].find(**kwargs)
+        return self.db[model.entity_name()].save(item)
 
     @staticmethod
     def get_datastore_operation(operation):
@@ -77,9 +72,9 @@ class Datastore(object):
                 query.dist | distinct)
 
     def query(self, query, fields=None):
-        items = (fields is None and self.db[query.model].find() or
-                 self.db[query.model].find({}, dict([(field_name, 1) 
-                                                for field_name in fields])))
+        items = (fields is None and self.db[query.model.entity_name()].find()
+                 or self.db[query.model.entity_name()].find({}, 
+                            dict([(field_name, 1) for field_name in fields])))
         query_string, distinct = Datastore.build_query(query)
         if query_string:
             items = items.where(query_string)

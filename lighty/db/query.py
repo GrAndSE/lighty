@@ -81,10 +81,16 @@ class Query(object):
         '''
         return self.__iter__()
 
+    def values(self, fields):
+        '''Return's dictionary of fields for specified model
+        '''
+        return
+
     def __iter__(self):
         '''Returns and iterator throuch data from datastore
         '''
-        return datastore.query(self).__iter__()
+        for item in datastore.query(self):
+            yield self.model(item)
 
     def __getslice__(self, i, j):
         return datastore.slice(self, i, j)

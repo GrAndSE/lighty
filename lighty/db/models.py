@@ -70,9 +70,6 @@ class ModelBase(type):
                                                 field_source[attr_name])))
                 defined.add(attr_name)
                 attr.__config__(cls, attr_name)
-            elif isinstance(attr, type) and issubclass(attr, query.Query):
-                new_attrs[attr_name] = attr(model=name)
-                continue
             new_attrs[attr_name] = attr
 
         new_attrs['_fields'] = defined
@@ -170,7 +167,7 @@ class Model(object):
         """
         fields = dict([(field, self.__dict__[field]) 
                        for field in self._fields])
-        datastore.put(self.__class__.__name__, fields)
+        datastore.put(self.__class__, fields)
         return self
     save = put
 
@@ -184,6 +181,13 @@ class Model(object):
             TransactionFailedError if the data could not be committed.
         """
         raise NotImplemented
+
+    @classmethod
+    def entity_name(cls):
+        '''Get the table name
+        '''
+        return (hasattr(cls, '_app') and '%s_%s' % (cls._app, cls.__name__) or
+                cls.__name__)
 
     @classmethod
     def get(cls, keys):
@@ -208,10 +212,6 @@ class Model(object):
             provided class if it exists in the datastore, otherwise None; 
             if a list of keys was given: a list whose items are either a Model 
             instance or None.
-
-        Raises:
-            KindError if any of the retreived objects are not instances of the
-            type associated with call to 'get'.
         """
         raise NotImplemented
 
@@ -222,7 +222,7 @@ class Model(object):
         Returns:
             Query that will retrieve all instances from entity collection.
         """
-        return cls.objects.all(cls, **kwds)
+        return query.Query(model=cls)
 
     @classmethod
     def fields(cls):
