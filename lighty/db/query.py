@@ -18,7 +18,7 @@ class Query(object):
         self.dist       = False
         if from_query is not None:
             self.model  = from_query.model
-            self.dist   = from_query.distinct
+            self.dist   = from_query.dist
         elif operand is not None:
             self.model  = operand.model
         elif model is not None:

@@ -23,6 +23,11 @@ class Datastore(object):
         '''
         return self.db[model].find_one(**kwargs)
 
+    def put(self, model, item):
+        '''Put item into datastore
+        '''
+        return self.db[model].save(item)
+
     def find(self, model, **kwargs):
         '''Get items for parameters
         '''
@@ -66,15 +71,19 @@ class Datastore(object):
                 return '%s (%s)' % (
                             Datastore.get_datastore_operation(query.operation),
                             Datastore.process_operand(query.operand))
-            return operand, query.distinct
+            return operand, query.dist
         source_query, distinct = Datastore.build_query(query.from_query)
         return ('(%s) %s %s' % (source_query, operand, operand), 
-                query.distinct | distinct)
+                query.dist | distinct)
 
-    def query(self, query):
-        items = self.db[query.model].find()
-        query, distinct = Datastore.build_query(query)
-        return distinct and items.where(query).distinct('_id') or items.where(query)
+    def query(self, query, fields=None):
+        items = (fields is None and self.db[query.model].find() or
+                 self.db[query.model].find({}, dict([(field_name, 1) 
+                                                for field_name in fields])))
+        query_string, distinct = Datastore.build_query(query)
+        if query_string:
+            items = items.where(query_string)
+        return distinct and items.distinct('_id') or items
 
     def count(self, query, count):
         return self.query(query).count()

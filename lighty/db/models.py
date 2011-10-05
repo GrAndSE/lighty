@@ -1,4 +1,5 @@
 import fields, query
+from backend import datastore
 
 
 class DuplicateFieldError(Exception):
@@ -167,8 +168,10 @@ class Model(object):
         Raises:
             TransactionFailedError if the data could not be committed.
         """
-        raise NotImplemented
-
+        fields = dict([(field, self.__dict__[field]) 
+                       for field in self._fields])
+        datastore.put(self.__class__.__name__, fields)
+        return self
     save = put
 
     def delete(self, **kwargs):
