@@ -80,7 +80,7 @@ class FieldFunctor(BaseField):
     def __init__(self, parent, operator, operand):
         super(FieldFunctor, self).__init__()
         if (issubclass(operand.__class__, BaseField) and 
-            parent.model == operand.model):
+            parent.model != operand.model):
             raise AttributeError('Different model classes %s and %s for '
                                  'operator %s' % (parent.model,
                                  operand.model, operator))
@@ -90,10 +90,10 @@ class FieldFunctor(BaseField):
         self.model      = parent.model
 
     def __and__(self, other):
-        return self.create_functor('and', other)
+        return self.create_functor('&', other)
 
     def __or__(self, other):
-        return self.create_functor('or', other)
+        return self.create_functor('|', other)
 
     def __xor__(self, other):
         return self.create_functor('xor', other)

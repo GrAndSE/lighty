@@ -69,7 +69,7 @@ class ModelBase(type):
                                 get_attr_source(attr_name, 
                                                 field_source[attr_name])))
                 defined.add(attr_name)
-                attr.__config__(cls, attr_name)
+                attr.__config__(name, attr_name)
             new_attrs[attr_name] = attr
 
         new_attrs['_fields'] = defined

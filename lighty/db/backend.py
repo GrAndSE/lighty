@@ -34,6 +34,11 @@ class Datastore(object):
                 OR:     '||',
                 AND:    '&&',
                 NOT:    '!',
+                '>':    '>',
+                '<':    '<',
+                '>=':   '>=',
+                '<=':   '<=',
+                '==':   '=='
         }
         return operator_matching[operation]
 
@@ -47,12 +52,12 @@ class Datastore(object):
             return operand
         elif isinstance(operand, float):
             return operand
-        elif isinstance(operand.__class__, Field):
+        elif issubclass(operand.__class__, Field):
             return 'this.' + operand.name
         elif issubclass(operand.__class__, FieldFunctor):
-            operand = Datastore.process_operand(operand.operand)
-            operator= Datastore.get_datastore_operation(operand.operator)
             parent  = Datastore.process_operand(operand.parent)
+            operator= Datastore.get_datastore_operation(operand.operator)
+            operand = Datastore.process_operand(operand.operand)
             return "(%s %s %s)" % (parent, operator, operand)
         else:
             raise AttributeError('Unsupported type %s' % str(type(operand)))
@@ -62,29 +67,32 @@ class Datastore(object):
         operation   = Datastore.get_datastore_operation(query.operation)
         operand     = Datastore.process_operand(query.operand)
         if query.from_query is None:
+            source_query, distinct, order = '', query.dist, query.order
+        else:
+            source_query, distinct, order = Datastore.build_query(
+                                                            query.from_query)
+        if not source_query:
             if operation == NOT:
-                return '%s (%s)' % (
+                return ('%s (%s)' % (
                             Datastore.get_datastore_operation(query.operation),
-                            Datastore.process_operand(query.operand))
-            return operand, query.dist
-        source_query, distinct = Datastore.build_query(query.from_query)
-        return ('(%s) %s %s' % (source_query, operand, operand), 
-                query.dist | distinct)
+                            Datastore.process_operand(query.operand)),
+                        distinct, order)
+            return operand, distinct, order
+        return ('(%s) %s %s' % (source_query, operation, operand),
+                distinct, order)
 
     def query(self, query, fields=None):
         items = (fields is None and self.db[query.model.entity_name()].find()
                  or self.db[query.model.entity_name()].find({}, 
                             dict([(field_name, 1) for field_name in fields])))
-        query_string, distinct = Datastore.build_query(query)
+        query_string, distinct, order = Datastore.build_query(query)
         if query_string:
             items = items.where(query_string)
-        return distinct and items.distinct('_id') or items
+        items = distinct and items.distinct('_id') or items
+        return order and items.sort([(f.name, 1) for f in order]) or items
 
     def count(self, query, count):
         return self.query(query).count()
-
-    def order_by(self, query, ordering):
-        return self.query(query).sort(ordering)
 
     def slice(self, query, limit=1, offset=0):
         return self.query(query).skip(offset).limit(limit)
