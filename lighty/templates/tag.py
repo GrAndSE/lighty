@@ -4,6 +4,7 @@ VARIABLE    = 0
 STRING      = 1
 NUMBER      = 2
 
+
 def parse_token(token):
     tokens = []
     token_types = []
@@ -100,14 +101,15 @@ class TagManager(object):
         """Execute tag 
         """
         tag = self.is_tag_exists(name)
-        args = {
-            'token': token
-        }
-        if tag[1]: args['block']    = block
-        if tag[2]: args['context']  = context
-        if tag[3]: args['template'] = template
-        if tag[4]: args['loader']   = loader
+        args = {'token': token}
+        if tag[1]:
+            args['block'] = block
+        if tag[2]:
+            args['context'] = context
+        if tag[3]:
+            args['template'] = template
+        if tag[4]:
+            args['loader'] = loader
         return tag[0](**args)
-
 
 tag_manager = TagManager()

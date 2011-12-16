@@ -20,22 +20,22 @@ from tag import tag_manager, parse_token
 class Template(object):
     """Class represents template
     """
-    TEXT    = 1
-    TOKEN   = 2
-    ECHO    = 3
-    FILTER  = 4
-    TAG     = 5
-    STRING  = 6
-    CLOSE   = 7
+    TEXT = 1
+    TOKEN = 2
+    ECHO = 3
+    FILTER = 4
+    TAG = 5
+    STRING = 6
+    CLOSE = 7
 
     def __init__(self, loader=TemplateLoader(), name="unnamed"):
         """Create new template instance
         """
         super(Template, self).__init__()
-        self.loader     = loader
-        self.name       = name
-        self.commands   = []
-        self.context    = {}
+        self.loader = loader
+        self.name = name
+        self.commands = []
+        self.context = {}
         self.loader.register(name, self)
 
     @staticmethod
@@ -44,7 +44,7 @@ class Template(object):
             return getattr(obj, field)
         elif hasattr(obj, '__getitem__') and hasattr(obj, '__contains__'):
             return obj[field]
-        raise Exception, 'Could not get %s from %s' % (field, obj)
+        raise Exception('Could not get %s from %s' % (field, obj))
 
     @staticmethod
     def variable(name):
@@ -54,7 +54,7 @@ class Template(object):
                 fields[0] = context[fields[0]]
                 return reduce(Template.get_field, fields)
         else:
-            def print_value(context): 
+            def print_value(context):
                 return context[name]
         return print_value
 
@@ -68,9 +68,9 @@ class Template(object):
     def filter(value):
         '''Parse the tamplte filter
         '''
-        parts   = value.split('|')
-        variable= parts[0]
+        parts = value.split('|')
         filters = []
+        variable = parts[0]
         for token in parts[1:]:
             if ':' in token:
                 parsed = token.split(':')
@@ -78,16 +78,18 @@ class Template(object):
                     filter, args_token = parsed
                     args, types = parse_token(args_token)
                 else:
-                    filter      = parsed
+                    filter = parsed
                     args, types = (), ()
             else:
                 filter = token
                 args, types = (), ()
             filters.append((filter, args, types))
+
         def apply_filters(context):
             def apply_filter(value, pair):
                 filter, args, types = pair
-                return filter_manager.apply(filter, value, args, types, context)
+                return filter_manager.apply(filter, value, args, types,
+                                            context)
             if variable[0] == '"' or variable[0] == "'":
                 if variable[0] == variable[-1]:
                     filters.insert(0, variable[1:-1])
@@ -100,15 +102,15 @@ class Template(object):
                     filters.insert(0, Template.variable(variable)(context))
             return str(reduce(apply_filter, filters))
         return apply_filters
-        
+
     def tag(self, name, token, block):
         if tag_manager.is_lazy_tag(name):
             def execute_tag(context):
-                return tag_manager.execute(name, token, context, block, 
-                                           self, self.loader)
+                return tag_manager.execute(name, token, context, block, self,
+                                           self.loader)
             return execute_tag
         else:
-            result = tag_manager.execute(name, token, self.context, block, 
+            result = tag_manager.execute(name, token, self.context, block,
                                          self, self.loader)
             if callable(result):
                 return result
@@ -117,13 +119,13 @@ class Template(object):
 
     def parse(self, text):
         """Parse template string and create appropriate command list into this
-        template instance 
+        template instance
         """
         current = Template.TEXT
-        token   = ''
-        cmds    = self.commands
-        cmd_stack   = deque()
-        tag_stack   = deque()
+        token = ''
+        cmds = self.commands
+        cmd_stack = deque()
+        tag_stack = deque()
         token_stack = deque()
         for char in text:
             if current == Template.TEXT:
@@ -141,7 +143,7 @@ class Template(object):
                     current = Template.TAG
                 else:
                     current = Template.TEXT
-                    token = '{'+str(char)
+                    token = '{' + str(char)
             elif current == Template.ECHO or current == Template.FILTER:
                 if char == '}':
                     if len(token) > 0:
@@ -161,19 +163,21 @@ class Template(object):
             elif current == Template.TAG:
                 if char == '%':
                     current = Template.CLOSE
-                    token   = token.strip()
-                    name    = token.split(' ', 1)[0]
+                    token = token.strip()
+                    name = token.split(' ', 1)[0]
                     if name.startswith('end'):
-                        name    = name[3:]
-                        tag     = tag_stack.pop()
+                        name = name[3:]
+                        tag = tag_stack.pop()
                         # Close block
                         if name == tag:
-                            block   = cmds
-                            cmds    = cmd_stack.pop()
-                            token   = token_stack.pop()
+                            block = cmds
+                            cmds = cmd_stack.pop()
+                            token = token_stack.pop()
                             cmds.append(self.tag(name, token, block))
                         else:
-                            raise Exception("Invalid closing tag: 'end%s' except 'end%s'" % (name, tag))
+                            raise Exception(
+                                "Invalid closing tag: 'end%s' except 'end%s'" %
+                                (name, tag))
                     else:
                         if ' ' in token:
                             token = token.split(' ', 1)[1]

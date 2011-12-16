@@ -7,8 +7,8 @@ def block(token, block, template, loader):
     """Block tag
     """
     # Create inner template for blocks
-    tmpl            = Template(loader)
-    tmpl.commands   = block
+    tmpl = Template(loader)
+    tmpl.commands = block
 
     # Add template block into list
     if not hasattr(template, 'blocks'):
@@ -52,5 +52,23 @@ tag_manager.register(
         tag=extend,
         template_required=True,
         loader_required=True,
+        is_lazy_tag=False
+)
+
+
+def if_tag(token, block, context):
+    """If tag
+    """
+    tokens = parse_token(token)[0]
+    print tokens
+    return None
+
+tag_manager.register(
+        name='if',
+        tag=if_tag,
+        is_block_tag=True,
+        context_required=True,
+        template_required=False,
+        loader_required=False,
         is_lazy_tag=False
 )
