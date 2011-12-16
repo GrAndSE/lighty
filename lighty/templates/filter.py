@@ -1,13 +1,14 @@
 """Package provides template filters management
 """
 
+
 class FilterManager(object):
     """Class used for filters manipulations
     """
     __slots__ = ('apply', 'filters', 'is_filter_exists', )
 
     def __init__(self):
-        """Create new tag managet instance 
+        """Create new tag managet instance
         """
         super(FilterManager, self).__init__()
         self.filters = {}
@@ -34,6 +35,5 @@ class FilterManager(object):
             new_args.append(arg_types[i] and args[i] or context[args[i]])
             i += 1
         return filter_func(value, *new_args)
-
 
 filter_manager = FilterManager()

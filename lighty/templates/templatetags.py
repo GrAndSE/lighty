@@ -15,7 +15,7 @@ def block(token, block, template, loader):
         template.blocks = {}
     is_new = token not in template.blocks
     template.blocks[token] = tmpl
-    
+
     # Add function that executes inner template into commands
     if is_new:
         return template.blocks[token]
@@ -25,8 +25,8 @@ def block(token, block, template, loader):
         return lambda context: ''
 
 tag_manager.register(
-        name='block', 
-        tag=block, 
+        name='block',
+        tag=block,
         is_block_tag=True,
         context_required=False,
         template_required=True,
@@ -60,8 +60,15 @@ def if_tag(token, block, context):
     """If tag
     """
     tokens = parse_token(token)[0]
-    print tokens
-    return None
+    fields = tokens[0].split('.')
+    if len(fields) > 1:
+        fields[0] = context[fields[0]]
+        value = reduce(Template.get_field, fields)
+    else:
+        value = context[tokens[0]]
+    if value:
+        return "".join([command(context) for command in block])
+    return ''
 
 tag_manager.register(
         name='if',
@@ -70,5 +77,5 @@ tag_manager.register(
         context_required=True,
         template_required=False,
         loader_required=False,
-        is_lazy_tag=False
+        is_lazy_tag=True
 )
