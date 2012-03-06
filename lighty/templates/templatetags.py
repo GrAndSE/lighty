@@ -84,6 +84,33 @@ tag_manager.register(
 
 def for_tag(token, block, context):
     """For tag
+
+    Example:
+
+        {% for a in items %}{{ a }}{% endfor %}
+
+    returns for items = [1, 2, 3]:
+        
+        123
+
+    Also forloop variable will be added into scope. It contains few flags can
+    be used to render customized templates
+
+        {% for a in items %}
+            {% spaceless %}<span
+                    {% if forloop.first %} class="first"{% endif %}
+                    {% if forloop.last %} class="last"{% endif %}>
+                {{ forloop.counter0 }}. 
+                {{ forloop.counter }} from {{ forloop.total }}
+            </span>{% endspaceless %}
+        {% endfor %}
+
+    returns
+
+        <span class="first">0. 1 from 3</span>
+        <span>1. 2 from 3</span>
+        <span class="last">2. 3 from 3</span>
+
     """
     var_name, _, data_field = parse_token(token)[0]
     fields = data_field.split('.')
@@ -95,9 +122,17 @@ def for_tag(token, block, context):
     if values:
         new_context = {}
         new_context.update(context)
+        length = len(values)
+        forloop = {'first': True, 'last': length == 1, 'total': length,
+                   'counter0': 0, 'counter': 1}
+        new_context['forloop'] = forloop
         results = []
         for v in values:
             new_context[var_name] = v
+            forloop['counter'] += 1
+            forloop['counter0'] += 1
+            forloop['first'] = False
+            forloop['last'] = forloop['counter'] < length
             results.append("".join([command(new_context)
                                     for command in block]))
         return "".join(results)
