@@ -1,4 +1,5 @@
-""" Basic tags library """
+"""Basic template tags library
+"""
 from template import Template
 from tag import tag_manager, parse_token
 
@@ -73,6 +74,38 @@ def if_tag(token, block, context):
 tag_manager.register(
         name='if',
         tag=if_tag,
+        is_block_tag=True,
+        context_required=True,
+        template_required=False,
+        loader_required=False,
+        is_lazy_tag=True
+)
+
+
+def for_tag(token, block, context):
+    """For tag
+    """
+    var_name, _, data_field = parse_token(token)[0]
+    fields = data_field.split('.')
+    if len(fields) > 1:
+        fields[0] = context[fields[0]]
+        values = reduce(Template.get_field, fields)
+    else:
+        values = context[data_field]
+    if values:
+        new_context = {}
+        new_context.update(context)
+        results = []
+        for v in values:
+            new_context[var_name] = v
+            results.append("".join([command(new_context)
+                                    for command in block]))
+        return "".join(results)
+    return ''
+
+tag_manager.register(
+        name='for',
+        tag=for_tag,
         is_block_tag=True,
         context_required=True,
         template_required=False,

@@ -16,12 +16,21 @@ class DefaultTagsTestCase(unittest.TestCase):
     def testSimpleIf(self):
         template = Template()
         template.parse('{% if a %}Foo{% endif %}')
-        true_context = {'a': 1}
-        result = template(true_context)
+        result = template({'a': 1})
         self.assertResult('if', result.strip(), 'Foo')
+        result = template({'a': 0})
+        self.assertResult('if', result.strip(), '')
+
+    def testSimpleFor(self):
+        template = Template()
+        template.parse('{% for a in list %}{{ a }} {% endfor %}')
+        result = template({'list': [1, 2, 3, 4, 5]})
+        self.assertResult('for', result.strip(), '1 2 3 4 5')
+
 
 
 def test():
     suite = unittest.TestSuite()
     suite.addTest(DefaultTagsTestCase('testSimpleIf'))
+    suite.addTest(DefaultTagsTestCase('testSimpleFor'))
     return suite
