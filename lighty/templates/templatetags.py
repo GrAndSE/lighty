@@ -58,7 +58,7 @@ tag_manager.register(
 )
 
 
-def spaceless(block, context):
+def spaceless(token, block, context):
     """This tag removes unused spaces
 
     Template
@@ -73,9 +73,18 @@ def spaceless(block, context):
         Some text
 
     """
-    return "".join([line.lstrip()
-                    for line in chain([command(context).split('\n')
-                                       for command in block])])
+    results = [command(context).split('\n') for command in block]
+    return "".join([line.lstrip() for line in chain(*results)])
+
+tag_manager.register(
+        name='spaceless',
+        tag=spaceless,
+        is_block_tag=True,
+        context_required=True,
+        template_required=False,
+        loader_required=False,
+        is_lazy_tag=True
+)
 
 
 def if_tag(token, block, context):

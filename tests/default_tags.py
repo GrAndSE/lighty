@@ -13,6 +13,18 @@ class DefaultTagsTestCase(unittest.TestCase):
         assert result == value, 'Error on tag "%s" applying to: %s' % (
                            name, ' '.join((str(result), 'except', str(value))))
 
+    def testSpacelless(self):
+        template = Template()
+        template.parse('''{% spaceless %}
+                        Some 
+                            broken 
+                    text
+                {% endspaceless %}''')
+        result = template({})
+        right = 'Some broken text'
+        assert result == right, 'Spaceless tag error:\n%s' % (
+                                    "\n".join(result, 'except', right))
+
     def testSimpleIf(self):
         template = Template()
         template.parse('{% if a %}Foo{% endif %}')
@@ -31,6 +43,7 @@ class DefaultTagsTestCase(unittest.TestCase):
 
 def test():
     suite = unittest.TestSuite()
+    suite.addTest(DefaultTagsTestCase('testSpacelless'))
     suite.addTest(DefaultTagsTestCase('testSimpleIf'))
     suite.addTest(DefaultTagsTestCase('testSimpleFor'))
     return suite
