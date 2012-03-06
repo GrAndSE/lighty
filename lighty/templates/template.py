@@ -52,10 +52,10 @@ class Template(object):
         if len(fields) > 1:
             def print_value(context):
                 fields[0] = context[fields[0]]
-                return reduce(Template.get_field, fields)
+                return str(reduce(Template.get_field, fields))
         else:
             def print_value(context):
-                return context[name]
+                return str(context[name])
         return print_value
 
     @staticmethod
