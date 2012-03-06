@@ -1,5 +1,6 @@
 """Basic template tags library
 """
+from itertools import chain
 from template import Template
 from tag import tag_manager, parse_token
 
@@ -57,8 +58,37 @@ tag_manager.register(
 )
 
 
+def spaceless(block, context):
+    """This tag removes unused spaces
+
+    Template
+        
+        {% spaceless %}
+            Some
+                    text
+        {% endspaceless %}
+
+    will be rendered to:
+        
+        Some text
+
+    """
+    return "".join([line.lstrip()
+                    for line in chain([command(context).split('\n')
+                                       for command in block])])
+
+
 def if_tag(token, block, context):
-    """If tag
+    """If tag can brings some logic into template.
+
+    Example:
+
+        {% if user.is_authenticated %}Hello, {{ user.name }}!{% endif %}
+
+    TODO:
+        
+        - add else
+        - add conditions
     """
     tokens = parse_token(token)[0]
     fields = tokens[0].split('.')
