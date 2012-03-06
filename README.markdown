@@ -14,6 +14,8 @@ Features:
 
 - Stupid simple syntax almost compatible with django-template
 - Pure python
+- Fast. Looks ten times faster than django-template and four times faster than
+  jinja2
 - Simple and compact code
 - Template filters with multiply arguments
 - Basic template filters included (now just 14 template filters)

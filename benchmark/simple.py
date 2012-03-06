@@ -14,5 +14,5 @@ print_time('lighty', timeit.repeat("template.execute({'name': 'John Doe'})",
 
 print_time('django', timeit.repeat("template.render(context)",
     "import djangohelper; from django.template import Context, Template; " +
-    "template = Template(%s); " % template + 
+    "template = Template(%s); " % template +
     "context = Context({'name': 'John Doe'})", repeat=5, number=10000))

@@ -10,9 +10,11 @@ def simple_filter(value):
     return str(value).upper()
 filter_manager.register(simple_filter)
 
+
 def argument_filter(value, arg):
     return str(value) + ', ' + str(arg)
 filter_manager.register(argument_filter)
+
 
 def multiarg_filter(value, *args):
     return ', '.join([str(arg) for arg in (value, ) + args])

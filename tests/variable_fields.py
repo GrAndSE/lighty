@@ -33,7 +33,7 @@ class VariableFieldTestCase(unittest.TestCase):
         self.assertResult(result)
 
     def testDictValue(self):
-        obj = {'field': self.value }
+        obj = {'field': self.value}
         result = self.object_field_template.execute({'object': obj})
         self.assertResult(result)
 

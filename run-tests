@@ -1,14 +1,16 @@
 #!/usr/bin/python
+
 if __name__ == "__main__":
-    import sys, unittest
+    import sys
+    import unittest
 
     runner = unittest.TextTestRunner(verbosity=2)
 
     arg_num = 1
     while arg_num < len(sys.argv):
-        name = 'tests.'+sys.argv[arg_num]
-        module      = __import__(name, globals(), locals(), 'test')
-        function    = getattr(module, 'test')
+        name = 'tests.' + sys.argv[arg_num]
+        module = __import__(name, globals(), locals(), 'test')
+        function = getattr(module, 'test')
         if not callable(function):
             raise AttributeError('%s.%s is not callable' % (name, 'test'))
 

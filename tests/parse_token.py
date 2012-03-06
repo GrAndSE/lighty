@@ -4,6 +4,7 @@ import unittest
 
 from lighty.templates.tag import parse_token, VARIABLE, STRING, NUMBER
 
+
 class ParseTokenTestCase(unittest.TestCase):
     ''' Test form fields '''
 

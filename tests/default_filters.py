@@ -21,96 +21,96 @@ class DefaultFiltersTestCase(unittest.TestCase):
         self.assertResult('sum', result, 10)
 
     def testFloatFormat(self):
-        value   = '12.45'
-        result  = templatefilters.floatformat(value)
+        value = '12.45'
+        result = templatefilters.floatformat(value)
         self.assertResult('floatformat("%s")' % value, result, '12')
-        result  = templatefilters.floatformat(value, '1')
+        result = templatefilters.floatformat(value, '1')
         self.assertResult('floatformat("%s")' % value, result, '12.4')
-        result  = templatefilters.floatformat(value, '4')
+        result = templatefilters.floatformat(value, '4')
         self.assertResult('floatformat("%s")' % value, result, '12.4500')
-        result  = templatefilters.floatformat(value, '-4')
+        result = templatefilters.floatformat(value, '-4')
         self.assertResult('floatformat("%s")' % value, result, '12.45')
 
     def testFloatRound(self):
-        value   = '12.45'
-        result  = templatefilters.floatround(value)
+        value = '12.45'
+        result = templatefilters.floatround(value)
         self.assertResult('floatround("%s")' % value, result, Decimal('12'))
-        result  = templatefilters.floatround(value, '1')
+        result = templatefilters.floatround(value, '1')
         self.assertResult('floatround("%s")' % value, result, Decimal('12.5'))
 
     # string filters
 
     def testUpper(self):
-        result  = templatefilters.upper('hello')
+        result = templatefilters.upper('hello')
         self.assertResult('upper("hello")', result, 'HELLO')
 
     def testLower(self):
-        result  = templatefilters.lower('hello')
+        result = templatefilters.lower('hello')
         self.assertResult('lower("HELLO")', result, 'hello')
 
     def testCapfirst(self):
-        result  = templatefilters.capfirst('hello')
+        result = templatefilters.capfirst('hello')
         self.assertResult('capfirst("hello")', result, 'Hello')
 
     def testAddSlashes(self):
-        value   = '"Hello\\goodbue \'master\'"'
-        result  = templatefilters.addslashes(value)
-        expected= '\\"Hello\\\\goodbue \\\'master\\\'\\"'
+        value = '"Hello\\goodbue \'master\'"'
+        result = templatefilters.addslashes(value)
+        expected = '\\"Hello\\\\goodbue \\\'master\\\'\\"'
         self.assertResult('addslashes("%s")' % value, result, expected)
 
     def testStringFormat(self):
-        format  = '4f'
-        value   = 3.14
-        name    = 'stringformat(%s, "%s")' % (value, format)
-        result  = templatefilters.stringformat(value, format)
+        format = '4f'
+        value = 3.14
+        name = 'stringformat(%s, "%s")' % (value, format)
+        result = templatefilters.stringformat(value, format)
         self.assertResult(name, result, '%4f' % value)
 
     # list filters
 
     def testJoin(self):
-        value   = (1, 2, 3, 4)
-        result  = templatefilters.join(value, ',')
+        value = (1, 2, 3, 4)
+        result = templatefilters.join(value, ',')
         self.assertResult('join(%s)' % str(value), result, '1,2,3,4')
 
     def testLength(self):
-        value   = (1, 2, 3, 4)
-        result  = templatefilters.length(value)
+        value = (1, 2, 3, 4)
+        result = templatefilters.length(value)
         self.assertResult('length(%s)' % str(value), result, 4)
 
     def testFirst(self):
-        value   = (1, 2, 3, 4)
-        result  = templatefilters.first(value)
+        value = (1, 2, 3, 4)
+        result = templatefilters.first(value)
         self.assertResult('first(%s)' % str(value), result, 1)
-        value   = {'first': 1, 'last': 4}
-        result  = templatefilters.first(value)
+        value = {'first': 1, 'last': 4}
+        result = templatefilters.first(value)
         self.assertResult('first(%s)' % str(value), result, 1)
 
     def testLast(self):
-        value   = (1, 2, 3, 4)
-        result  = templatefilters.last(value)
+        value = (1, 2, 3, 4)
+        result = templatefilters.last(value)
         self.assertResult('last(%s)' % str(value), result, 4)
-        value   = {'first': 1, 'last': 4}
-        result  = templatefilters.last(value)
+        value = {'first': 1, 'last': 4}
+        result = templatefilters.last(value)
         self.assertResult('last(%s)' % str(value), result, 4)
 
     def testSort(self):
-        value   = (4, 5, 3, 1, 2)
-        result  = templatefilters.sort(value)
+        value = (4, 5, 3, 1, 2)
+        result = templatefilters.sort(value)
         self.assertResult('sort(%s)' % str(value), result, [1, 2, 3, 4, 5])
-        result  = templatefilters.sort(value, order=True)
+        result = templatefilters.sort(value, order=True)
         self.assertResult('sort(%s, order=True)' % str(value), result,
                           [5, 4, 3, 2, 1])
 
     def testDictSort(self):
-        value   = ({'name': 'first', 'age': 12},
-                   {'name': 'second', 'age': 10},
-                   {'name': 'third', 'age': 11})
-        result  = templatefilters.dictsort(value, 'age')
-        self.assertResult('dictsort(%s)' % str(value), result, 
+        value = ({'name': 'first', 'age': 12},
+                 {'name': 'second', 'age': 10},
+                 {'name': 'third', 'age': 11})
+        result = templatefilters.dictsort(value, 'age')
+        self.assertResult('dictsort(%s)' % str(value), result,
                           [{'name': 'second', 'age': 10},
                            {'name': 'third', 'age': 11},
                            {'name': 'first', 'age': 12}])
-        result  = templatefilters.dictsort(value, 'age', order=True)
+        result = templatefilters.dictsort(value, 'age', order=True)
         self.assertResult('dictsort(%s, order=True)' % str(value), result,
                           [{'name': 'first', 'age': 12},
                            {'name': 'third', 'age': 11},
