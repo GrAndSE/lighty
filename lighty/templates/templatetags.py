@@ -1,6 +1,7 @@
 """Basic template tags library
 """
-from itertools import chain
+import collections
+import itertools
 from template import Template
 from tag import tag_manager, parse_token
 
@@ -74,7 +75,7 @@ def spaceless(token, block, context):
 
     """
     results = [command(context).split('\n') for command in block]
-    return "".join([line.lstrip() for line in chain(*results)])
+    return "".join([line.lstrip() for line in itertools.chain(*results)])
 
 tag_manager.register(
         name='spaceless',
@@ -158,24 +159,25 @@ def for_tag(token, block, context):
         values = reduce(Template.get_field, fields)
     else:
         values = context[data_field]
-    if values:
-        new_context = {}
-        new_context.update(context)
-        length = len(values)
-        forloop = {'first': True, 'last': length == 1, 'total': length,
-                   'counter0': 0, 'counter': 1}
-        new_context['forloop'] = forloop
-        results = []
-        for v in values:
-            new_context[var_name] = v
-            forloop['counter'] += 1
-            forloop['counter0'] += 1
-            forloop['first'] = False
-            forloop['last'] = forloop['counter'] < length
-            results.append("".join([command(new_context)
-                                    for command in block]))
-        return "".join(results)
-    return ''
+    # Check values
+    if not isinstance(values, collections.Iterable):
+        raise ValueError('%s: "%s" is not iterable' % (data_field, values))
+    new_context = {}
+    new_context.update(context)
+    length = len(values)
+    forloop = {'first': True, 'last': length == 1, 'total': length,
+               'counter0': 0, 'counter': 1}
+    new_context['forloop'] = forloop
+    results = []
+    for v in values:
+        new_context[var_name] = v
+        forloop['counter'] += 1
+        forloop['counter0'] += 1
+        forloop['first'] = False
+        forloop['last'] = forloop['counter'] < length
+        results.append("".join([command(new_context)
+                                for command in block]))
+    return "".join(results)
 
 tag_manager.register(
         name='for',
