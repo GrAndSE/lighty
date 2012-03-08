@@ -51,8 +51,8 @@ class Template(object):
         fields = name.split('.')
         if len(fields) > 1:
             def print_value(context):
-                fields[0] = context[fields[0]]
-                return str(reduce(Template.get_field, fields))
+                return str(reduce(Template.get_field,
+                                  [context[fields[0]]] + fields[1:]))
         else:
             def print_value(context):
                 return str(context[name])

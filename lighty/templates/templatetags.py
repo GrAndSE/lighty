@@ -100,13 +100,11 @@ def if_tag(token, block, context):
         - add else
         - add conditions
     """
-    tokens = parse_token(token)[0]
-    fields = tokens[0].split('.')
-    if len(fields) > 1:
-        fields[0] = context[fields[0]]
-        value = reduce(Template.get_field, fields)
+    if '.' in token:
+        fields = token.split('.')
+        value = reduce(Template.get_field, [context[fields[0]]] + fields[1:])
     else:
-        value = context[tokens[0]]
+        value = context[token]
     if value:
         return "".join([command(context) for command in block])
     return ''
