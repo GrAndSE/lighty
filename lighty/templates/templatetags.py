@@ -6,6 +6,20 @@ from template import Template
 from tag import tag_manager, parse_token
 
 
+def get_value(var_name, context):
+    if var_name in context:
+        return context[var_name]
+    raise Exception('"%s" not in context' % var_name)
+
+
+def resolve(var_name, context):
+    if '.' in var_name:
+        fields = var_name.split('.')
+        return reduce(Template.get_field,
+                      [get_value(fields[0], context)] + fields[1:])
+    return get_value(var_name, context)
+
+
 def block(token, block, template, loader):
     """Block tag
     """
@@ -104,11 +118,7 @@ def with_tag(token, block, context):
         {% endwith %}
     """
     data_field, _, var_name = token.split(' ')
-    if '.' in data_field:
-        fields = data_field.split('.')
-        value = reduce(Template.get_field, [context[fields[0]]] + fields[1:])
-    else:
-        value = context[data_field]
+    value = resolve(data_field, context)
     old_value = context[var_name] if var_name in context else None
     context[var_name] = value
     result = "".join([command(context) for command in block])
@@ -139,12 +149,7 @@ def if_tag(token, block, context):
         - add else
         - add conditions
     """
-    if '.' in token:
-        fields = token.split('.')
-        value = reduce(Template.get_field, [context[fields[0]]] + fields[1:])
-    else:
-        value = context[token]
-    if value:
+    if resolve(token, context):
         return "".join([command(context) for command in block])
     return ''
 
@@ -190,18 +195,14 @@ def for_tag(token, block, context):
 
     """
     var_name, _, data_field = token.split(' ')
-    if '.' in data_field:
-        fields = data_field.split('.')
-        values = reduce(Template.get_field, [context[fields[0]]] + fields[1:])
-    else:
-        values = context[data_field]
+    values = resolve(data_field, context)
     # Check values
     if not isinstance(values, collections.Iterable):
         raise ValueError('%s: "%s" is not iterable' % (data_field, values))
     length = len(values)
     forloop = {'first': True, 'last': length == 1, 'total': length,
                'counter0': 0, 'counter': 1}
-    old_value = context[values] if var_name in context else None
+    old_value = context[var_name] if var_name in context else None
     old_forloop = context['forloop'] if 'forloop' in context else None
     results = []
     for v in values:
