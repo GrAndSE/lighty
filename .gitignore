@@ -5,3 +5,4 @@ build/
 *.html~
 *.log
 *.pyc
+*.egg*
