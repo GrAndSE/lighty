@@ -1,9 +1,36 @@
 """Basic template tags library
 """
 import collections
+from functools import partial, reduce
 import itertools
 from template import Template
 from tag import tag_manager, parse_token
+
+
+def get_value(var_name, context):
+    return context[var_name] if var_name in context else None
+
+
+def resolve(var_name, context):
+    if '.' in var_name:
+        fields = var_name.split('.')
+        return reduce(Template.get_field,
+                      [get_value(fields[0], context)] + fields[1:])
+    return get_value(var_name, context)
+
+
+def exec_with_context(func, context={}, context_diff={}):
+    old_values = dict([(var_name,
+                        context[var_name] if var_name in context else None)
+                       for var_name in context_diff])
+    context.update(context_diff)
+    result = func(context)
+    context.update(old_values)
+    return result
+
+
+def exec_block(block, context):
+    return "".join([command(context) for command in block])
 
 
 def block(token, block, template, loader):
@@ -88,6 +115,37 @@ tag_manager.register(
 )
 
 
+def with_tag(token, block, context):
+    """With tag can be used to set the shorter name for variable used few times
+
+    Example:
+
+        {% with request.context.user.name as user_name %}
+            <h1>{{ user_name }}'s profile</h1>
+            <span>Hello, {{ user_name }}</span>
+            <form action="update_profile" method="post">
+                <label>Your name:</label>
+                <input type="text" name="user_name" value="{{ user_name }}" />
+                <input type="submit" value="Update profile" />
+            </form>
+        {% endwith %}
+    """
+    data_field, _, var_name = token.split(' ')
+    value = resolve(data_field, context)
+    return exec_with_context(partial(exec_block, block), 
+                               context, {var_name: value})
+
+tag_manager.register(
+        name='with',
+        tag=with_tag,
+        is_block_tag=True,
+        context_required=True,
+        template_required=False,
+        loader_required=False,
+        is_lazy_tag=True
+)
+
+
 def if_tag(token, block, context):
     """If tag can brings some logic into template.
 
@@ -100,13 +158,8 @@ def if_tag(token, block, context):
         - add else
         - add conditions
     """
-    if '.' in token:
-        fields = token.split('.')
-        value = reduce(Template.get_field, [context[fields[0]]] + fields[1:])
-    else:
-        value = context[token]
-    if value:
-        return "".join([command(context) for command in block])
+    if resolve(token, context):
+        return exec_block(block, context)
     return ''
 
 tag_manager.register(
@@ -118,6 +171,42 @@ tag_manager.register(
         loader_required=False,
         is_lazy_tag=True
 )
+
+
+class Forloop:
+    '''Class for executing block in loop with a context update
+    '''
+
+    def __init__(self, var_name, values, block):
+        self.var_name = var_name
+        self.values = values
+        self.block = block
+
+    @property
+    def total(self):
+        return len(self.values)
+
+    @property
+    def last(self):
+        return not self.counter0 < self.total
+    
+    @property
+    def first(self):
+        return self.counter0 == 0
+
+    @property
+    def counter(self):
+        return self.counter0 + 1
+
+    def next(self, context):
+        self.counter0 = 0
+        for v in self.values:
+            context[self.var_name] = v
+            yield exec_block(self.block, context)
+
+    def __call__(self, context):
+        return "".join([next for next in self.next(context)])
+
 
 
 def for_tag(token, block, context):
@@ -151,30 +240,13 @@ def for_tag(token, block, context):
 
     """
     var_name, _, data_field = token.split(' ')
-    if '.' in data_field:
-        fields = data_field.split('.')
-        values = reduce(Template.get_field, [context[fields[0]]] + fields[1:])
-    else:
-        values = context[data_field]
+    values = resolve(data_field, context)
     # Check values
     if not isinstance(values, collections.Iterable):
         raise ValueError('%s: "%s" is not iterable' % (data_field, values))
-    length = len(values)
-    forloop = {'first': True, 'last': length == 1, 'total': length,
-               'counter0': 0, 'counter': 1}
-    old_value = context[values] if var_name in context else None
-    old_forloop = context['forloop'] if 'forloop' in context else None
-    results = []
-    for v in values:
-        context[var_name] = v
-        forloop['counter'] += 1
-        forloop['counter0'] += 1
-        forloop['first'] = False
-        forloop['last'] = forloop['counter'] < length
-        results.append("".join([command(context) for command in block]))
-    context[var_name] = old_value
-    context['forloop'] = old_forloop
-    return "".join(results)
+
+    forloop = Forloop(var_name, values, block)
+    return exec_with_context(forloop, context, {'forloop': forloop})
 
 tag_manager.register(
         name='for',

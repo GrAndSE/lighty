@@ -1,8 +1,8 @@
 build/
+*.egg*
 *.pyc
 *.swp
 *.py~
 *.html~
 *.log
 *.pyc
-*.egg*

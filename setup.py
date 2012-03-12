@@ -59,7 +59,7 @@ from setuptools import setup, find_packages
 
 setup(
         name='lighty-template',
-        version='0.3.0',
+        version='0.3.1',
         description='Simple template engine for python',
         long_description=open('README').read(),
         keywords='Template HTML XML', 
