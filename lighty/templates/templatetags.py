@@ -88,6 +88,45 @@ tag_manager.register(
 )
 
 
+def with_tag(token, block, context):
+    """With tag can be used to set the shorter name for variable used few times
+
+    Example:
+
+        {% with request.context.user.name as user_name %}
+            <h1>{{ user_name }}'s profile</h1>
+            <span>Hello, {{ user_name }}</span>
+            <form action="update_profile" method="post">
+                <label>Your name:</label>
+                <input type="text" name="user_name" value="{{ user_name }}" />
+                <input type="submit" value="Update profile" />
+            </form>
+        {% endwith %}
+    """
+    data_field, _, var_name = token.split(' ')
+    if '.' in data_field:
+        fields = data_field.split('.')
+        value = reduce(Template.get_field, [context[fields[0]]] + fields[1:])
+    else:
+        value = context[data_field]
+    old_value = context[var_name] if var_name in context else None
+    context[var_name] = value
+    result = "".join([command(context) for command in block])
+    if old_value:
+        command[var_name] = old_value
+    return result
+
+tag_manager.register(
+        name='with',
+        tag=with_tag,
+        is_block_tag=True,
+        context_required=True,
+        template_required=False,
+        loader_required=False,
+        is_lazy_tag=True
+)
+
+
 def if_tag(token, block, context):
     """If tag can brings some logic into template.
 

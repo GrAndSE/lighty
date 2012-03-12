@@ -1,3 +1,5 @@
+build/
+*.egg*
 *.pyc
 *.swp
 *.py~

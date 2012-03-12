@@ -25,6 +25,12 @@ class DefaultTagsTestCase(unittest.TestCase):
         assert result == right, 'Spaceless tag error:\n%s' % (
                                     "\n".join(result, 'except', right))
 
+    def testSimpleWith(self):
+        template = Template()
+        template.parse('{% with user.name as name %}{{ name }}{% endwith %}')
+        result = template({'user': {'name': 'John'}})
+        self.assertResult('with', result.strip(), 'John')
+
     def testSimpleIf(self):
         template = Template()
         template.parse('{% if a %}Foo{% endif %}')
@@ -44,6 +50,7 @@ class DefaultTagsTestCase(unittest.TestCase):
 def test():
     suite = unittest.TestSuite()
     suite.addTest(DefaultTagsTestCase('testSpacelless'))
+    suite.addTest(DefaultTagsTestCase('testSimpleWith'))
     suite.addTest(DefaultTagsTestCase('testSimpleIf'))
     suite.addTest(DefaultTagsTestCase('testSimpleFor'))
     return suite
