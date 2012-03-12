@@ -150,31 +150,30 @@ def for_tag(token, block, context):
         <span class="last">2. 3 from 3</span>
 
     """
-    var_name, _, data_field = parse_token(token)[0]
-    fields = data_field.split('.')
-    if len(fields) > 1:
-        fields[0] = context[fields[0]]
-        values = reduce(Template.get_field, fields)
+    var_name, _, data_field = token.split(' ')
+    if '.' in data_field:
+        fields = data_field.split('.')
+        values = reduce(Template.get_field, [context[fields[0]]] + fields[1:])
     else:
         values = context[data_field]
     # Check values
     if not isinstance(values, collections.Iterable):
         raise ValueError('%s: "%s" is not iterable' % (data_field, values))
-    new_context = {}
-    new_context.update(context)
     length = len(values)
     forloop = {'first': True, 'last': length == 1, 'total': length,
                'counter0': 0, 'counter': 1}
-    new_context['forloop'] = forloop
+    old_value = context[values] if var_name in context else None
+    old_forloop = context['forloop'] if 'forloop' in context else None
     results = []
     for v in values:
-        new_context[var_name] = v
+        context[var_name] = v
         forloop['counter'] += 1
         forloop['counter0'] += 1
         forloop['first'] = False
         forloop['last'] = forloop['counter'] < length
-        results.append("".join([command(new_context)
-                                for command in block]))
+        results.append("".join([command(context) for command in block]))
+    context[var_name] = old_value
+    context['forloop'] = old_forloop
     return "".join(results)
 
 tag_manager.register(
