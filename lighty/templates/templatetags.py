@@ -3,8 +3,8 @@
 import collections
 from functools import partial, reduce
 import itertools
-from template import Template
-from tag import tag_manager, parse_token
+from .template import Template
+from .tag import tag_manager, parse_token
 
 
 def get_value(var_name, context):

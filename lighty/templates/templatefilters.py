@@ -1,10 +1,11 @@
 '''Package contains default template tags
 '''
 from decimal import Decimal, ROUND_DOWN, ROUND_HALF_UP
+from functools import reduce
 from operator import itemgetter
 import random as random_module
 
-from filter import filter_manager
+from .filter import filter_manager
 
 
 # Numbers
@@ -97,7 +98,7 @@ def stringformat(value, format):
     See http://docs.python.org/lib/typesseq-strings.html for documentation
     of Python string formatting
     """
-    return (u"%" + str(format)) % value
+    return ("%" + str(format)) % value
 filter_manager.register(stringformat)
 
 def upper(value):

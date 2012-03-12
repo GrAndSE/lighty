@@ -1,20 +1,23 @@
 """ Package provides template class """
 
 from collections import deque
+from functools import reduce
 from decimal import Decimal
 try:
-    import cStringIO as StringIO
+    import cStringIO
+    StringIO = cStringIO.StringIO
 except:
-#    try:
-#        import StringIO
-#    except:
-#        import io as StringIO
-    pass
+    try:
+        import StringIO as sio
+        StringIO = sio.StringIO
+    except:
+        import io
+        StringIO = io.StringIO
 
 
-from loaders import TemplateLoader
-from filter import filter_manager
-from tag import tag_manager, parse_token
+from .loaders import TemplateLoader
+from .filter import filter_manager
+from .tag import tag_manager, parse_token
 
 
 class Template(object):
@@ -216,7 +219,7 @@ class Template(object):
         Returns:
             string contains the whole result
         """
-        result = StringIO.StringIO()
+        result = StringIO()
         for cmd in self.commands:
             result.write(cmd(context))
         value = result.getvalue()
@@ -238,7 +241,7 @@ class Template(object):
             another template contains the result
         """
         result = Template(loader=self.loader, name=name)
-        buffer = StringIO.StringIO()
+        buffer = StringIO()
         for cmd in self.commands:
             try:
                 buffer.write(cmd(context))
@@ -248,7 +251,7 @@ class Template(object):
                     result.commands.append(Template.constant(value))
                 result.commands.append(cmd)
                 buffer.close()
-                buffer = StringIO.StringIO()
+                buffer = StringIO()
         value = buffer.getvalue()
         buffer.close()
         if len(value) > 0:
