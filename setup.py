@@ -14,16 +14,18 @@ I'll try to fix it as soon as possible.
 Features:
 ---------
 
-- Stupid simple syntax almost compatible with django-template
-- Pure python
-- Fast. Looks ten times faster than django-template and four times faster than
-  jinja2 on some cases and two times slower on another cases.
-- Simple and compact code
-- Template filters with multiply arguments
-- Basic template filters included (now just 14 template filters)
+- Stupid simple syntax almost compatible with django-template.
+- Pure python.
+- Supports both Python 2 (checked with 2.7.2) and Python 3 (checked with 3.2.2)
+- Fast. From 3 to 10 times faster than django-template and even faster on some
+  benchmarks than jinja2 (but in one benchmark 2 times slower).
+- Simple and compact code.
+- Template filters with multiply arguments.
+- Basic template filters included (now just 14 template filters).
+- Basic template tags included.
 - Simple but powerfull tag declaration - it's easy to create your own block 
-  tags with writing single function
-- Custom template tags can modify template on fly
+  tags with writing single function.
+- Custom template tags can modify template on fly.
 
 Example:
 --------
@@ -48,12 +50,12 @@ Here a small template example:
 TODO:
 -----
 
-- More default tags and additional funcctions for tags exists (now there is 
-  no additional logic for if tag and no with and load tags)
+- More default tags (now there is no load, include tags, and if and for tags
+  was simplified)
 - More default filters (date formatiing, strings saving, etc.)
-- Some execution optimizations
-- More tests (in progress) and benchmarks
-- Documentation
+- Some additional execution optimizations.
+- More tests (in progress).
+- Documentation.
 """
 from setuptools import setup, find_packages
 
@@ -76,6 +78,7 @@ setup(
             'License :: OSI Approved :: BSD License',
             'Operating System :: OS Independent',
             'Programming Language :: Python',
+            'Programming Language :: Python :: 3',
             'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
             'Topic :: Software Development :: Libraries :: Python Modules',
             'Topic :: Text Processing :: Markup :: HTML',
