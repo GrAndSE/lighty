@@ -1,5 +1,5 @@
 test:
-	python setup.py test
+	python run-tests all
 
 clean:
 	rm -r build

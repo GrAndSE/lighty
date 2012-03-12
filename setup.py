@@ -57,21 +57,20 @@ TODO:
 - More tests (in progress).
 - Documentation.
 """
-from setuptools import setup, find_packages
+from distutils.core import setup
 
 setup(
         name='lighty-template',
         version='0.3.1',
         description='Simple template engine for python',
-        long_description=open('README').read(),
+        long_description=__doc__,
         keywords='Template HTML XML', 
         author='Andrey Grygoryev',
         author_email='undeadgrandse@gmail.com',
         license='BSD',
         url='https://github.com/GrAndSE/lighty-template',
-        packages=find_packages(),
+        packages=['lighty', 'lighty.templates'],
         platforms="any",
-        zip_safe=False,
         classifiers=[
             'Environment :: Web Environment',
             'Intended Audience :: Developers',
@@ -83,5 +82,4 @@ setup(
             'Topic :: Software Development :: Libraries :: Python Modules',
             'Topic :: Text Processing :: Markup :: HTML',
         ],
-        test_suite='tests.all.test',
 )
