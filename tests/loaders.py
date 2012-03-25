@@ -3,7 +3,7 @@
 import unittest
 
 from lighty.templates import Template
-from lighty.templates.loaders import FileLoader
+from lighty.templates.loaders import FSLoader
 
 from .blockextend import fuzzy_equals
 
@@ -33,7 +33,7 @@ class BlockTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        loader = FileLoader('tests/templates.html')
+        loader = FSLoader(['tests/templates'])
         self.base_template = Template(name='base.html', loader=loader)
 
     def testExecuteTemplate(self):

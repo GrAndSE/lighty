@@ -25,7 +25,7 @@ def block(token, block, template, loader):
     """Block tag
     """
     # Create inner template for blocks
-    tmpl = Template(loader)
+    tmpl = Template(loader=loader)
     tmpl.commands = block
 
     # Add template block into list
