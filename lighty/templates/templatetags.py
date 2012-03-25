@@ -1,22 +1,10 @@
 """Basic template tags library
 """
 import collections
-from functools import partial, reduce
+from functools import partial
 import itertools
-from template import Template
-from tag import tag_manager, parse_token
-
-
-def get_value(var_name, context):
-    return context[var_name] if var_name in context else None
-
-
-def resolve(var_name, context):
-    if '.' in var_name:
-        fields = var_name.split('.')
-        return reduce(Template.get_field,
-                      [get_value(fields[0], context)] + fields[1:])
-    return get_value(var_name, context)
+from .template import resolve, Template
+from .tag import tag_manager, parse_token
 
 
 def exec_with_context(func, context={}, context_diff={}):

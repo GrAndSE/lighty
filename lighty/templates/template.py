@@ -11,7 +11,7 @@ except:
 #        import io as StringIO
     pass
 
-
+from .context import resolve
 from loaders import TemplateLoader
 from filter import filter_manager
 from tag import tag_manager, parse_token
@@ -39,24 +39,10 @@ class Template(object):
         self.loader.register(name, self)
 
     @staticmethod
-    def get_field(obj, field):
-        if hasattr(obj, field):
-            return getattr(obj, field)
-        elif hasattr(obj, '__getitem__') and hasattr(obj, '__contains__'):
-            return obj[field]
-        raise Exception('Could not get %s from %s' % (field, obj))
-
-    @staticmethod
     def variable(name):
-        fields = name.split('.')
-        if len(fields) > 1:
-            def print_value(context):
-                return str(reduce(Template.get_field,
-                                  [context[fields[0]]] + fields[1:]))
-        else:
-            def print_value(context):
-                return str(context[name])
-        return print_value
+        def print_variable(context):
+            return str(resolve(name, context))
+        return print_variable
 
     @staticmethod
     def constant(value):
