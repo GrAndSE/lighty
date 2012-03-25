@@ -206,8 +206,7 @@ class Template(object):
         """
         result = StringIO.StringIO()
         for cmd in self.commands:
-            c = cmd(context)
-            result.write(c)
+            result.write(cmd(context))
         value = result.getvalue()
         result.close()
         return value
