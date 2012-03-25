@@ -116,7 +116,6 @@ class Template(object):
         tag_stack = deque()
         token_stack = deque()
         for char in text:
-            print char
             if current == Template.TEXT:
                 if char == '{':
                     current = Template.TOKEN
@@ -207,7 +206,8 @@ class Template(object):
         """
         result = StringIO.StringIO()
         for cmd in self.commands:
-            result.write(cmd(context))
+            c = cmd(context)
+            result.write(c)
         value = result.getvalue()
         result.close()
         return value

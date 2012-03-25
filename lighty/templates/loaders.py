@@ -51,5 +51,4 @@ class FSLoader(TemplateLoader):
                     file_path = os.path.join(root, file_name)
                     with open(file_path, 'r') as file:
                         content = itertools.chain(*file.readlines())
-                        print name, '\n', content
                         Template(content, name=name, loader=self)

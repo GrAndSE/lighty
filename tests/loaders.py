@@ -2,7 +2,6 @@
 """
 import unittest
 
-from lighty.templates import Template
 from lighty.templates.loaders import FSLoader
 
 from .blockextend import fuzzy_equals
@@ -19,7 +18,7 @@ BASE_RESULT = '''<html>
 EXTEND_RESULT = '''<html>
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8">
-	<title>Index page template</title>
+	<title>Index page title</title>
 </head>
 <body>
 	Hello, world!
@@ -33,11 +32,11 @@ class BlockTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        loader = FSLoader(['tests/templates'])
-        self.base_template = Template(name='base.html', loader=loader)
+        self.loader = FSLoader(['tests/templates'])
+        self.base_template = self.loader.get_template('base.html')
 
     def testExecuteTemplate(self):
-        result = self.base_template.execute()
+        result = self.base_template()
         is_eq = fuzzy_equals(result, BASE_RESULT)
         assert is_eq, "Error template execution:\n%s" % (
                       "\n".join((result, "except", BASE_RESULT)))
@@ -49,11 +48,10 @@ class ExtendTestCase(BlockTestCase):
 
     def setUp(self):
         super(ExtendTestCase, self).setUp()
-        self.extend_template = Template(loader=self.base_template.loader,
-                                        name='index.html')
+        self.extend_template = self.loader.get_template('index.html')
 
     def testExecuteTemplate(self):
-        result = self.extend_template.execute()
+        result = self.extend_template()
         is_eq = fuzzy_equals(result, EXTEND_RESULT)
         assert is_eq, "Error template execution:\n%s" % (
                       "\n".join((result, "except", EXTEND_RESULT)))
