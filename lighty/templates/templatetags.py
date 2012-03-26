@@ -1,22 +1,12 @@
 """Basic template tags library
 """
 import collections
-from functools import partial, reduce
+from functools import partial
 import itertools
-from .template import Template
+
+from .context import resolve
 from .tag import tag_manager, parse_token
-
-
-def get_value(var_name, context):
-    return context[var_name] if var_name in context else None
-
-
-def resolve(var_name, context):
-    if '.' in var_name:
-        fields = var_name.split('.')
-        return reduce(Template.get_field,
-                      [get_value(fields[0], context)] + fields[1:])
-    return get_value(var_name, context)
+from .template import Template
 
 
 def exec_with_context(func, context={}, context_diff={}):
@@ -37,7 +27,7 @@ def block(token, block, template, loader):
     """Block tag
     """
     # Create inner template for blocks
-    tmpl = Template(loader)
+    tmpl = Template(loader=loader)
     tmpl.commands = block
 
     # Add template block into list
@@ -83,6 +73,35 @@ tag_manager.register(
         template_required=True,
         loader_required=True,
         is_lazy_tag=False
+)
+
+
+def include(token, context, loader):
+    '''This tag includes another template inside current position
+
+    Example:
+
+        <html>
+        <head>
+            {% include "includes/stylesheets.html" %}
+        </head>
+        <body>
+            {% include "includes/top_nav.html" %}
+            {% block content %}{% endblock %}
+        </body>
+    '''
+    tokens, types = parse_token(token)
+    template = loader.get_template(tokens[0])
+    return exec_with_context(template, context, {})
+
+tag_manager.register(
+        name='include',
+        tag=include,
+        is_block_tag=False,
+        is_lazy_tag=True,
+        context_required=True,
+        template_required=False,
+        loader_required=True
 )
 
 

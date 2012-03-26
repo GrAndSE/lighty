@@ -1,9 +1,10 @@
 tests = (
     'parse_token',
     'variable_fields',
+    'template',
+    'loaders',
     'filters',
     'default_filters',
-    'default_tags',
     'blockextend',
-    'template',
+    'default_tags',
 )

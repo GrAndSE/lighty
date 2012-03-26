@@ -1,5 +1,5 @@
-""" Package provides template class """
-
+"""Package provides template class
+"""
 from collections import deque
 from functools import reduce
 from decimal import Decimal
@@ -14,7 +14,7 @@ except:
         import io
         StringIO = io.StringIO
 
-
+from .context import resolve
 from .loaders import TemplateLoader
 from .filter import filter_manager
 from .tag import tag_manager, parse_token
@@ -31,7 +31,7 @@ class Template(object):
     STRING = 6
     CLOSE = 7
 
-    def __init__(self, loader=TemplateLoader(), name="unnamed"):
+    def __init__(self, text=None, loader=TemplateLoader(), name="unnamed"):
         """Create new template instance
         """
         super(Template, self).__init__()
@@ -40,26 +40,14 @@ class Template(object):
         self.commands = []
         self.context = {}
         self.loader.register(name, self)
-
-    @staticmethod
-    def get_field(obj, field):
-        if hasattr(obj, field):
-            return getattr(obj, field)
-        elif hasattr(obj, '__getitem__') and hasattr(obj, '__contains__'):
-            return obj[field]
-        raise Exception('Could not get %s from %s' % (field, obj))
+        if text is not None:
+            self.parse(text)
 
     @staticmethod
     def variable(name):
-        fields = name.split('.')
-        if len(fields) > 1:
-            def print_value(context):
-                return str(reduce(Template.get_field,
-                                  [context[fields[0]]] + fields[1:]))
-        else:
-            def print_value(context):
-                return str(context[name])
-        return print_value
+        def print_variable(context):
+            return str(resolve(name, context))
+        return print_variable
 
     @staticmethod
     def constant(value):
@@ -211,7 +199,7 @@ class Template(object):
             cmds.append(Template.constant(token))
         self.commands = cmds
 
-    def execute(self, context):
+    def execute(self, context={}):
         """Execute all commands on a specified context
 
         Arguments:
@@ -226,7 +214,7 @@ class Template(object):
         result.close()
         return value
 
-    def __call__(self, context):
+    def __call__(self, context={}):
         """Alias for execute()
         """
         return self.execute(context)

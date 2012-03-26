@@ -38,12 +38,14 @@ EXTEND_RESULT = """<!DOCTYPE html>
 </html>"""
 
 
+make_repr = lambda text: [line.strip() for line in text.split("\n")
+                          if len(line.strip()) > 0]
+
+
 def fuzzy_equals(first, second):
     """Check two multiline strings for equality as stripped lines exclude
     zero-length lines
     """
-    make_repr = lambda text: [line.strip() for line in text.split("\n")
-                              if len(line.strip()) > 0]
     first_repr = make_repr(first)
     second_repr = make_repr(second)
 

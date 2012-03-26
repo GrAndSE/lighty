@@ -3,6 +3,7 @@
 import unittest
 
 from lighty.templates import Template
+from lighty.templates.loaders import FSLoader
 
 
 class DefaultTagsTestCase(unittest.TestCase):
@@ -45,6 +46,11 @@ class DefaultTagsTestCase(unittest.TestCase):
         result = template({'list': [1, 2, 3, 4, 5]})
         self.assertResult('for', result.strip(), '1 2 3 4 5')
 
+    def testSimpleInclude(self):
+        template = Template('{% include "simple.html" %}', name="test.html",
+                            loader=FSLoader(['tests/templates']))
+        result = template({'name': 'Peter'})
+        self.assertResult('include', result.strip(), 'Hello, Peter')
 
 
 def test():
@@ -53,4 +59,5 @@ def test():
     suite.addTest(DefaultTagsTestCase('testSimpleWith'))
     suite.addTest(DefaultTagsTestCase('testSimpleIf'))
     suite.addTest(DefaultTagsTestCase('testSimpleFor'))
+    suite.addTest(DefaultTagsTestCase('testSimpleInclude'))
     return suite
