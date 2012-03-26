@@ -74,6 +74,35 @@ tag_manager.register(
 )
 
 
+def include(token, context, loader):
+    '''This tag includes another template inside current position
+
+    Template
+
+        <html>
+        <head>
+            {% include "includes/stylesheets.html" %}
+        </head>
+        <body>
+            {% include "includes/top_nav.html" %}
+            {% block content %}{% endblock %}
+        </body>
+    '''
+    tokens, types = parse_token(token)
+    template = loader.get_template(tokens[0])
+    return exec_with_context(template, context, {})
+
+tag_manager.register(
+        name='include',
+        tag=include,
+        is_block_tag=False,
+        is_lazy_tag=True,
+        context_required=True,
+        template_required=False,
+        loader_required=True
+)
+
+
 def spaceless(token, block, context):
     """This tag removes unused spaces
 

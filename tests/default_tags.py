@@ -53,11 +53,11 @@ class DefaultTagsTestCase(unittest.TestCase):
         self.assertResult('include', result.strip(), 'Hello, Peter')
 
 
-
 def test():
     suite = unittest.TestSuite()
     suite.addTest(DefaultTagsTestCase('testSpacelless'))
     suite.addTest(DefaultTagsTestCase('testSimpleWith'))
     suite.addTest(DefaultTagsTestCase('testSimpleIf'))
     suite.addTest(DefaultTagsTestCase('testSimpleFor'))
+    suite.addTest(DefaultTagsTestCase('testSimpleInclude'))
     return suite
