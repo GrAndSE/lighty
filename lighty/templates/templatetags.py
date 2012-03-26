@@ -6,10 +6,12 @@ import itertools
 
 from .context import resolve
 from .tag import tag_manager, parse_token
-from .template import Template
+from .template import LazyTemplate, Template
 
 
 def exec_with_context(func, context={}, context_diff={}):
+    '''Execute function with context switching
+    '''
     old_values = dict([(var_name,
                         context[var_name] if var_name in context else None)
                        for var_name in context_diff])
@@ -20,14 +22,52 @@ def exec_with_context(func, context={}, context_diff={}):
 
 
 def exec_block(block, context):
+    '''Execute block
+    '''
     return "".join([command(context) for command in block])
+
+
+def get_parent_blocks(template):
+    '''Get parent blocks
+    '''
+    if not hasattr(template.parent, 'blocks'):
+        if isinstance(template.parent, LazyTemplate):
+            template.parent.prepare()
+            return get_parent_blocks(template)
+        else:
+            template.parent.blocks = {}
+    return template.parent.blocks
+
+
+def find_command(command, template):
+    '''Find command in commands list
+    '''
+    if command in template.commands:
+        return template.commands.index(command), template
+    else:
+        for cmd in template.commands:
+            if isinstance(cmd, Template):
+                index, tmpl = find_command(command, cmd)
+                if index is not None:
+                    return index, tmpl
+    return None, template
+
+
+def replace_command(template, command, replacement):
+    '''Search for command in commands list and replace it with a new one
+    '''
+    index, tmpl = find_command(command, template)
+    if index is None:
+        template.commands.append(replacement)
+    else:
+        tmpl.commands[index] = replacement
 
 
 def block(token, block, template, loader):
     """Block tag
     """
     # Create inner template for blocks
-    tmpl = Template(loader=loader)
+    tmpl = Template(name='blocks-' + token, loader=loader)
     tmpl.commands = block
 
     # Add template block into list
@@ -40,8 +80,7 @@ def block(token, block, template, loader):
     if is_new:
         return template.blocks[token]
     else:
-        index = template.commands.index(template.parent.blocks[token])
-        template.commands[index] = tmpl
+        replace_command(template, template.parent.blocks[token], tmpl)
         return lambda context: ''
 
 tag_manager.register(
@@ -61,9 +100,9 @@ def extend(token, template, loader):
     tokens = parse_token(token)[0]
     template.parent = loader.get_template(tokens[0])
     if not hasattr(template, 'blocks'):
-        template.blocks = template.parent.blocks.copy()
+        template.blocks = get_parent_blocks(template).copy()
     else:
-        template.blocks.update(template.parent.blocks)
+        template.blocks.update(get_parent_blocks(template))
     template.commands.extend(template.parent.commands)
     return None
 

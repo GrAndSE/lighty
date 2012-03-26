@@ -63,7 +63,7 @@ from distutils.core import setup
 
 setup(
         name='lighty-template',
-        version='0.3.2',
+        version='0.3.3',
         description='Simple template engine for python',
         long_description=__doc__,
         keywords='Template HTML XML', 

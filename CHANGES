@@ -1,6 +1,13 @@
 Lighty-Template Changelog
 =========================
 
+Version 0.3.3
+-------------
+(bug fix release on March 26th 2012)
+
+- Fix issue with block template tags.
+
+
 Version 0.3.2
 -------------
 (released on March 26th 2012)

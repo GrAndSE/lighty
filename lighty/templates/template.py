@@ -43,6 +43,9 @@ class Template(object):
         if text is not None:
             self.parse(text)
 
+    def __eq__(self, obj):
+        return type(self) == type(obj) and self.name == obj.name
+
     @staticmethod
     def variable(name):
         def print_variable(context):
@@ -245,3 +248,29 @@ class Template(object):
         if len(value) > 0:
             result.commands.append(Template.constant(value))
         return result
+
+
+
+class LazyTemplate(Template):
+    '''Lazy template class can be used to access 
+    '''
+
+    def prepare(self):
+        '''Prepare to execution
+        '''
+        self.parse = super(LazyTemplate, self).parse
+        self.parse(self.text)
+        del self.text
+        execute = super(LazyTemplate, self).execute
+        self.execute = execute
+        return execute
+
+    def parse(self, text):
+        '''Parse template later
+        '''
+        self.text = text
+
+    def execute(self, context):
+        '''Execute
+        '''
+        return self.prepare()(context)

@@ -3,6 +3,7 @@ README
 setup.py
 lighty/__init__.py
 lighty/templates/__init__.py
+lighty/templates/context.py
 lighty/templates/filter.py
 lighty/templates/loaders.py
 lighty/templates/tag.py
