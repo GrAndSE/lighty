@@ -37,7 +37,7 @@ class FSLoader(TemplateLoader):
         '''Create new FSLoader instance, retrieves all the templates from
         template dictionaries specified and register them
         '''
-        from .template import Template
+        from .template import LazyTemplate
         super(FSLoader, self).__init__()
         for path in template_dirs:
             for root, dirs, files in os.walk(path):
@@ -46,9 +46,11 @@ class FSLoader(TemplateLoader):
                 else:
                     parts = root.split(path)
                     relative_path = parts[-1]
+                if relative_path.startswith('/'):
+                    relative_path = relative_path[1:]
                 for file_name in files:
                     name = os.path.join(relative_path, file_name)
                     file_path = os.path.join(root, file_name)
                     with open(file_path, 'r') as file:
                         content = itertools.chain(*file.readlines())
-                        Template(content, name=name, loader=self)
+                        LazyTemplate(content, name=name, loader=self)

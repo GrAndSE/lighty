@@ -6,6 +6,7 @@ Version 0.3.3
 (bug fix release on March 26th 2012)
 
 - Fix issue with block template tags.
+- Fix issue with template tags extending and filesystem loader.
 
 
 Version 0.3.2
