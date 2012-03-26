@@ -1,6 +1,15 @@
 Lighty-Template Changelog
 =========================
 
+Version 0.3.2
+-------------
+(released on March 26th 2012)
+
+- Add template loader that works from file system.
+- Some small syntax changes that makes new template creation and execution 
+  little bit easier.
+- "include" tag implemented.
+- Refactor some methods.
 
 Version 0.3.1
 -------------
@@ -11,7 +20,6 @@ Version 0.3.1
 - Fix CHANGES list.
 - Add with tag.
 - Default tags library refactoring.
-
 
 Version 0.3
 -----------

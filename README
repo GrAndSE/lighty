@@ -37,18 +37,20 @@ Example:
 	</head>
 	<body>
 		{% block content %}
-		<h1>Hello, world!</h1>
+		<h1>Hello, {{ name }}!</h1>
 		<p>Some text here</p>
 		{% endblock %}
+		{% include "includes/footer.html" %}
 	</body>
 	</html>
 
 TODO:
 -----
 
-- More default tags (now there is no load, include tags, and if and for tags
-  was simplified)
+- More default tags (now there is no load tags, and if and for tags was
+  simplified and requires additional work).
 - More default filters (date formatiing, strings saving, etc.)
 - Some additional execution optimizations.
 - More tests (in progress).
 - Documentation.
+- Thinking about unicode and escaping.
