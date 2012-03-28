@@ -50,9 +50,7 @@ class ApplicationSettings(BaseSettings):
         '''You can override this method to make additional operations in child
         class after creation. By default does nothing
         '''
-        print self, 'postprocess'
         pass
-
 
 
 class Settings(BaseSettings):
