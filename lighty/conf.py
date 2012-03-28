@@ -16,7 +16,7 @@ except:
     Parser = configparser.SafeConfigParser
 
 
-class BaseSettings(collections.Mapping):
+class Settings(collections.Mapping):
     '''Get settings for class
     '''
     __slots__ = ('__init__', '__contains__', '__getattr__', '__getitem__',
