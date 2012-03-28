@@ -34,7 +34,8 @@ class Settings(collections.Mapping):
         # Parse main configurations files, add specified paths and get possible
         # configurations files for an apps
         parser = Parser(defaults, allow_no_value=True)
-        parser.read(main_config)
+        if len(parser.read(main_config)) == 0:
+            raise LookupError('Could not load configuration: %s' % main_config)
         conf_list = []
         for config_path in parser.options('PATHS'):
             path = os.path.realpath(config_path)

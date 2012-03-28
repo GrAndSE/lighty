@@ -9,7 +9,7 @@ from urls import resolve, url
 def test():
     return 'All ok'
 
-def WSGIApplication(urls):
+def WSGIApplication(settings):
     '''Create main application handler
     '''
     urls = (
