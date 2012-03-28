@@ -1,101 +1,87 @@
 '''Package contains settings management functions
 '''
-from functools import partial
+import collections
+import itertools
+import os
+import sys
+LIGHTY_CONF_PATH = os.path.realpath(os.path.dirname(__file__))
+
+try:
+    # for python 2
+    import ConfigParser
+    Parser = ConfigParser.SafeConfigParser
+except:
+    # for python 3
+    import configparser
+    Parser = configparser.SafeConfigParser
 
 
-class BaseSettings(object):
-    '''Base class for settings mmanagements. Overrides the basics methods
+class BaseSettings(collections.Mapping):
+    '''Get settings for class
     '''
+    __slots__ = ('__init__', '__contains__', '__getattr__', '__getitem__',
+                 '__eq__', '__iter__', '__len__', '__ne__', 'configs', 'get',
+                 'items', 'keys', 'sections', 'settings', 'values', )
 
-    def __init__(self):
-        super(BaseSettings, self).__init__()
-        def load(self, settings_module):
-            '''Load settings from module
-            '''
-            for setting in dir(settings_module):
-                if not setting.startswith('__') and not setting.endswith('__'):
-                    self.__dict__['config'][setting] = getattr(settings_module,
-                                                               setting)
-            return self
-        self.__dict__['load_settings_from_module'] = partial(load, self)
+    def __init__(self, main_config, defaults={}):
+        '''Load main config, parse it and then trying to load applications from
+        all the paths
 
-    def __getattr__(self, name):
-        '''Get setting from dictionary
+        Args:
+            main_config - main configuration file path
+            defaults    - default values
         '''
-        if name in self.__dict__['config']:
-            return self.__dict__['config'][name]
-        if name in self.__class__.__dict__:
-            return self.__dict__[name]
-        raise AttributeError("Settings has no attribute '%s'" % name)
+        # Parse main configurations files, add specified paths and get possible
+        # configurations files for an apps
+        parser = Parser(defaults, allow_no_value=True)
+        parser.read(main_config)
+        conf_list = []
+        for config_path in parser.options('PATHS'):
+            path = os.path.realpath(config_path)
+            conf_list.append([os.path.join(path, application, 'conf.cfg')
+                              for application in parser.options('APPS')])
+            sys.path.append(path)
+        conf_list.append([main_config])
+        conf_list.append(parser.options('CONFS'))
+        # Fill dictionaries
+        self.configs = parser.read(itertools.chain(*conf_list))
+        self.sections = {}
+        self.settings = {}
+        for section in parser.sections():
+            self.sections[section] = dict([(name, parser.get(section, name))
+                                          for name in parser.options(section)])
+            self.settings.update(self.sections[section])
 
-    def __dir__(self):
-        return self.__dict__['config'].keys()
+    def __getitem__(self, name):
+        name = name.lower()
+        if name in self.settings:
+            return self.settings[name]
+        for section_name in self.sections:
+            if name in self.sections[section_name]:
+                return self.sections[section_name][name]
+        raise KeyError('"%s" not found in configuration' % name)
+    __getattr__ = __getitem__
 
-    def __contains__(self, name):
-        return name in self.__dict__['config']
-
-
-class ApplicationSettings(BaseSettings):
-    '''Class used for local application settings
-    '''
-    __slots__ = ('config', 'load_settings_from_module', 'postprocess')
-
-    def __init__(self):
-        '''Create new ApplicationSettings instance 
-        '''
-        super(ApplicationSettings, self).__init__()
-        self.__dict__['config'] = {}
-
-    def postprocess(self, global_settings):
-        '''You can override this method to make additional operations in child
-        class after creation. By default does nothing
-        '''
-        pass
-
-
-class Settings(BaseSettings):
-    """Class used for settings management 
-    """
-    __slots__ = ('apps', 'config', 'add_app', 'load_settings', 
-                 'load_settings_from_module',)
-
-    def __init__(self):
-        '''Create new Settings instance and set default parameters values
-        '''
-        super(Settings, self).__init__()
-        self.__dict__['apps']   = {}
-        self.__dict__['config'] = {}
-        def add_app(self, name):
-            '''Add application and load it's settings
-            '''
-            app = __import__(name + '.conf', globals(), locals(), '')
-            config = getattr(app, 'conf')
-            if hasattr(config, '__settings_class__'):
-                app_settings = getattr(config, '__settings_class__')()
+    def get(self, name, section=None):
+        name = name.lower()
+        if section is None:
+            if name in self.settings:
+                return self.settings[name]
+        else:
+            if section in self.sections and name in self.sections[section]:     
+                return self.sections[section][name]
             else:
-                app_settings = ApplicationSettings()
-            app_settings.load_settings_from_module(config)
-            for setting in dir(app_settings):
-                if setting in self:
-                    app_settings.__dict__['config'] = getattr(self, setting)
-                else:
-                    self.__dict__['config'] = getattr(app_settings, setting)
-            app_settings.postprocess(self)
-            self.__dict__['apps'][name] = app_settings
-            setattr(config, 'settings', app_settings)
-            return self
-        self.__dict__['add_app'] = partial(add_app, self)
+                raise KeyError('No section "%s" in configuration' % section)
+        raise KeyError('"%s" not found in configuration' % name)
 
+    def __iter__(self):
+        return self.settings.__iter__()
 
-    def load_settings(self, name):
-        '''Load settings from specified package
-        '''
-        settings_module = __import__(name, globals(), locals(), '')
-        self.load_settings_from_module(settings_module)
-        if 'APPS' in self:
-            for app in self.APPS:
-                self.__dict__['add_app'](app)
-        return self
+    def __len__(self):
+        return len(self.settings)
 
+    def keys(self):
+        return self.settings.keys()
 
-settings = Settings()
+    def values(self):
+        return self.settings.values()
