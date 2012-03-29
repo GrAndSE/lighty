@@ -2,9 +2,7 @@
 '''
 import copy
 import re
-from functools import partial
-
-from lighty.exceptions import ApplicationException, NotFoundException
+from functools import partial, reduce
 
 
 PATH_PATTERN = re.compile(
@@ -26,17 +24,16 @@ def load_view(view):
     if callable(view):
         return view
     elif not type(view) is str:
-        return ApplicationException('Error url creation')
+        return TypeError('Error url creation')
     explain = PATH_PATTERN.match(view)
     if not explain:
-        return ApplicationException('%s could not be loaded' % view)
+        return ImportError('%s could not be loaded' % view)
     func_name = explain.group('function')
     pack_name = explain.group('module')
     module = __import__(pack_name, globals(), locals(), func_name)
     func = getattr(module, explain.group('function'))
     if not callable(func):
-        return ApplicationException('%s.%s is not callable' %
-                                    (pack_name, func_name))
+        return TypeError('%s.%s is not callable' % (pack_name, func_name))
     return func
 
 
@@ -76,7 +73,7 @@ def resolve(urls, path, method=None):
                 call_args = copy.copy(args)
                 call_args.update(match.groupdict())
                 return partial(view, **call_args)
-    return NotFoundException('There is no pattern matching path %s' % path)
+    return LookupError('There is no pattern matching path %s' % path)
 
 
 def reverse(urls, lookup_name, lookup_args={}):
@@ -86,5 +83,5 @@ def reverse(urls, lookup_name, lookup_args={}):
     for _, url, _, name, args in urls:
         if name == lookup_name and lookup_keys == sorted(args.keys()):
             return url
-    return NotFoundException('Url for name "%s" with args "%s" was not found' %
-                             (lookup_name, ','.join(lookup_keys)))
+    return LookupError('Url for name "%s" with args "%s" was not found' %
+                       (lookup_name, ','.join(lookup_keys)))

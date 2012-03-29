@@ -2,8 +2,7 @@ import sys, traceback
 
 from functools import partial
 
-from lighty.exceptions import ApplicationException, NotFoundException
-from urls import resolve, url
+from .urls import resolve, url
 
 
 def test():
@@ -29,11 +28,15 @@ def WSGIApplication(settings):
                 raise view
             msg = view()
             status = '200 OK'
-        except NotFoundException as exc:
+        except LookupError as exc:
             traceback.print_exc(file=sys.stdout)
             status = '404 Page was now found'
             msg = str(exc)
-        except ApplicationException as appexc:
+        except TypeError as appexc:
+            traceback.print_exc(file=sys.stdout)
+            status = '500 Internal Server Error'
+            msg = appexc and str(appexc)
+        except ImportError as appexc:
             traceback.print_exc(file=sys.stdout)
             status = '500 Internal Server Error'
             msg = appexc and str(appexc)
