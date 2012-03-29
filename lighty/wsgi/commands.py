@@ -1,5 +1,5 @@
 from wsgiref.simple_server import make_server
-from .handler import WSGIApplication
+from . import WSGIApplication
 
 
 def run_server(settings):

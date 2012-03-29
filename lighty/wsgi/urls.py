@@ -10,16 +10,36 @@ PATH_PATTERN = re.compile(
 VARIABLE_PATTERN = re.compile('(<[\w_]+[:]?[\w]{0,5}>)')
 TYPE_PATTERNS = {
         'int': '[\\d]+',
-        'str': '[\\w\\d_\\-\\.\\,]+',
-        'char': '[\\w\\d]',
         'float': '([\\d]+(\\.[\\d]*)?)',
+        'char': '[\\w\\d]',
+        'str': '[\\w\\d_\\-\\.\\,]+',
+        'slug': '[\\w\\d_\\-]+',
+        'path': '[\\w\\d_\\-\\.\\,/]+',
 }
 TO_ESCAPE = ('.', '\\', '[', ']', '(', ')', '+', '*', '?', '{', '}', '-', '|')
 HTTP_METHODS = ['GET', 'POST', 'PUT', 'DELETE']
 
 
+def load_urls(name):
+    '''Load urls file. This file requires to contains urlpatterns variable. It
+    could be list or tuple of results of url() function calling. 
+
+
+        from app_name.views import hello_view
+
+        urlpatterns = (
+            url('/test', 'app_name.views.test_view'),
+            url('/hello/(?P<name>[\w]+)', hello_view),
+        )
+    '''
+    module = __import__(name, globals(), locals(), 'urlpatterns')
+    print module
+    print module.urlpatterns
+    return module.urlpatterns
+
+
 def load_view(view):
-    '''Load view for name if needed
+    '''Load view for name if needed 
     '''
     if callable(view):
         return view
