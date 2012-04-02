@@ -1,48 +1,67 @@
+'''Module contains methods to work with request and response objects
+'''
+import collections
+import urlparse
 try:
-    import cStringIO as StringIO
+    import cStringIO
+    StringIO = cStringIO.StringIO
 except:
-#    try:
-#        import StringIO
-#    except:
-#        import io as StringIO
-    pass
+    try:
+        import StringIO as IO
+        StringIO = IO.StringIO
+    except:
+        import io
+        StringIO = io.StringIO
 
-class Request(object):
+
+class Request(collections.Mapping):
     '''WSGI request wrapper
     '''
-    __slots__ = ('method', 'headers', 'cookies', 'path', 'params', 'get')
+    __slots__ = ('__contains__', '__getitem__', '__iter__', '__len__',
+                 'application', 'cookies', 'get', 'headers', 'meta', 'method',
+                 'params', 'path', )
 
-    def __init__(self, environ):
-        self.protocol   = environ['SERVER_PROTOCOL']
-        self.method     = environ['REQUEST_METHOD']
-        self.path       = environ['PATH_INFO']
-        self.query      = environ['QUERY_STRING']
-        #self.accept_lan = environ['HTTP_ACCEPT_LANGUAGE']
-        #self.accept_chr = environ['HTTP_ACCEPT_CHARSET']
-        #self.accept     = environ['HTTP_ACCEPT']
-        #self.cookie     = environ['HTTP_COOKIE']
-        #self.params = {}
-        # 'CONTENT_LENGTH': '', 'HTTP_CONNECTION': 'keep-alive', 'CONTENT_TYPE': 'text/plain', 'SSH_AUTH_SOCK': '/tmp/keyring-qn1yMR/ssh', 'wsgi.multithread': True, 'GDMSESSION': 'ubuntu-2d', 'REMOTE_ADDR': '127.0.0.1', 'HTTP_USER_AGENT': 'Mozilla/5.0 (X11; Linux x86_64; rv:7.0) Gecko/20100101 Firefox/7.0', 'HTTP_HOST': '127.0.0.1:8000'
-        # 'REMOTE_HOST': 'localhost', 'HTTP_ACCEPT_ENCODING': 'gzip, deflate',
+    def __init__(self, application, environ):
+        '''Init request instance from environment
+        '''
+        self.application = application
+        self.cookies = environ['HTTP_COOKIE']
+        self.headers = {}
+        self.meta = environ
+        self.method = environ['REQUEST_METHOD']
+        self.path = environ['PATH_INFO']
+        self.params = urlparse.parse_qs(environ['QUERY_STRING'])
 
     def get(self, name, default=None):
+        '''Get item from params with default value
+        '''
         return name in self.params and self.params[name] or default
 
+    def __contains__(self, name):
+        '''Check is variable in request
+        '''
+        return name in self.params
 
-class Response(object):
-    '''Class used to put data into response
+    def __getitem__(self, name):
+        '''Get item from params as from dictionary
+        '''
+        return self.get(name, None)
+
+    def __iter__(self):
+        '''Get iterator over the request params
+        '''
+        return self.params.iter()
+
+    def __len__(self):
+        '''Get the number of items in request
+        '''
+        return len(self.params)
+
+
+def response(start_response_func, data, status='200 Ok',
+             headers=[('Content-type', 'text/html')]):
+    '''Make response object
     '''
-    __slots__ = ('buffer', 'write', 'headers', 'cookies', 'status', 'start')
-
-    def __init__(self, data, content_type='text/html'):
-        self.status     = '200 OK'
-        self.headers    = [('Content-type', content_type)]
-        self.buffer     = StringIO.StringIO()
-        self.buffer.write(data)
-
-    def start(self, start_response_func):
-        result_data = self.buffer.getvalue()
-        self.buffer.close()
-        self.headers.append(('Content-Length', str(len(result_data))))
-        start_response_func(self.status, self.headers)
-        return result_data
+    headers.append(('Content-Length', str(len(data))))
+    start_response_func(status, headers)
+    return data
