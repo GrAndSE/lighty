@@ -1,4 +1,4 @@
-from functools import partial
+import functools
 
 from .handler import handler
 from .urls import load_urls, resolve
@@ -7,6 +7,9 @@ from .urls import load_urls, resolve
 def WSGIApplication(settings):
     '''Create main application handler
     '''
-    urls = load_urls(settings.urls)
-    resolve_url = partial(resolve, urls)
-    return partial(handler, resolve_url)
+
+    class Application(object):
+        urls = load_urls(settings.urls)
+        resolve_url = functools.partial(resolve, urls)
+
+    return functools.partial(handler, Application, Application.resolve_url)
