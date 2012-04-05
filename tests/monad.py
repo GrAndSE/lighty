@@ -35,10 +35,32 @@ class MonadTestCase(unittest.TestCase):
                 monad[1])
         assert not 10 in monad, 'Number in error: %s' % (10 in monad)
 
+    def testSeqActions(self):
+        monad = monads.ValueMonad([10])
+        assert monad + [20] == [10, 20], 'Sequence __eq__ error: %s' % (
+                monad + [20])
+        assert monad * 2 == [10, 10], 'Sequence * error: %s' % (monad * 2)
+
+    def testSequence(self):
+        monad = monads.ValueMonad([1, 2, 3, 4])
+        assert monad[0] == 1, 'Sequence [0] error: %s' % monad[0]
+        assert monad[:2] == [1, 2], 'Sequence [:2] error: %s' % monad[:2]
+        assert monad[1:2] == [2], 'Sequence [1:2] error: %s' % monad[1:2]
+        assert monad[monads.ValueMonad(2):] == [3, 4], (
+                'Sequence [ValueMonad(2):] error: %s' %
+                monad[monads.ValueMonad(2):])
+        assert isinstance(monad[5], monads.NoneMonad), (
+                'Sequence [5] error: %s' % monad[5])
+        assert monad[1:monads.ValueMonad(-1)] == [2, 3], (
+                'Sequence [1:ValueMonad(-1)] error: %s' %
+                monads[1:monads.ValueMonad(-1)])
+
 
 def test():
     suite = unittest.TestSuite()
     suite.addTest(MonadTestCase('testNumberComparision'))
     suite.addTest(MonadTestCase('testNumberActions'))
     suite.addTest(MonadTestCase('testNumberSeq'))
+    suite.addTest(MonadTestCase('testSeqActions'))
+    suite.addTest(MonadTestCase('testSequence'))
     return suite

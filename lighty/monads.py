@@ -169,7 +169,7 @@ class ValueMonad(object):
     @monad_function
     def __getitem__(self, *args):
         try:
-            return operator.getitem(*args)
+            return operator.getitem(self.value, *args)
         except Exception as e:
             if len(args) == 1 and args[0] == 0:
                 return self.value
@@ -194,6 +194,9 @@ class ValueMonad(object):
     def __str__(self):
         return str(self.value)
 
+    def __index__(self):
+        return self.value if hasattr(self.value, '__index__') else None
+
 
 class NoneMonad(ValueMonad):
     '''NoneMonad class represents all the methods exceptions and missed values
@@ -209,3 +212,6 @@ class NoneMonad(ValueMonad):
         '''Return's empty iterator
         '''
         return ValueMonad(NoneMonad.EMPTY_ITER)
+
+    def __index__(self):
+        return None
