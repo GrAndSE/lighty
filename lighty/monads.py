@@ -1,6 +1,7 @@
 '''Monaidic functions and classes
 '''
 import functools
+import itertools
 import operator
 
 
@@ -24,7 +25,6 @@ def monad_operator(func):
     @functools.wraps(func)
     def wrapper(self, value):
         try:
-            print func, self, value
             if isinstance(value, NoneMonad):
                 return value
             else:
@@ -33,6 +33,24 @@ def monad_operator(func):
                                        else value))
         except Exception as e:
             return NoneMonad(e)
+    return wrapper
+
+
+def monad_boolean(func):
+    '''Decorator wraps all methods can be used for comparision.
+    Return's True if boolean operation returns True, or False when boolean
+    operation return's False or something goes wrong
+    '''
+    @functools.wraps(func)
+    def wrapper(self, value):
+        try:
+            if isinstance(value, NoneMonad):
+                return False
+            else:
+                return func(self, value.value if isinstance(value, ValueMonad)
+                                  else value)
+        except Exception:
+            return False
     return wrapper
 
 
@@ -78,11 +96,15 @@ class ValueMonad(object):
         self.value = value
         self.code = 200
 
-    @monad_operator
+    @monad_boolean
     def __lt__(self, other):
         return self.value < other
 
-    @monad_operator
+    @monad_boolean
+    def __le__(self, other):
+        return self.value <= other
+
+    @monad_boolean
     def __eq__(self, other):
         return self.value == other
 
@@ -136,7 +158,7 @@ class ValueMonad(object):
         except:
             return 1
 
-    @monad_operator
+    @monad_boolean
     def __contains__(self, item):
         return item in self.value
 
@@ -146,7 +168,12 @@ class ValueMonad(object):
 
     @monad_function
     def __getitem__(self, *args):
-        return operator.getitem(*args)
+        try:
+            return operator.getitem(*args)
+        except Exception as e:
+            if len(args) == 1 and args[0] == 0:
+                return self.value
+            raise e
 
     @monad_function
     def __delitem__(self, *args):
@@ -171,4 +198,14 @@ class ValueMonad(object):
 class NoneMonad(ValueMonad):
     '''NoneMonad class represents all the methods exceptions and missed values
     '''
-    pass
+    EMPTY_ITER = itertools.cycle('')
+    
+    def __len__(self):
+        '''Returns 0
+        '''
+        return 0
+
+    def __iter__(self):
+        '''Return's empty iterator
+        '''
+        return ValueMonad(NoneMonad.EMPTY_ITER)

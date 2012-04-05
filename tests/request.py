@@ -1,4 +1,4 @@
-'''Test case for whole template
+'''Test case for Request class
 '''
 import unittest
 
