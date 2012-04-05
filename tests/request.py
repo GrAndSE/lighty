@@ -4,13 +4,20 @@ import unittest
 
 from lighty.wsgi.http import Request
 
+CSRFTOKEN = '48831b11aea954cd93464468553ecc6c'
+CLTRACK = 'rbr6t7nud3etn90f38j3f3n4i2'
+UTMA = '96992031.112838200.1323767133.1330596387.1330599154.22'
+UTMZ = '96992031.1323767133.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)'
+COOKIE_STRING = 'CLTRACK=%s; __utma=%s; __utmz=%s; csrftoken=%s' % (CLTRACK,
+        UTMA, UTMZ, CSRFTOKEN)
+
 
 class RequestTestCase(unittest.TestCase):
     '''Test case for partial template execution
     '''
     def setUp(self):
         self.environ = {
-            'HTTP_COOKIE': 'cookie',
+            'HTTP_COOKIE': COOKIE_STRING,
             'REQUEST_METHOD': 'get',
             'PATH_INFO': '/hello/world',
             'QUERY_STRING': 'a=1&b=text',
@@ -18,7 +25,7 @@ class RequestTestCase(unittest.TestCase):
         self.request = Request(self, self.environ)
 
     def testApp(self):
-        assert self.application == self, 'Error setting response application'
+        assert self.request.app == self, 'Error setting response application'
 
     def testRequestMethod(self):
         assert self.request.method == 'get', ('Wrong request method: %s' % 
@@ -29,9 +36,13 @@ class RequestTestCase(unittest.TestCase):
                 self.request.path)
 
     def testCookies(self):
-        # TODO: write valid code
-        assert self.request.cookies == 'cookie', ('Wrong cookies string: %s' %
-                self.request.cookies)
+        assert self.request.cookies['csrftoken'].value == CSRFTOKEN, (
+                    'Wrong cookie "csrftoken": %s' %
+                    self.request.cookies['csrftoken'].value)
+        assert self.request.cookies['CLTRACK'].value == CLTRACK, (
+                    'Wrong cookie "CLTRACK": %s' %
+                    self.request.cookies['CLTRACK'].value)
+
 
     def testHeaders(self):
         # TODO: write valid code here
