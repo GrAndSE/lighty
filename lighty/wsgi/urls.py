@@ -64,35 +64,48 @@ def escape_url(url):
     return pattern
 
 
-def make_pattern(url, constr):
-    '''Make regexp pattern from url pattern and contrainsts
+def get_arg(pattern, constr):
+    '''Get argument types
     '''
-    def replace_pattern(url, pattern):
-        actual = pattern[1:-1]
-        name, type = ':' in actual and actual.split(':') or (actual, 'str')
-        regexp = name in constr and constr[name] or TYPE_PATTERNS[type]
-        return url.replace(pattern, '(?P<%s>%s)' % (name, regexp))
-    return reduce(replace_pattern,
-                  [url + '$'] + VARIABLE_PATTERN.findall(url))
+    actual = pattern[1:-1]
+    name, type = ':' in actual and actual.split(':') or (actual, 'str')
+    return (pattern, name,
+            constr[name] if name in constr else TYPE_PATTERNS[type])
 
 
-def url(pattern, view, name='', args={}, constraints={}, methods=HTTP_METHODS):
+def replace_pattern(url, arg):
+    pattern, name, regexp = arg
+    return url.replace(pattern, '(?P<%s>%s)' % (name, regexp))
+
+
+def replace_arg(url, arg):
+    pattern, value = arg
+    return url.replace(pattern, str(value))
+
+
+def url(pattern, view, name='', constraints={}, methods=HTTP_METHODS,
+        defaults={}):
     '''Prepare url for application
     '''
-    url_expr = re.compile(make_pattern(pattern, constraints))
+    vars = [get_arg(var, constraints)
+            for var in VARIABLE_PATTERN.findall(pattern)]
+    constrs = dict([(var[1], var[2]) for var in vars])
+    args = dict([(var[1], var[0]) for var in vars])
+    url_expr = re.compile(reduce(replace_pattern, [pattern + '$'] + vars))
     view_func = load_view(view)
     url_name = name is not '' and name or view_func
-    return url_expr, pattern, view_func, url_name, args, constraints, methods
+    return (url_expr, pattern, view_func, url_name, defaults, args, constrs,
+            methods)
 
 
 def resolve(urls, path, method=None):
     '''Resolve url
     '''
-    for expr, url, view, name, args, _, methods in urls:
+    for expr, url, view, name, defaults, _, _, methods in urls:
         if method in methods:
             match = expr.match(path)
             if match:
-                call_args = copy.copy(args)
+                call_args = copy.copy(defaults)
                 call_args.update(match.groupdict())
                 return partial(view, **call_args)
     return NoneMonad(LookupError('There is no pattern matching path %s' %
@@ -103,10 +116,11 @@ def reverse(urls, lookup_name, lookup_args={}):
     '''Get url for name with specified args number
     '''
     lookup_keys = sorted(lookup_args.keys())
-    for _, url, _, name, args, _, _ in urls:
+    for _, url, _, name, _, args, _, _ in urls:
         if name == lookup_name and lookup_keys == sorted(args.keys()):
-            print url
-            return url
+            replacement = [(args[var], lookup_args[var])
+                           for var in lookup_keys]
+            return reduce(replace_arg, [url] + replacement)
     return NoneMonad(LookupError(
                             'Url for name "%s" with args "%s" was not found' %
                             (lookup_name, ','.join(lookup_keys))))
