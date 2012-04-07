@@ -82,7 +82,8 @@ def monad_function(func):
 
 @functools.total_ordering
 class ValueMonad(object):
-    '''Base monad class
+    '''Base monad class. All the operations except comparisions and few others
+    returns monads.
     '''
     __slots__ = ('__init__', '__lt__', '__gt__', '__le__', '__ge__', '__eq__',
                  '__ne__', '__add__', '__sub__', '__div__', '__mul__',
@@ -92,6 +93,8 @@ class ValueMonad(object):
                  '__call__', '__str__', '__getattr__', 'code', 'value', )
 
     def __init__(self, value, code=200):
+        '''Create new monad including value and store the code
+        '''
         super(ValueMonad, self).__init__()
         self.value = value
         self.code = 200
@@ -214,4 +217,11 @@ class NoneMonad(ValueMonad):
         return ValueMonad(NoneMonad.EMPTY_ITER)
 
     def __index__(self):
+        '''None as index
+        '''
         return None
+
+    def __nonzero__(self):
+        '''NoneMonad equals zero
+        '''
+        return False
