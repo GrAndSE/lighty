@@ -4,6 +4,8 @@ import copy
 import re
 from functools import partial, reduce
 
+from ..monads import NoneMonad
+
 
 PATH_PATTERN = re.compile(
         '^(?P<module>(([\\w\\d]+\\.)*[\\w\\d]+))\\.(?P<function>([\\w\\d]+))$')
@@ -33,8 +35,6 @@ def load_urls(name):
         )
     '''
     module = __import__(name, globals(), locals(), 'urlpatterns')
-    print module
-    print module.urlpatterns
     return module.urlpatterns
 
 
@@ -65,6 +65,8 @@ def escape_url(url):
 
 
 def make_pattern(url, constr):
+    '''Make regexp pattern from url pattern and contrainsts
+    '''
     def replace_pattern(url, pattern):
         actual = pattern[1:-1]
         name, type = ':' in actual and actual.split(':') or (actual, 'str')
@@ -93,15 +95,18 @@ def resolve(urls, path, method=None):
                 call_args = copy.copy(args)
                 call_args.update(match.groupdict())
                 return partial(view, **call_args)
-    return LookupError('There is no pattern matching path %s' % path)
+    return NoneMonad(LookupError('There is no pattern matching path %s' %
+                                 path))
 
 
 def reverse(urls, lookup_name, lookup_args={}):
     '''Get url for name with specified args number
     '''
     lookup_keys = sorted(lookup_args.keys())
-    for _, url, _, name, args in urls:
+    for _, url, _, name, args, _, _ in urls:
         if name == lookup_name and lookup_keys == sorted(args.keys()):
+            print url
             return url
-    return LookupError('Url for name "%s" with args "%s" was not found' %
-                       (lookup_name, ','.join(lookup_keys)))
+    return NoneMonad(LookupError(
+                            'Url for name "%s" with args "%s" was not found' %
+                            (lookup_name, ','.join(lookup_keys))))
