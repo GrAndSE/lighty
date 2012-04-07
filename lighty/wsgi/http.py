@@ -2,6 +2,7 @@
 '''
 import collections
 import httplib
+import Cookie
 import urlparse
 try:
     import cStringIO
@@ -18,24 +19,25 @@ except:
 class Request(collections.Mapping):
     '''WSGI request wrapper
     '''
-    __slots__ = ('__contains__', '__getitem__', '__iter__', '__len__',
-                 'application', 'cookies', 'get', 'headers', 'meta', 'method',
-                 'params', 'path', )
+    __slots__ = ('__contains__', '__getitem__', '__iter__', '__len__', 'app',
+                 'cookies', 'get', 'headers', 'meta', 'method', 'params',
+                 'path', )
 
     def __init__(self, application, environ):
         '''Init request instance from environment
         '''
-        print [(k, environ[k]) for k in environ if k.startswith('HTTP')]
-        self.application = application
-        self.cookies = (dict([c.split('=', 1)
-                              for c in environ['HTTP_COOKIE'].split('; ')])
-                        if 'HTTP_COOKIE' in environ
-                        else {})
+        self.app = application
+        cookie_loader = Cookie.SimpleCookie()
+        cookie_loader.load(environ['HTTP_COOKIE']
+                           if 'HTTP_COOKIE' in environ
+                           else '')
+        self.cookies = dict(cookie_loader)
         self.headers = {}
         self.meta = environ
         self.method = environ['REQUEST_METHOD']
         self.path = environ['PATH_INFO']
-        self.params = urlparse.parse_qs(environ['QUERY_STRING'])
+        self.params = dict([(name, values[0] if len(values) == 1 else values)
+            for name, values in urlparse.parse_qsl(environ['QUERY_STRING'])])
 
     def get(self, name, default=None):
         '''Get item from params with default value
