@@ -1,6 +1,7 @@
 '''Module contains methods to work with request and response objects
 '''
 import collections
+import httplib
 import urlparse
 try:
     import cStringIO
@@ -62,10 +63,13 @@ class Request(collections.Mapping):
         return len(self.params)
 
 
-def response(start_response_func, data, status='200 Ok',
+def response(start_response_func, data, code=200,
              headers=[('Content-type', 'text/html')]):
     '''Make response object
     '''
-    headers.append(('Content-Length', str(len(data))))
+    status = ('%s %s' % (code, httplib.responses) if code in httplib.responses
+              else '200 OK')
+    if 'Content-Length' not in headers:
+        headers.append(('Content-Length', str(len(data))))
     start_response_func(status, headers)
     return data

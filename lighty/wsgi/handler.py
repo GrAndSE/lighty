@@ -1,4 +1,3 @@
-import collections
 import functools
 
 from .http import Request, response
@@ -6,23 +5,18 @@ from .urls import url
 
 
 def handler(application, resolve_url, environ, start_response):
-    '''Basic function for responsing
+    '''Create request object, resolve url, execute view and send response
     '''
-    # Create new request and process middleware
+    request = Request(application, environ)
     view = resolve_url(environ['PATH_INFO'], environ['REQUEST_METHOD'])
-    status = ((issubclass(view.__class__, LookupError) and
-               '404 Page was now found') or
-              (issubclass(view.__class__, Exception) and
-               '500 Internal Server Error') or
-              '200 OK')
     response_func = functools.partial(response, start_response)
-    data = (view(request=Request(application, environ))
-            if isinstance(view, collections.Callable)
-            else str(view))
-    return response_func(data, status)
+    result = view(request)
+    return response_func(str(result.data), result.code)
 
 
 def static_view(request, path):
+    '''Serve static files
+    '''
     with open(path, 'rb') as file:
         return "".join(file.readlines())
 

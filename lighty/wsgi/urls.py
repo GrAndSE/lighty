@@ -5,6 +5,7 @@ import re
 from functools import partial, reduce
 
 from ..monads import NoneMonad
+from . import decorators
 
 
 PATH_PATTERN = re.compile(
@@ -42,7 +43,7 @@ def load_view(view):
     '''Load view for name if needed 
     '''
     if callable(view):
-        return view
+        return view if hasattr(view, 'is_view') else decorators.view(view)
     elif not type(view) is str:
         return TypeError('Error url creation')
     explain = PATH_PATTERN.match(view)
