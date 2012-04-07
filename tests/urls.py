@@ -2,7 +2,7 @@
 '''
 import unittest
 
-from lighty.wsgi.urls import resolve, url
+from lighty.wsgi.urls import resolve, reverse, url
 
 def no_arg_func(): return ''
 def one_arg_func(arg): return str(arg)
@@ -10,7 +10,8 @@ def one_arg_func_float(arg): return str(arg)
 def one_arg_func_char(arg): return str(arg)
 def one_arg_func_int(arg): return str(arg)
 def one_arg_func_str(arg): return str(arg)
-def two_arg_func(f, s): return str(f) + str(s)
+def two_arg_func(action, id): return str(action) + str(id)
+def three_arg_func(app, action, id): return str(app) + str(action) + str(id)
 
 
 class PatternMatchingTestCase(unittest.TestCase):
@@ -18,13 +19,18 @@ class PatternMatchingTestCase(unittest.TestCase):
     '''
     def setUp(self):
         self.urls = (
-                url('/test/', 'tests.urls.no_arg_func'),
-                url('/arg/<id:int>', 'tests.urls.one_arg_func_int'),
+                url('/test/', 'tests.urls.no_arg_func', name='noargs'),
+                url('/arg/<id:int>', 'tests.urls.one_arg_func_int',
+                    name='onearg'),
                 url('/arg/<letter:char>', 'tests.urls.one_arg_func_char'),
                 url('/arg/<number:float>', 'tests.urls.one_arg_func_float'),
                 url('/arg/<alias:str>', 'tests.urls.one_arg_func_str'),
                 url('/default_arg/<key>/', 'tests.urls.one_arg_func'),
-                url('/args/<action>/<id>/', 'tests.urls.two_arg_func'),
+                url('/args/<action>/<id>/', 'tests.urls.two_arg_func',
+                    name='twoargs'),
+                url('/<app>/<action>/<id>/', two_arg_func,
+                    constraints={'app': '[\\d]+', 'action': '[\\w]+',
+                                 'id': '[\\d]+'}),
         )
 
     def testSimpleUrl(self):
@@ -61,6 +67,33 @@ class PatternMatchingTestCase(unittest.TestCase):
         assert func == two_arg_func, (
                 'Two arg function required for /args/test/7/')
 
+    def testNonExistsUrl(self):
+        func = resolve(self.urls, '/g/g/g/', method='GET')
+        print func
+        assert not func, 'Resolved with wrong arg for /args/test/g/'
+
+
+    def testReverseNoArgsUrl(self):
+        url = reverse(self.urls, 'noargs')
+        assert url == '/test/', ('Error reversing url for name "noargs": %s' %
+                                 url)
+
+    def testReverseOneArgUrl(self):
+        url = reverse(self.urls, 'onearg', {'id': 10})
+        assert url == '/arg/10', ('Error reversing url for name "onearg" and '
+                                  ' args: {"id": 10}: %s' % url)
+        url = reverse(self.urls, 'onearg', {'name': 'Peter'})
+        assert not url, ('Error reversing url for name "onearg" and args: '
+                         '{"name": "Peter"}: %s' % url)
+        url = reverse(self.urls, 'noneonearg', {'id': 10})
+        assert not url, ('Error reversing url for name "noneonearg" and args: '
+                         '{"id": 10}: %s' % url)
+
+    def testReverseTwoArgUrl(self):
+        url = reverse(self.urls, 'twoargs', {'action': 'get', 'id': 1})
+        assert url == '/args/get/1/', ('Error reversing url for name '
+                '"twoargs" and args: {"action": "get", "id": 1}: %s' % url)
+
 
 def test():
     suite = unittest.TestSuite()
@@ -71,4 +104,7 @@ def test():
     suite.addTest(PatternMatchingTestCase('testStrArgUrl'))
     suite.addTest(PatternMatchingTestCase('testDefaultArgUrl'))
     suite.addTest(PatternMatchingTestCase('testTwoArgUrl'))
+    suite.addTest(PatternMatchingTestCase('testReverseNoArgsUrl'))
+    suite.addTest(PatternMatchingTestCase('testReverseOneArgUrl'))
+    suite.addTest(PatternMatchingTestCase('testReverseTwoArgUrl'))
     return suite
