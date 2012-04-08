@@ -3,6 +3,20 @@
 import functools
 import itertools
 import operator
+import sys
+
+
+def handle_exception(func):
+    '''Handle an exception and return NoneMonad for this exception
+    '''
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            return NoneMonad(e, traceback=exc_traceback)
+    return wrapper
 
 
 def monad_operation(func):
@@ -10,11 +24,9 @@ def monad_operation(func):
     an exception
     '''
     @functools.wraps(func)
+    @handle_exception
     def wrapper(self):
-        try:
-            return ValueMonad(func(self))
-        except Exception as e:
-            return NoneMonad(e)
+        return ValueMonad(func(self))
     return wrapper
 
 
@@ -23,16 +35,13 @@ def monad_operator(func):
     exception catching
     '''
     @functools.wraps(func)
+    @handle_exception
     def wrapper(self, value):
-        try:
-            if isinstance(value, NoneMonad):
-                return value
-            else:
-                return ValueMonad(func(self, value.value
-                                       if isinstance(value, ValueMonad)
-                                       else value))
-        except Exception as e:
-            return NoneMonad(e)
+        if isinstance(value, NoneMonad):
+            return value
+        return ValueMonad(func(self, value.value 
+                                     if isinstance(value, ValueMonad)
+                                     else value))
     return wrapper
 
 
@@ -69,14 +78,12 @@ def monad_function(func):
     catch all the exceptions
     '''
     @functools.wraps(func)
+    @handle_exception
     def wrapper(self, *args, **kwargs):
-        try:
-            nargs = [check_argument(args) for args in args]
-            nkwargs = dict([(name, check_argument(kwargs[name]))
-                            for name in kwargs])
-            return ValueMonad(func(self, *nargs, **nkwargs))
-        except Exception as e:
-            return NoneMonad(e)
+        nargs = [check_argument(args) for args in args]
+        nkwargs = dict([(name, check_argument(kwargs[name]))
+                        for name in kwargs])
+        return ValueMonad(func(self, *nargs, **nkwargs))
     return wrapper
 
 
@@ -96,8 +103,8 @@ class ValueMonad(object):
         '''Create new monad including value and store the code
         '''
         super(ValueMonad, self).__init__()
-        self.value = value
-        self.code = 200
+        self.value = value.value if isinstance(value, ValueMonad) else value
+        self.code = code
 
     @monad_boolean
     def __lt__(self, other):
@@ -205,6 +212,12 @@ class NoneMonad(ValueMonad):
     '''NoneMonad class represents all the methods exceptions and missed values
     '''
     EMPTY_ITER = itertools.cycle('')
+
+    def __init__(self, value, code=200, traceback=None):
+        '''Create new monad including value and store the code
+        '''
+        super(NoneMonad, self).__init__(value, code)
+        self.traceback = traceback
     
     def __len__(self):
         '''Returns 0
