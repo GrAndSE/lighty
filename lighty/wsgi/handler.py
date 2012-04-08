@@ -11,7 +11,7 @@ def handler(application, resolve_url, environ, start_response):
     view = resolve_url(environ['PATH_INFO'], environ['REQUEST_METHOD'])
     response_func = functools.partial(response, start_response)
     result = view(request)
-    return response_func(str(result.data), result.code)
+    return response_func(str(result), result.code)
 
 
 def static_view(request, path):

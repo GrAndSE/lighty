@@ -13,9 +13,10 @@ def view(func, **constraints):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:
-            if not functools.reduce(operator.__and__,
-                                    [constraints[arg](kwargs[arg])
-                                     for arg in constraints]):
+            if (len(constraints) > 0 and
+                    not functools.reduce(operator.__and__,
+                                         [constraints[arg](kwargs[arg])
+                                          for arg in constraints])):
                 return monads.NoneMonad(ValueError(
                                                 'Wrong view argument value'))
             return monads.ValueMonad(func(*args, **kwargs))
