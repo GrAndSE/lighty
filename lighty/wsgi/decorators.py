@@ -11,14 +11,11 @@ def view(func, **constraints):
     '''
     func.is_view = True
     @functools.wraps(func)
+    @monads.handle_exception
     def wrapper(*args, **kwargs):
-        try:
-            if not functools.reduce(operator.__and__,
-                                    [constraints[arg](kwargs[arg])
-                                     for arg in constraints]):
-                return monads.NoneMonad(ValueError(
-                                                'Wrong view argument value'))
-            return monads.ValueMonad(func(*args, **kwargs))
-        except Exception as e:
-            return monads.NoneMonad(e)
+        if not functools.reduce(operator.__and__, 
+                                [constraints[arg](kwargs[arg])
+                                 for arg in constraints]):
+            return monads.NoneMonad(ValueError('Wrong view argument value'))
+        return monads.ValueMonad(func(*args, **kwargs))
     return wrapper
