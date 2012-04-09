@@ -96,7 +96,6 @@ class Model(object):
             body    = db.TextField()
             created = db.DateTimeField(auto_now_add=True)
     """
-
     __metaclass__ = ModelBase
 
 
@@ -139,9 +138,9 @@ class Model(object):
         """Unique key for this entity.
 
         This property is only available if this entity is already stored in the
-        datastore or if it has a full key, so it is available if this entity was
-        fetched returned from a query, or after put() is called the first time
-        for new entities, or if a complete key was given when constructed.
+        datastore or if it has a full key, so it is available if this entity
+        was fetched returned from a query, or after put() is called the first
+        time for new entities, or if a complete key was given when constructed.
 
         Returns:
             Datastore key of persisted entity.
@@ -190,7 +189,7 @@ class Model(object):
                 cls.__name__)
 
     @classmethod
-    def get(cls, keys):
+    def get(cls, **keys):
         """Fetch instance from the datastore of a specific Model type using 
         key.
 
@@ -204,11 +203,11 @@ class Model(object):
             story = Story.get(story_key)
 
         Args:
-            keys: Key within datastore entity collection to find; or string key;
-            or list of Keys or string keys.
+            keys: Key within datastore entity collection to find; or string
+            key; or list of Keys or string keys.
 
         Returns:
-            If a single key was given: a Model instance associated with key for 
+            If a single key was given: a Model instance associated with key for
             provided class if it exists in the datastore, otherwise None; 
             if a list of keys was given: a list whose items are either a Model 
             instance or None.
@@ -226,10 +225,12 @@ class Model(object):
 
     @classmethod
     def fields(cls):
-        """Get fields list"""
+        """Get fields list
+        """
         return cls._fields
 
     @classmethod
     def properties(cls):
-        """Alias for fields."""
+        """Alias for fields.
+        """
         return cls.fields()           
