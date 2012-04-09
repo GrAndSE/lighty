@@ -1,0 +1,59 @@
+Lighty-Template Changelog
+=========================
+
+Version 0.3.3
+-------------
+(bug fix release on March 26th 2012)
+
+- Fix issue with block template tags.
+- Fix issue with template tags extending and filesystem loader.
+
+
+Version 0.3.2
+-------------
+(released on March 26th 2012)
+
+- Add template loader that works from file system.
+- Some small syntax changes that makes new template creation and execution 
+  little bit easier.
+- "include" tag implemented.
+- Refactor some methods.
+
+Version 0.3.1
+-------------
+(released on March 12th 2012)
+
+- Fix for tags issue with setting variable with a name already exists in 
+  context.
+- Fix CHANGES list.
+- Add with tag.
+- Default tags library refactoring.
+
+Version 0.3
+-----------
+(released on March 12th 2012)
+
+- Simple "if" tag implemented.
+- "for" tag implemented.
+- "spaceless" tag implemented.
+- Simple benchmarks implemented.
+
+Version 0.2
+-----------
+(released on September 23th 2011)
+
+- Template filters implemented.
+- Some standart template filters.
+
+Version 0.1
+-----------
+(released on April 4th 2011)
+
+- Custom template tags support. 
+- Standart tags: block and extends.
+
+Version 0.0.1
+-------------
+(released on January 13th 2011)
+
+- Simple template parser and execution.

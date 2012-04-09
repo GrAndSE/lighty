@@ -1,5 +1,10 @@
-*.pyc
-*.swp
+build/
+dist/
 libs/
 apps/
-settings.py
+*.egg*
+*.pyc
+*.swp
+*.py~
+*.html~
+*.log
