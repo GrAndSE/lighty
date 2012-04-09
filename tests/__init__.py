@@ -1,3 +1,3 @@
 tests = (
-    'urls',
+    'mongo',
 )
