@@ -17,7 +17,7 @@ setup(
         author_email='undeadgrandse@gmail.com',
         license='BSD',
         url='https://github.com/GrAndSE/lighty',
-        packages=['lighty', 'lighty.templates', 'lighty.wsgi'],
+        packages=['lighty', 'lighty.db', 'lighty.templates', 'lighty.wsgi'],
         platforms="any",
         classifiers=[
             'Environment :: Web Environment',

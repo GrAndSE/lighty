@@ -1,6 +1,8 @@
 tests = (
     # core
     'monad',
+    # db
+    'mongo',
     # templates
     'parse_token',
     'variable_fields',
