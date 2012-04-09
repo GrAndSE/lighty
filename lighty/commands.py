@@ -1,11 +1,44 @@
 '''Tools for run commands in framework environment using simple manage.py 
 script
 '''
+import itertools
+import sys
+import traceback
+
 from lighty.conf import Settings
-from lighty.wsgi import commands
+
+
+def load_commands_from_app(app_name):
+    '''Load commands from application with name specified
+
+    Return:
+        list of command functions
+    '''
+    try:
+        name = app_name
+        module = __import__(name, globals(), locals(), 'commands')
+        if hasattr(module, 'commands'):
+            
+            commands = getattr(module, 'commands')
+            attrs = [getattr(commands, name) for name in dir(commands)
+                     if not name.startswith('_')]
+            return [(attr.func_name, attr)
+                    for attr in attrs if callable(attr)]
+    except:
+        traceback.print_exc(file=sys.stdout)
+    return []
+
+
+def load_commands(apps=[]):
+    '''Load commands from applications lists
+    '''
+    commands = [load_commands_from_app(app) for app in apps]
+    return dict(itertools.chain(*commands))
+
 
 def manage():
-    '''Manage script
+    '''Process manage command. Load all the commands from applications in
+    configuration files and add them into autocompletition
     '''
     import argparse
     parser = argparse.ArgumentParser(description='Lighty manage script',
@@ -18,8 +51,9 @@ def manage():
 
     try:
         settings = Settings(args.config)
+        commands = load_commands(settings.section('APPS'))
     except Exception as e:
         print(e)
     else:
-        command = getattr(commands, args.command)
+        command = commands[args.commands]
         command(settings)
