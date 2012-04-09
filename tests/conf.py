@@ -19,7 +19,7 @@ class ConfTestCase(unittest.TestCase):
                 'Get returns wrong value %s except test' % self.settings.value)
         assert self.settings.value == self.settings.get('value'), (
                 '__getitem__ and get returns different values')
-        assert self.settings.VALUE == '2', 'Lower case error'
+        assert self.settings.VALUE == 'test', 'Lower case error'
 
     def testGetFromSection(self):
         '''Check getting option value from section
@@ -41,6 +41,19 @@ class ConfTestCase(unittest.TestCase):
         '''
         assert self.settings.test == 'value', 'APPS configs was not loaded'
 
+    def testSections(self):
+        '''Test is all values in sections
+        '''
+        assert self.settings.section('APPS') == ['tests'], (
+                'APPS section was not loaded properly')
+        assert self.settings.section('APP1') == ['app_var'], (
+                'APP1 section was not loaded properly')
+        assert self.settings.section('APP2') == ['app_var'], (
+                'APP2 section was not loaded properly')
+        assert sorted(self.settings.section('CONFS')) == [
+                'tests/conf/app1.cfg', 'tests/conf/app2.cfg'], (
+                        'CONFS section was not loaded properly')
+
 
 def test():
     suite = unittest.TestSuite()
@@ -48,4 +61,5 @@ def test():
     suite.addTest(ConfTestCase('testGetFromSection'))
     suite.addTest(ConfTestCase('testAppLoaded'))
     suite.addTest(ConfTestCase('testConfsLoaded'))
+    suite.addTest(ConfTestCase('testSections'))
     return suite
