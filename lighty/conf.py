@@ -21,7 +21,7 @@ class Settings(collections.Mapping):
     '''
     __slots__ = ('__init__', '__contains__', '__getattr__', '__getitem__',
                  '__eq__', '__iter__', '__len__', '__ne__', 'configs', 'get',
-                 'items', 'keys', 'sections', 'settings', 'values', )
+                 'items', 'keys', 'section', 'sections', 'settings', 'values')
 
     def __init__(self, main_config, defaults={}):
         '''Load main config, parse it and then trying to load applications from
@@ -53,6 +53,10 @@ class Settings(collections.Mapping):
             self.settings.update(self.sections[section])
 
     def __getitem__(self, name):
+        '''Get value from configuration with specified name
+
+        Arguments:
+        '''
         name = name.lower()
         if name in self.settings:
             return self.settings[name]
@@ -63,6 +67,8 @@ class Settings(collections.Mapping):
     __getattr__ = __getitem__
 
     def get(self, name, section=None):
+        '''Get configuration parameter from sections
+        '''
         name = name.lower()
         if section is None:
             if name in self.settings:
@@ -74,14 +80,29 @@ class Settings(collections.Mapping):
                 raise KeyError('No section "%s" in configuration' % section)
         raise KeyError('"%s" not found in configuration' % name)
 
+    def section(self, section):
+        '''Get all keys from section
+        '''
+        if section in self.sections:
+            return self.sections[section].keys()
+        raise KeyError('No section "%s" in configuration' % section)
+
     def __iter__(self):
+        '''Get iterator over the settings keys
+        '''
         return self.settings.__iter__()
 
     def __len__(self):
+        '''Get number of unique configuration keys
+        '''
         return len(self.settings)
 
     def keys(self):
+        '''Get unique configuration options names
+        '''
         return self.settings.keys()
 
     def values(self):
+        '''Get all the configuration options values
+        '''
         return self.settings.values()
