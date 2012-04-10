@@ -4,6 +4,7 @@ script
 import itertools
 import sys
 import traceback
+import types
 
 from lighty.conf import Settings
 
@@ -15,15 +16,14 @@ def load_commands_from_app(app_name):
         list of command functions
     '''
     try:
-        name = app_name
-        module = __import__(name, globals(), locals(), 'commands')
-        if hasattr(module, 'commands'):
-            
-            commands = getattr(module, 'commands')
-            attrs = [getattr(commands, name) for name in dir(commands)
-                     if not name.startswith('_')]
-            return [(attr.func_name, attr)
-                    for attr in attrs if callable(attr)]
+        commands = __import__(app_name + '.commands', globals(), locals(),
+                              'commands')
+        attrs = [getattr(commands, name) for name in dir(commands)
+                 if not name.startswith('_')]
+        return [(attr.func_name, attr) for attr in attrs
+                if isinstance(attr, types.FunctionType)]
+    except ImportError:
+        pass
     except:
         traceback.print_exc(file=sys.stdout)
     return []
