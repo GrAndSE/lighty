@@ -1,7 +1,7 @@
 tests = (
     # core
     'conf',
-    'commands',
+    'command',
     'monad',
     # db
     'mongo',

@@ -44,8 +44,10 @@ class ConfTestCase(unittest.TestCase):
     def testSections(self):
         '''Test is all values in sections
         '''
-        assert self.settings.section('APPS') == ['tests'], (
-                'APPS section was not loaded properly')
+        apps_req = ['lighty.db', 'lighty.templates', 'lighty.wsgi', 'tests']
+        apps = sorted(self.settings.section('APPS'))
+        assert apps == apps_req, ('APPS section was not loaded properly: %s' %
+                                  apps)
         assert self.settings.section('APP1') == ['app_var'], (
                 'APP1 section was not loaded properly')
         assert self.settings.section('APP2') == ['app_var'], (
