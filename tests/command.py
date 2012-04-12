@@ -8,8 +8,7 @@ class CommandsTestCase(unittest.TestCase):
     '''
 
     def testLoadCommandsFromApp(self):
-        '''Test loading commands for one application
-        '''
+        '''Test loading commands for one application'''
         from lighty.commands import load_commands_from_app
         from tests.commands import test
         cmds = load_commands_from_app('tests')
@@ -27,8 +26,7 @@ class CommandsTestCase(unittest.TestCase):
                             'lighty.templates:\n%s' % cmds)
 
     def testLoadCommands(self):
-        '''Test loading commands for few applications
-        '''
+        '''Test loading commands for few applications'''
         from lighty.commands import load_commands
         cmds = load_commands(['lighty.wsgi', 'tests'])
         assert sorted(cmds.keys()) == ['make_application', 'run_server',
