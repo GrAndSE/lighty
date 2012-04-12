@@ -5,35 +5,109 @@ import lighty.validators
 from functor import BaseField, NumericField, SequenceField
 
 
+def add_validator(validator, options):
+    '''Helper function for adding validator into the validator's list inside
+    options dictionary. Written to make some field types constructor shorter.
+    '''
+    if 'validators' in options:
+        if isinstance(options['validators'], list):
+            options['validators'].append(validator)
+        else:
+            options['validators'] += (validator, )
+    else:
+        options['validators'] = (validator, )
+    return options
+
+
 class Field(BaseField):
-    '''Base field class
+    '''Base field class. Declares basic methods an fields for all the field
+    classes and fields
     '''
     __slots__ = ('name', 'model', 'verbose_name', 'primary_key', 'db_index',
                  'unique', 'blank', 'null', 'choices', 'default', 'editable',
                  'error_messages', 'validators', 'help_text', 'db_column',
                  'db_tablespace', 'unique_for_date', 'unique_for_month',
-                 'unique_for_year')
+                 'unique_for_year', )
+    model = None
+    'Model contains field'
+    name = None
+    'Field name'
+    verbose_name = name
+    'human readable field name'
+    help_text = name
+    'field detailed description'
+    editable = False
+    'check is field value can be changed'
+    default = None
+    'default field value'
+    choices = None
+    'list of values available for this field'
+    blank = False
+    'is field can be empty on model saving'
+    null = False
+    'is field can be None on model saving'
+    error_messages = {}
+    'error messages for validations'
+    validators = ()
+    '''list of the validators used to check field value before store it into
+    the datastore'''
+    primary_key = False
+    'is field would be a primary key'
+    db_index = False
+    'is field a part of database index'
+    db_column = name
+    'name of the field inside database'
+    db_tablespace = False
+    'can be used to set additional datastorage parameter'
+    unique = False
+    'add checking for unique value'
+    unique_for_date = False
+    'check is field value unique for some date'
+    unique_for_month = False
+    'check is field value unique for month'
+    unique_for_year = False
+    'check if field value unique for year'
 
-    def __init__(self, verbose_name=None, primary_key=False, db_index=False, 
-                       unique=False, blank=False, null=False, 
+    def __init__(self, verbose_name=None, primary_key=False, db_index=False,
+                       unique=False, blank=False, null=False,
                        choices=None, default=None, editable=True,
                        error_messages={}, validators=(),
                        help_text="", db_column=None, db_tablespace=False,
-                       unique_for_date=False, 
-                       unique_for_month=False, unique_for_year=False):
-        """
-        """
-        self.null 			= null
-        self.blank 			= blank
-        self.choices 		= choices
-        self.default 		= default
-        self.editable 		= editable
-        self.db_column 		= db_column
-        self.db_tablespace 	= db_tablespace
-        self.db_index 		= db_index
-        self.primary_key 	= primary_key
-        self.help_text 		= help_text
-        self.verbose_name 	= verbose_name
+                       unique_for_date=False, unique_for_month=False,
+                       unique_for_year=False):
+        '''Create new Field instance
+
+        Args:
+            verbose_name:   human readable field name
+            primary_key:    is field would be a primary key
+            db_index:       is field a part of database index
+            unique:         add checking for unique value
+            blank:          is field can be empty on model saving
+            null:           it field can be None on model saving
+            choices:        list of values available for this field
+            default:        default value
+            editable:       check is value can be changed
+            error_messages: error messages for validations
+            validators:     list of validators used to check field value before
+                            store it into database
+            help_text:      field description
+            db_column:      name of the field inside database
+            db_tablespace:  can be used to set additional datastorage parameter
+            unique_for_date: check is field value unique for some date
+            unique_for_month: check is field value unique for month
+            unique_for_year: check if field value unique for year
+        '''
+        self.null = null
+        self.blank = blank
+        self.choices = choices
+        self.default = default
+        self.editable = editable
+        self.db_column = db_column
+        self.db_tablespace = db_tablespace
+        self.db_index = db_index
+        self.primary_key = primary_key
+        self.help_text = help_text
+        self.verbose_name = verbose_name
         self.error_messages = error_messages
         # Add additional choice if needed
         if choices is not None:
@@ -41,33 +115,40 @@ class Field(BaseField):
         self.validators = validators
         # Unique params
         if unique:
-            self.unique 		= True
-            unique_for_date 	= False
-            unique_for_month 	= False
-            unique_for_year 	= False
+            self.unique = True
+            unique_for_date = False
+            unique_for_month = False
+            unique_for_year = False
         else:
-            self.unique 		= False
+            self.unique = False
             if unique_for_date:
-                self.unique_for_date 	= unique_for_date
-                self.unique_for_month 	= False
-                self.unique_for_year 	= False
+                self.unique_for_date = unique_for_date
+                self.unique_for_month = False
+                self.unique_for_year = False
             else:
-                self.unique_for_date 	= False
+                self.unique_for_date = False
                 if unique_for_month:
-                    self.unique_for_month 	= unique_for_month
-                    self.unique_for_year 	= False
+                    self.unique_for_month = unique_for_month
+                    self.unique_for_year = False
                 else:
-                    self.unique_for_month 	= False
-                    self.unique_for_year 	= unique_for_year
+                    self.unique_for_month = False
+                    self.unique_for_year = unique_for_year
 
     def __config__(self, model_name, field_name):
-        """
+        """Configure field with model-depended paramenters
+
+        Args:
+            model_name: model class name
+            field_name: name of this field
         """
         self.model = model_name
-        self.name  = field_name
+        self.name = field_name
 
     def get_value_for_datastore(self, model):
-        """Get value
+        """Get value prepared for saving in datastore
+
+        Args:
+            model:  model instance to take value from
         """
         return model.__dict__[self.name]
 
@@ -77,127 +158,103 @@ class Field(BaseField):
         return value
 
 
-
 class IntegerField(Field, NumericField):
-    '''An integer. The admin represents this as an <input type="text"> (a 
+    '''An integer. The admin represents this as an <input type="text"> (a
     single-line input).
     '''
-
-    def __init__(self, **options):
-        super(IntegerField, self).__init__(**options)
+    pass
 
 
 class PositiveIntegerField(IntegerField):
-	'''
-	Like an IntegerField, but must be positive.
-	'''
-	def __init__(self, **options):
-		# Add validation
-		validators = (lighty.validators.MinValueValidator(1),)
-		if 'validators' in options:
-			options['validators'] += validators
-		else:
-			options['validators'] = validators
-		# Create IntegerField 
-		super(PositiveIntegerField, self).__init__(**options)
+    '''Like an IntegerField, but must be positive.
+    '''
+
+    def __init__(self, **options):
+        '''Create new field. Adds validator that checks value to be greater
+        than 0 into the validator's list
+        '''
+        options = add_validator(lighty.validators.MinValueValidator(1),
+                                options)
+        super(PositiveIntegerField, self).__init__(**options)
 
 
 class AutoField(IntegerField):
-	'''
-	An IntegerField that automatically increments according to available IDs. 
-	You usually won't need to use this directly; a primary key field will 
-	automatically be added to your model if you don't specify otherwise. See 
-	Automatic primary key fields.
-	'''
-	pass
+    '''An IntegerField that automatically increments according to available
+    IDs. You usually won't need to use this directly; a primary key field will
+    automatically be added to your model if you don't specify otherwise. See
+    Automatic primary key fields.
+    '''
+    pass
 
 
 class BigIntegerField(IntegerField):
-	'''
-	A 64 bit integer, much like an IntegerField except that it is guaranteed to
-	fit numbers from -9223372036854775808 to 9223372036854775807. The admin 
-	represents this as an <input type="text"> (a single-line input).
-	'''
-	pass
+    '''A 64 bit integer, much like an IntegerField except that it is guaranteed
+    to fit numbers from -9223372036854775808 to 9223372036854775807. The admin
+    represents this as an <input type="text"> (a single-line input).
+    '''
+    pass
 
 
 class SmallIntegerField(IntegerField):
-	'''
-	Like a IntegerField, but only allows values under a certain (database-
-	dependent) point.
-	'''
-	pass
+    '''Like a IntegerField, but only allows values under a certain (database-
+    dependent) point.
+    '''
+    pass
 
 
 class PositiveSmallIntegerField(PositiveIntegerField):
-	'''
-	Like a PositiveIntegerField, but only allows values under a certain 
-	(database-dependent) point.
-	'''
-	pass
-
+    '''Like a PositiveIntegerField, but only allows values under a certain
+    (database-dependent) point.
+    '''
+    pass
 
 
 class FloatField(Field, NumericField):
-	'''
-	A floating-point number represented in Python by a float instance.
+    '''A floating-point number represented in Python by a float instance.
 
-	The admin represents this as an <input type="text"> (a single-line input).
-	'''
-
-	def __init__(self, **options):
-		super(FloatField, self).__init__(**options)
-
+    The admin represents this as an <input type="text"> (a single-line input).
+    '''
+    pass
 
 
 class DecimalField(Field, NumericField):
-	'''
-	A fixed-precision decimal number, represented in Python by a Decimal 
-	instance.
+    '''A fixed-precision decimal number, represented in Python by a Decimal
+    instance.
 
-	The admin represents this as an <input type="text"> (a single-line input).
-	'''
+    The admin represents this as an <input type="text"> (a single-line input).
+    '''
 
-	def __init__(self, max_digits=None, **options):
-		'''
-		Create new fixed-precision decimal number 
+    def __init__(self, max_digits=None, decimal_places=None, **options):
+        '''Create new fixed-precision decimal number
 
-		max_digits
-			The maximum number of digits allowed in the number
-
-		decimal_places
-			The number of decimal places to store with the number
-		'''
-#TODO write valid max_digits and decimal_places processing
-		super(DecimalField, self).__init__(**options)
-
+        Args:
+            max_digits:     The maximum number of digits allowed in the number
+            decimal_places: The number of decimal places to store with the
+                number
+        '''
+        self.max_digits
+        super(DecimalField, self).__init__(**options)
 
 
 class BooleanField(Field):
-	'''
-	A true/false field
+    '''A true/false field
 
-	The admin represents this as a checkbox
-	'''
-
-	def __init__(self, **options):
-		super(BooleanField, self).__init__(**options)
+    The admin represents this as a checkbox
+    '''
+    pass
 
 
 class NullBooleanField(BooleanField):
-	'''
-	Like a BooleanField, but allows NULL as one of the options. Use this 
-	instead of a BooleanField with null=True. The admin represents this as a 
-	<select> box with "Unknown", "Yes" and "No" choices.
-	'''
+    '''Like a BooleanField, but allows NULL as one of the options. Use this
+    instead of a BooleanField with null=True. The admin represents this as a
+    <select> box with "Unknown", "Yes" and "No" choices.
+    '''
 
-	def __init__(self, **options):
-		'''
-		Create new BooleanField field with null=True
-		'''
-		options['null'] = True
-		super(NullBooleanField, self).__init__(**options)
-
+    def __init__(self, **options):
+        '''Create new BooleanField field with null=True
+        '''
+        options['null'] = True
+        super(NullBooleanField, self).__init__(**options)
 
 
 class CharField(Field, SequenceField):
@@ -211,8 +268,8 @@ class CharField(Field, SequenceField):
     def __init__(self, max_length=None, **options):
         '''Create new CharField with one extra required argument:
 
-        Arguments:
-            max_length: The maximum length (in characters) of the field. 
+        Args:
+            max_length: The maximum length (in characters) of the field.
             The max_length is enforced at the database level and in validation.
         '''
         # Process max_length option
@@ -220,165 +277,122 @@ class CharField(Field, SequenceField):
             max_length = 255
         self.max_length = max_length
         # Add MaxLengthValidator
-        validators = (lighty.validators.MaxLengthValidator(max_length), )
-        if 'validators' in options:
-            options['validators'] += validators
-        else:
-            options['validators'] = validators
-        # Then create usual field 
+        options = add_validator(
+                    lighty.validators.MaxLengthValidator(max_length), options)
+        # Then create usual field
         super(CharField, self).__init__(**options)
 
 
 class CommaSeparatedIntegerField(CharField):
-	'''
-	A field of integers separated by commas. As in CharField, the max_length 
-	argument is required and the note about database portability mentioned 
-	there should be heeded.
-	'''
+    '''A field of integers separated by commas. As in CharField, the max_length
+    argument is required and the note about database portability mentioned
+    there should be heeded.
+    '''
 
-	def __init__(self, max_length=None, **options):
-		'''
-		Create new CommaSeparatedIntegerField instance
-		'''
-		# Add additional validators
-		validators = (
-				lighty.validators.validate_comma_separated_integer_list, )
-		if 'validators' in options:
-			options['validators'] += validators
-		else:
-			options['validators'] = validators
-		# Create CharField
-		super(CommaSeparatedIntegerField, self).__init__(max_length, **options)
+    def __init__(self, max_length=None, **options):
+        '''Create new CommaSeparatedIntegerField instance. Add additional
+        validator to check is value has right format
+        '''
+        options = add_validator(
+            lighty.validators.validate_comma_separated_integer_list, options)
+        super(CommaSeparatedIntegerField, self).__init__(max_length, **options)
 
 
 class EmailField(CharField):
-	'''
-	A CharField that checks that the value is a valid e-mail address.
-	'''
+    '''A CharField that checks that the value is a valid e-mail address.
+    '''
 
-	def __init__(self, max_length=75, **options):
-		'''
-		Create CharField that checks that the value is a valid e-mail address.
-		'''
-		# Add additional validators
-		validators = (lighty.validators.validate_email, )
-		if 'validators' in options:
-			options['validators'] += validators
-		else:
-			options['validators'] = validators
-		# Create CharField
-		super(EmailField, self).__init__(max_length, **options)
+    def __init__(self, max_length=75, **options):
+        '''Create CharField that checks that the value is a valid e-mail
+        address.
+        '''
+        options = add_validator(lighty.validators.validate_email, options)
+        super(EmailField, self).__init__(max_length, **options)
 
 
 class URLField(CharField):
-	'''
-	A CharField for a URL.
+    '''A CharField for a URL.
 
-	The admin represents this as an <input type="text"> (a single-line input).
-	'''
+    The admin represents this as an <input type="text"> (a single-line input).
+    '''
 
-	def __init__(self, verify_exists=True, max_length=200, **options):
-		'''
-		Create new CharField to store URL
+    def __init__(self, verify_exists=True, max_length=200, **options):
+        '''Create new CharField to store URL
 
-		verify_exists
-			If True (the default), the URL given will be checked for existence
-			(i.e., the URL actually loads and doesn't give a 404 response).
+        Args:
+            verify_exists:  If True (the default), the URL given will be
+            checked for existence (i.e., the URL actually loads and doesn't
+            give a 404 response).
 
-			Note that when you're using the single-threaded development server,
-			validating a URL being served by the same server will hang. This 
-			should not be a problem for multithreaded servers.
+            Note that when you're using the single-threaded development server,
+            validating a URL being served by the same server will hang. This
+            should not be a problem for multithreaded servers.
 
-		max_length
-			Like all CharField subclasses, URLField takes the optional 
-			max_length, a default of 200 is used.
-		'''
-		# Add additional validators
-		validators = (
-			lighty.validators.URLValidator(verify_exists=verify_exists), )
-		if 'validators' in options:
-			options['validators'] += validators
-		else:
-			options['validators'] = validators
-		# Create char field
-		super(URLField, self).__init__(max_length, **options)
-
+            max_length:     Like all CharField subclasses, URLField takes the
+            optional max_length, a default of 200 is used.
+        '''
+        options = add_validator(
+                lighty.validators.URLValidator(verify_exists=verify_exists),
+                options)
+        super(URLField, self).__init__(max_length, **options)
 
 
 class IPAddressField(Field):
-	'''
-	An IP address, in string format (e.g. "192.0.2.30"). 
-	
-	The admin represents this as an <input type="text"> (a single-line input).
-	'''
+    '''An IP address, in string format (e.g. "192.0.2.30").
 
-	def __init__(self, **options):
-		'''
-		Create Field with addition validation for store IP address
-		'''
-		# Add validator 
-		validators = (lighty.validators.validate_ipv4_address, )
-		if 'validators' in options:
-			options['validators'] += validators
-		else:
-			options['validators'] = validators
-		# Create new field
-		super(IPAddressField, self).__init__(**options)
+    The admin represents this as an <input type="text"> (a single-line input).
+    '''
 
+    def __init__(self, **options):
+        '''Create Field with addition validation for store IP address
+        '''
+        options = add_validator(lighty.validators.validate_ipv4_address,
+                                options)
+        super(IPAddressField, self).__init__(**options)
 
 
 class SlugField(CharField):
-	'''
-	Slug is a newspaper term. A slug is a short label for something, containing
-	only letters, numbers, underscores or hyphens. They're generally used in 
-	URLs.
+    '''Slug is a newspaper term. A slug is a short label for something,
+    containing only letters, numbers, underscores or hyphens. They're generally
+    used in URLs.
 
-	Implies setting Field.db_index to True.
+    Implies setting Field.db_index to True.
 
-	It is often useful to automatically prepopulate a SlugField based on the 
-	value of some other value. You can do this automatically in the admin using
-	prepopulated_fields.
-	'''
+    It is often useful to automatically prepopulate a SlugField based on the
+    value of some other value. You can do this automatically in the admin using
+    prepopulated_fields.
+    '''
 
-	def __init__(self, max_length=50, **options):
-		'''
-		Create new CharField field with additional validator for slug
-		Like a CharField, you can specify max_length (read the note about 
-		database portability and max_length in that section, too). If 
-		max_length is not specified, SlugField will use a default length of 50.
-		'''
-		# Update unique=True
-		options['unique'] = True
-		# Add additional validator for slug
-		validators = (lighty.validators.validate_slug, )
-		if 'validators' in options:
-			options['validators'] += validators
-		else:
-			options['validators'] = validators
-		# Create char field
-		super(SlugField, self).__init__(max_length, **options)
-
+    def __init__(self, max_length=50, **options):
+        '''Create new CharField field with additional validator for slug
+        Like a CharField, you can specify max_length (read the note about
+        database portability and max_length in that section, too). If
+        max_length is not specified, SlugField will use a default length of 50.
+        '''
+        options['unique'] = True
+        options = add_validator(lighty.validators.validate_slug, options)
+        super(SlugField, self).__init__(max_length, **options)
 
 
 class DateField(Field, NumericField):
-    '''A date, represented in Python by a datetime.date instance. 
+    '''A date, represented in Python by a datetime.date instance.
     '''
 
     def __init__(self, auto_now=False, auto_now_add=False, **options):
         '''Create new DateField. Has a few extra, optional arguments
 
-        Args: 
+        Args:
             auto_now: Automatically set the field to now every time the object
-            is saved. Useful for "last-modified" timestamps. Note that the 
-            current date is always used; it's not just a default value that you
-            can override.
+                is saved. Useful for "last-modified" timestamps. Note that the
+                current date is always used; it's not just a default value that
+                you can override.
             auto_now_add: Automatically set the field to now when the object is
-            first created. Useful for creation of timestamps. Note that the 
-            current date is always used; it's not just a default value that you 
-            can override.
+                first created. Useful for creation of timestamps. Note that the
+                current date is always used; it's not just a default value that
+                you can override.
         '''
-        self.auto_now 		= auto_now
-        self.auto_now_add 	= auto_now_add
+        self.auto_now = auto_now
+        self.auto_now_add = auto_now_add
         super(DateField, self).__init__(**options)
 
     def get_value_for_datastore(self, model):
@@ -392,19 +406,29 @@ class DateField(Field, NumericField):
         return date.strptime(value, "%Y-%m-%d")
 
 
-
 class DateTimeField(DateField, NumericField):
-    '''A date and time, represented in Python by a datetime.datetime instance. 
+    '''A date and time, represented in Python by a datetime.datetime instance.
     Takes the same extra arguments as DateField.
     '''
 
     def get_value_for_datastore(self, model):
+        '''Prepare value to store it into datastore.
+
+        Returns:
+            string represents field value in format "%Y-%m-%d %H:%M:%S"
+        '''
         from datetime import datetime
         if self.auto_now or (self.auto_now_add and not model.is_saved()):
             model.__dict__[self.name] = datetime.now()
-        return datetime.strftime(model.__dict__[self.name], "%Y-%m-%d %H:%M:%S")
+        return datetime.strftime(model.__dict__[self.name],
+                                 "%Y-%m-%d %H:%M:%S")
 
     def make_value_from_datastore(self, value):
+        '''Create date from value taken from datastore
+
+        Returns:
+            parsed DateTime object
+        '''
         from datetime import datetime
         if isinstance(value, datetime):
             return value
@@ -412,49 +436,58 @@ class DateTimeField(DateField, NumericField):
 
 
 class TimeField(DateField, NumericField):
-    '''A time, represented in Python by a datetime.time instance. Accepts the 
+    '''A time, represented in Python by a datetime.time instance. Accepts the
     same auto-population options as DateField.
     '''
 
     def get_value_for_datastore(self, model):
+        '''Prepare value to store it into datastore.
+
+        Returns:
+            string represents field value in format "%Y-%m-%d %H:%M:%S"
+        '''
         from time import gmtime, strftime
         if self.auto_now or (self.auto_now_add and not model.is_saved()):
             model.__dict__[self.name] = gmtime()
         return strftime("%H:%M:%S", model.__dict__[self.name])
 
     def make_value_from_datastore(self, value):
+        '''Create date from value taken from datastore
+
+        Returns:
+            parsed Time object
+        '''
         from time import strptime
         return strptime(value, "%H:%M:%S")
 
 
 class TextField(Field, SequenceField):
-	'''
-	A large text field. The admin represents this as a <textarea> (a 
-	multi-line input).
-	'''
-	pass
+    '''A large text field. The admin represents this as a <textarea> (a
+    multi-line input).
+    '''
+    pass
 
 
 class XMLField(TextField):
-	'''
-	A TextField that checks that the value is valid XML that matches a given 
-	schema. Takes one required argument:
+    '''A TextField that checks that the value is valid XML that matches a given
+    schema. Takes one required argument:
 
-	schema_path
-		The filesystem path to a RelaxNG schema against which to validate the 
-		field.
-	'''
-#TODO: write valid code here
-	pass
+    Args:
+        schema_path: The filesystem path to a RelaxNG schema against which to
+            validate the field.
+    '''
+    #TODO: write valid code here
+    pass
 
 #
-# TODO: 
+# TODO:
 # 		write code for FileField, FilePathField and ImageField
 # 		write code for ForeignKey, ManyToManyField, OneToOneField
 #
 
+
 class ForeignKey(Field):
-    """An object field can contains 
+    """An object field can contains
     """
 
     def __init__(self, model, **kwargs):
