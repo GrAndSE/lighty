@@ -4,8 +4,6 @@ import collections
 import itertools
 import os
 import sys
-LIGHTY_CONF_PATH = os.path.realpath(os.path.dirname(__file__))
-
 try:
     # for python 2
     import ConfigParser
