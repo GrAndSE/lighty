@@ -15,6 +15,7 @@ class DefaultTagsTestCase(unittest.TestCase):
                            name, ' '.join((str(result), 'except', str(value))))
 
     def testSpacelless(self):
+        '''Test spaceless template tag'''
         template = Template()
         template.parse('''{% spaceless %}
                         Some 
@@ -27,12 +28,14 @@ class DefaultTagsTestCase(unittest.TestCase):
                                     "\n".join(result, 'except', right))
 
     def testSimpleWith(self):
+        '''Test with template tag'''
         template = Template()
         template.parse('{% with user.name as name %}{{ name }}{% endwith %}')
         result = template({'user': {'name': 'John'}})
         self.assertResult('with', result.strip(), 'John')
 
     def testSimpleIf(self):
+        '''Test if template tag'''
         template = Template()
         template.parse('{% if a %}Foo{% endif %}')
         result = template({'a': 1})
@@ -41,12 +44,14 @@ class DefaultTagsTestCase(unittest.TestCase):
         self.assertResult('if', result.strip(), '')
 
     def testSimpleFor(self):
+        '''Test for template tag'''
         template = Template()
         template.parse('{% for a in list %}{{ a }} {% endfor %}')
         result = template({'list': [1, 2, 3, 4, 5]})
         self.assertResult('for', result.strip(), '1 2 3 4 5')
 
     def testSimpleInclude(self):
+        '''Test include template tag'''
         template = Template('{% include "simple.html" %}', name="test.html",
                             loader=FSLoader(['tests/templates']))
         result = template({'name': 'Peter'})

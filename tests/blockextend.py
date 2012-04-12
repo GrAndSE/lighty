@@ -71,6 +71,7 @@ class BlockTestCase(unittest.TestCase):
         self.base_template.parse(BASE)
 
     def testExecuteTemplate(self):
+        '''Test base template execution'''
         result = self.base_template.execute({'title': 'Hello'})
         needed = BASE_RESULT % ('Hello')
         is_eq = fuzzy_equals(result, needed)
@@ -88,6 +89,7 @@ class ExtendTestCase(BlockTestCase):
         self.extend_template.parse(EXTEND)
 
     def testExecuteTemplate(self):
+        '''Test extending template execution'''
         result = self.extend_template.execute({'title': 'Hello'})
         needed = EXTEND_RESULT % ('Hello')
         is_eq = fuzzy_equals(result, needed)
