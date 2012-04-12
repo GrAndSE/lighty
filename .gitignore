@@ -2,6 +2,8 @@ build/
 dist/
 libs/
 apps/
+doc/build/
+doc/source/lighty.*
 *.egg*
 *.pyc
 *.swp
