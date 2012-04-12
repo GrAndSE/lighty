@@ -85,7 +85,7 @@ def manage():
     if code.co_argcount > 0:
         call_args = {}
         call_args[code.co_varnames[0]] = settings
-        defaults = command.func_defaults
+        defaults = command.func_defaults or ()
         arg_index = 1
         defaults_index = 0
         defaults_start = code.co_argcount - len(defaults)
@@ -98,6 +98,6 @@ def manage():
         args = parser.parse_args()
         for arg_name in code.co_varnames[1:command.func_code.co_argcount]:
             call_args[arg_name] = getattr(args, arg_name)
-        command(call_args)
+        command(**call_args)
     else:
         command()
