@@ -55,7 +55,7 @@ def load_view(view):
     func = getattr(module, explain.group('function'))
     if not callable(func):
         return TypeError('%s.%s is not callable' % (pack_name, func_name))
-    return func
+    return func if hasattr(func, 'is_view') else decorators.view(func)
 
 
 def escape_url(url):

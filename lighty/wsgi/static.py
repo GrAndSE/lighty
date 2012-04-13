@@ -9,7 +9,13 @@ mimetypes.init()
 def static_view(request, path):
     '''Serve static files
     '''
-    with open(path, 'rb') as file:
+    settings = request.app.settings
+    url = request.meta['HTTP_HOST'] + request.path
+    static_url = (settings.static_url if settings.static_url.endswith('/')
+                  else settings.static_url + '/')
+    static_root = os.path.realpath(settings.static_root)
+    file_path = os.path.join(static_root, url.replace(static_url, ''))
+    with open(file_path, 'rb') as file:
         result = "".join(file.readlines())
         headers = None
         if '.' in path:
