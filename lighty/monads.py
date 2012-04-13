@@ -187,11 +187,11 @@ class ValueMonad(object):
 
     @monad_function
     def __delitem__(self, *args):
-        return operator.delitem(*args)
+        return operator.delitem(self.value, *args)
 
     @monad_function
     def __setitem__(self, *args):
-        return operator.setitem(*args)
+        return operator.setitem(self.value, *args)
 
     @monad_function
     def __call__(self, *args, **kwargs):

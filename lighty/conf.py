@@ -54,7 +54,11 @@ class Settings(collections.Mapping):
     def __getitem__(self, name):
         '''Get value from configuration with specified name
 
-        Arguments:
+        Args:
+            name: item name
+
+        Returns:
+            value stored in configuration wit specified name
         '''
         name = name.lower()
         if name in self.settings:
@@ -67,6 +71,13 @@ class Settings(collections.Mapping):
 
     def get(self, name, section=None):
         '''Get configuration parameter from sections
+
+        Args:
+            name: item name
+            section: section name
+
+        Returns:
+            value stored in configuration wit specified name
         '''
         name = name.lower()
         if section is None:

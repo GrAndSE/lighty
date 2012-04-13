@@ -1,8 +1,9 @@
-'''
+'''Some decorators can be used to create view
 '''
 import functools
 import operator
-from .. import monads
+
+from . import http
 
 
 def view(func, **constraints):
@@ -11,12 +12,18 @@ def view(func, **constraints):
     '''
     func.is_view = True
     @functools.wraps(func)
-    @monads.handle_exception
     def wrapper(*args, **kwargs):
-        if (len(constraints) > 0 and
-                not functools.reduce(operator.__and__,
-                                     [constraints[arg](kwargs[arg])
-                                      for arg in constraints])):
-            return monads.NoneMonad(ValueError('Wrong view argument value'))
-        return monads.ValueMonad(func(*args, **kwargs))
+        try:
+            if (len(constraints) > 0 and
+                    not functools.reduce(operator.__and__,
+                                         [constraints[arg](kwargs[arg])
+                                          for arg in constraints])):
+                response = http.Response('Wrong view argument value', 500)
+            else:
+                response = func(*args, **kwargs)
+                if not isinstance(response, http.Response):
+                    response = http.Response(response)
+        except Exception as e:
+            response = http.Response(e, 500)
+        return response
     return wrapper

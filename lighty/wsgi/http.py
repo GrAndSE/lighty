@@ -1,8 +1,8 @@
 '''Module contains methods to work with request and response objects
 '''
 import collections
-import httplib
 import Cookie
+import httplib
 import urlparse
 try:
     import cStringIO
@@ -65,13 +65,31 @@ class Request(collections.Mapping):
         return len(self.params)
 
 
-def response(start_response_func, data, code=200,
-             headers=[('Content-type', 'text/html')]):
-    '''Make response object
+class Response(object):
+    '''Class represents response
     '''
-    status = ('%s %s' % (code, httplib.responses) if code in httplib.responses
-              else '200 OK')
-    if 'Content-Length' not in headers:
-        headers.append(('Content-Length', str(len(data))))
-    start_response_func(status, headers)
-    return data
+    __slots__ = ('data', 'code', 'headers', 'status', )
+
+    def __init__(self, data='', code=200,
+                 headers=[('Content-Type', 'text/html')]):
+        self.data = data
+        self.code = code
+        self.headers = headers
+
+    @property
+    def status(self):
+        '''Get respone status
+
+        Returns:
+            status associated with code
+        '''
+        return ('%s %s' % (self.code, httplib.responses[self.code])
+                if self.code in httplib.responses else '200 OK')
+
+    def __str__(self):
+        '''Get response string representations
+
+        Returns:
+            data stored in response converted to string
+        '''
+        return str(self.data)
