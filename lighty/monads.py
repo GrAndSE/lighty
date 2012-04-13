@@ -97,14 +97,13 @@ class ValueMonad(object):
                  '__mod__', '__pow__', '__getitem__', '__delitem__',
                  '__setitem__', '__iter__', '__contains__', '__len__',
                  '__and__', '__or__', '__xor__', '__lshift__', '__rshift__',
-                 '__call__', '__str__', '__getattr__', 'code', 'value', )
+                 '__call__', '__str__', '__getattr__', 'value', )
 
-    def __init__(self, value, code=200):
-        '''Create new monad including value and store the code
+    def __init__(self, value):
+        '''Create new monad including value
         '''
         super(ValueMonad, self).__init__()
         self.value = value.value if isinstance(value, ValueMonad) else value
-        self.code = code
 
     @monad_boolean
     def __lt__(self, other):
@@ -213,10 +212,10 @@ class NoneMonad(ValueMonad):
     '''
     EMPTY_ITER = itertools.cycle('')
 
-    def __init__(self, value, code=200, traceback=None):
-        '''Create new monad including value and store the code
+    def __init__(self, value, traceback=None):
+        '''Create new monad including value
         '''
-        super(NoneMonad, self).__init__(value, code)
+        super(NoneMonad, self).__init__(value)
         self.traceback = traceback
     
     def __len__(self):

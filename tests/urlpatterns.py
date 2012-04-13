@@ -1,4 +1,4 @@
-from lighty.wsgi.handler import static_patterns
+from lighty.wsgi.static import static_patterns
 from lighty.wsgi.urls import url
 
 def hello(request):
