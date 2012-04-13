@@ -7,7 +7,7 @@ import sys
 
 
 def handle_exception(func):
-    '''Handle an exception and return NoneMonad for this exception
+    '''Handle an exception and return ErrorMonad for this exception
     '''
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -15,12 +15,12 @@ def handle_exception(func):
             return func(*args, **kwargs)
         except Exception as e:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            return NoneMonad(e, traceback=exc_traceback)
+            return ErrorMonad(e, traceback=exc_traceback)
     return wrapper
 
 
 def monad_operation(func):
-    '''Wrap method with exception catching and creating NoneMonad if there was
+    '''Wrap method with exception catching and creating ErrorMonad if there was
     an exception
     '''
     @functools.wraps(func)
@@ -208,15 +208,14 @@ class ValueMonad(object):
 
 
 class NoneMonad(ValueMonad):
-    '''NoneMonad class represents all the methods exceptions and missed values
+    '''NoneMonad class represents empty list, dicts, NoneType or False
     '''
     EMPTY_ITER = itertools.cycle('')
 
-    def __init__(self, value, traceback=None):
-        '''Create new monad including value
+    def __init__(self, value):
+        '''Create new monad including value and store the code
         '''
         super(NoneMonad, self).__init__(value)
-        self.traceback = traceback
     
     def __len__(self):
         '''Returns 0
@@ -237,3 +236,14 @@ class NoneMonad(ValueMonad):
         '''NoneMonad equals zero
         '''
         return False
+
+
+class ErrorMonad(NoneMonad):
+    '''ErrorMonad class represents errors
+    '''
+
+    def __init__(self, value, traceback=None):
+        '''Include traceback representation
+        '''
+        super(ErrorMonad, self).__init__(value)
+        self.traceback = traceback
