@@ -1,0 +1,24 @@
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+	<title>Lighty Debug</title>
+</head>
+<body>
+	<h1>
+		<span class="type">{{ error_type}}</span>:
+		<span class="message">{{ error_message }}</span>
+	</h1>
+	<h2>Traceback:</h2>
+	<ul>
+	{% for item in traceback %}
+		<li>
+			<span class="num">{{ item.line }}</span> in 
+			<span class="file">{{ item.file }}</span> func 
+			<span class="func">{{ item.func }}</span>:
+			<span class="line">{{ item.code }}</span>
+		</li>
+	{% endfor %}
+	</ul>
+</body>
+</html>
