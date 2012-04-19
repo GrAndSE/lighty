@@ -130,6 +130,18 @@ class DefaultFiltersTestCase(unittest.TestCase):
                            {'name': 'third', 'age': 11},
                            {'name': 'second', 'age': 10}])
 
+    # Date
+
+    def testDate(self):
+        '''Test data format string
+        '''
+        import datetime
+        value = datetime.datetime(2008, 9, 3, 20, 56, 35)
+        format = "%Y-%m-%dT%H:%M:%S"
+        result = templatefilters.date(value, format)
+        self.assertResult('date("%s", "%s")' % (str(value), format), result,
+                          '2008-09-03T20:56:35')
+
 
 def test():
     suite = unittest.TestSuite()
@@ -147,4 +159,5 @@ def test():
     suite.addTest(DefaultFiltersTestCase('testLast'))
     suite.addTest(DefaultFiltersTestCase('testSort'))
     suite.addTest(DefaultFiltersTestCase('testDictSort'))
+    suite.addTest(DefaultFiltersTestCase('testDate'))
     return suite
