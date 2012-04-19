@@ -18,15 +18,30 @@ class WSGIApplicationTestCase(unittest.TestCase):
         '''
         self.settings = Settings('tests/test.cfg')
 
+    def baseAppTest(self, application):
+        '''Base application tests
+        '''
+        from .urlpatterns import hello
+        func = application.resolve_url('/hello').func
+        assert func == hello, 'Error resolving url for /hello: %s' % func
+        value = application.settings.value
+        assert value == 'test', 'Error get value from app settings: %s' % value
+
     def testBaseApp(self):
         '''Test BaseApplication class from lighty.wsgi
         '''
-        pass
+        application = BaseApplication(self.settings)
+        self.baseAppTest(application)
 
     def testComplexApp(self):
-        '''Test ComplexApllication class from lighty.wsgi
+        '''Test ComplexApplication class from lighty.wsgi
         '''
-        pass
+        application = ComplexApplication(self.settings)
+        self.baseAppTest(application)
+        from lighty.templates import loaders
+        assert (isinstance(application.template_loader, loaders.FSLoader),
+                'Error template loader creation')
+        assert application.get_template, 'Error get_template() app method'
 
 
 def test():

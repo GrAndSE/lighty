@@ -24,9 +24,9 @@ class ComplexApplication(BaseApplication):
 
     def __init__(self, settings):
         super(ComplexApplication, self).__init__(settings)
-        self.apps = settings.section('APPS')
+        apps = settings.section('APPS')
         template_dirs = []
-        for app in self.apps:
+        for app in apps:
             module = __import__(app, globals(), locals(), app.split('.')[-1])
             template_dir = os.path.join(module.__path__[0], 'templates')
             if os.path.exists(template_dir):

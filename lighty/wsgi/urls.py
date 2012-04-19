@@ -103,7 +103,7 @@ def resolve(urls, path, method=None):
     '''Resolve url
     '''
     for expr, url, view, name, defaults, _, _, methods in urls:
-        if method in methods:
+        if not method or method in methods:
             match = expr.match(path)
             if match:
                 call_args = copy.copy(defaults)
