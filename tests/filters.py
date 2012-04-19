@@ -57,8 +57,8 @@ class TemplateFiltersTestCase(unittest.TestCase):
         varargfilter_template = Template(name='vararg-filter.html')
         varargfilter_template.parse('{{ simple_var|argument_filter:arg }}')
         result = varargfilter_template.execute({
-                'simple_var':   'Hello',
-                'arg':          'world'
+                'simple_var': 'Hello',
+                'arg': 'world'
         })
         self.assertResult(result, 'Hello, world')
 
