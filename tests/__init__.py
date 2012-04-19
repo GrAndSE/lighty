@@ -15,6 +15,7 @@ tests = (
     'blockextend',
     'default_tags',
     # wsgi
+    'wsgiapps',
     'request',
     'urls',
 )
