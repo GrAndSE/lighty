@@ -35,12 +35,14 @@ def view(func, **constraints):
                         'error_type': exc_value.__class__.__name__,
                         'error_message': str(exc_value),
                         'traceback': [{'line': line, 'file': file, 
-                                       'func': name, 'code': code}
-                                      for file, line, name, code in tb_list]
+                                       'func': name, 'code': code, 'lines': []}
+                                      for file, line, name, code in tb_list],
+                        
                     })
                 else:
                     result = e
             except:
+                traceback.print_exc(file=sys.stdout)
                 result = e
             response = http.Response(result, 500)
         return response

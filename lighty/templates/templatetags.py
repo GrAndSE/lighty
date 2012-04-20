@@ -261,6 +261,7 @@ class Forloop:
         for v in self.values:
             context[self.var_name] = v
             yield exec_block(self.block, context)
+            self.counter0 += 1
 
     def __call__(self, context):
         return "".join([next for next in self.next(context)])
