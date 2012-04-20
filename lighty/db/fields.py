@@ -187,28 +187,6 @@ class AutoField(IntegerField):
     pass
 
 
-class BigIntegerField(IntegerField):
-    '''A 64 bit integer, much like an IntegerField except that it is guaranteed
-    to fit numbers from -9223372036854775808 to 9223372036854775807. The admin
-    represents this as an <input type="text"> (a single-line input).
-    '''
-    pass
-
-
-class SmallIntegerField(IntegerField):
-    '''Like a IntegerField, but only allows values under a certain (database-
-    dependent) point.
-    '''
-    pass
-
-
-class PositiveSmallIntegerField(PositiveIntegerField):
-    '''Like a PositiveIntegerField, but only allows values under a certain
-    (database-dependent) point.
-    '''
-    pass
-
-
 class FloatField(Field, NumericField):
     '''A floating-point number represented in Python by a float instance.
 
@@ -281,21 +259,6 @@ class CharField(Field, SequenceField):
                     lighty.validators.MaxLengthValidator(max_length), options)
         # Then create usual field
         super(CharField, self).__init__(**options)
-
-
-class CommaSeparatedIntegerField(CharField):
-    '''A field of integers separated by commas. As in CharField, the max_length
-    argument is required and the note about database portability mentioned
-    there should be heeded.
-    '''
-
-    def __init__(self, max_length=None, **options):
-        '''Create new CommaSeparatedIntegerField instance. Add additional
-        validator to check is value has right format
-        '''
-        options = add_validator(
-            lighty.validators.validate_comma_separated_integer_list, options)
-        super(CommaSeparatedIntegerField, self).__init__(max_length, **options)
 
 
 class EmailField(CharField):
@@ -467,17 +430,6 @@ class TextField(Field, SequenceField):
     '''
     pass
 
-
-class XMLField(TextField):
-    '''A TextField that checks that the value is valid XML that matches a given
-    schema. Takes one required argument:
-
-    Args:
-        schema_path: The filesystem path to a RelaxNG schema against which to
-            validate the field.
-    '''
-    #TODO: write valid code here
-    pass
 
 #
 # TODO:
