@@ -14,9 +14,12 @@
 		h2 { background: #eee; font-size: 20px; }
 		ul { padding-bottom: 8px; }
 		li { margin-bottom: 8px; margin-top: 8px; }
+		li a span { font-weight: bolder; }
 		h2 a.toggle, li a.toggle { color: #333; display: block; padding: 5px; text-decoration: none; }
 		div { border-top: 1px solid #999; border-bottom: 1px solid #999; margin-bottom: 10px; }
 		.hidden { display: none; }
+		pre { margin: 5px; padding: 5px; background: #fefeed; line-height: 9px; }
+		pre span.current { background: #fcc; }
 	</style>
 </head>
 <body>
@@ -36,15 +39,13 @@
 			<li>
 				<a href="javascript:;" data-target-id="traceback-{{ forloop.counter }}" class="toggle">
 					<span class="num">{{ item.line }}</span> in 
-					<span class="file">{{ item.file }}</span> func 
+					<span class="file">{{ item.file }}</span> function 
 					<span class="func">{{ item.func }}</span>:
 					<span class="line">{{ item.code }}</span>
 				</a>
-				<pre id="traceback-{{ forloop.counter }}" class="hidden">
-				{% for line in item.lines %}
-					<span class="line-num">{{ line.num }}</span><span class="line-code">{{ line.code }}</span>
-				{% endfor %}
-				</pre>
+				<pre id="traceback-{{ forloop.counter }}" class="hidden">{% for line in item.lines %}
+<span class="line-num{% if line.current %} current{% endif %}">{{ line.num }}</span><span class="line-code{% if line.current %} current{% endif %}">{{ line.code }}</span>
+				{% endfor %}</pre>
 			</li>
 		{% endfor %}
 		</ul>
@@ -94,9 +95,7 @@
 		// On load
 		window.onload = function() {
 			$.each($('a.toggle'), function(item) {
-					console.log(item);
 					var targetId = $.attr(item, 'data-target-id');
-					console.log(targetId);
 					var target = $('#' + targetId);
 					item.onclick = function() {
 						console.log(target);

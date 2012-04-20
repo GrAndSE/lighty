@@ -31,13 +31,20 @@ def view(func, **constraints):
                     template = args[0].app.get_template('debug.html')
                     exc_type, exc_value, exc_traceback = sys.exc_info()
                     tb_list = traceback.extract_tb(exc_traceback)
+                    tb = []
+                    for file, line, name, code in tb_list:
+                        start = line > 9 and line - 10 or 0
+                        end = start + 21
+                        fh = open(file, 'r').readlines()[start:end]
+                        lines = [{'num': n, 'code': c.rstrip(),
+                                  'current': n == line}
+                                 for n, c in enumerate(fh, start)]
+                        tb.append({'line': line, 'file': file, 'func': name,
+                                   'code': code, 'lines': lines})
                     result = template({
                         'error_type': exc_value.__class__.__name__,
                         'error_message': str(exc_value),
-                        'traceback': [{'line': line, 'file': file, 
-                                       'func': name, 'code': code, 'lines': []}
-                                      for file, line, name, code in tb_list],
-                        
+                        'traceback': tb
                     })
                 else:
                     result = e
