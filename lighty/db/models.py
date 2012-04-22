@@ -1,4 +1,4 @@
-import fields, query
+from . import fields, query
 from backend import datastore
 
 
@@ -7,10 +7,12 @@ class DuplicateFieldError(Exception):
     '''
     pass
 
+
 class TransactionFailedError(Exception):
     '''Error thrown when datastore transaction failed
     '''
     pass
+
 
 class NotSavedError(Exception):
     '''Thrown when trying to get key for object was not stored in database
@@ -18,28 +20,32 @@ class NotSavedError(Exception):
     pass
 
 
+def get_attr_source(name, cls):
+    '''Helper method used to get the class where atribute was defined first
+    '''
+    for src_cls in cls.mro():
+        if name in src_cls.__dict__:
+            return src_cls
+
+
 class ModelBase(type):
     """Metaclass used to ORM class generation from definitions
     """
 
     def __new__(cls, name, bases, attrs):
-        """
+        """Process new class used ModelBase as metaclass.
+
+
         """
         super_new = super(ModelBase, cls).__new__
         parents = [b for b in bases if isinstance(b, ModelBase)]
         if not parents:
             # If this isn't a subclass of Model, don't do anything special.
             return super_new(cls, name, bases, attrs)
-        # 
+        # Get attributers
         new_attrs = {}
         new_attrs['_fields'] = set()
         field_source = {}
-
-        def get_attr_source(name, cls):
-            for src_cls in cls.mro():
-                if name in src_cls.__dict__:
-                    return src_cls
-
         defined = set()
         for parent in parents:
             if hasattr(parent, '_fields'):
@@ -51,23 +57,23 @@ class ModelBase(type):
                     new_source = get_attr_source(dupe_field_name, parent)
                     if old_source != new_source:
                         raise DuplicateFieldError('Duplicate field, %s, is '
-                                'inherited from both %s and %s.'
-                                % (dupe_field_name, old_source.__name__, 
-                                new_source.__name__))
+                                        'inherited from both %s and %s.' % (
+                                        dupe_field_name, old_source.__name__,
+                                        new_source.__name__))
                 defined |= parent._fields
                 field_source.update(dict.fromkeys(parent._fields, parent))
                 new_attrs.update(parent._fields)
 
-        new_attrs['_key_name']  = None
+        new_attrs['_key_name'] = None
 
         for attr_name in attrs.keys():
             attr = attrs[attr_name]
             if isinstance(attr, fields.Field):
                 if attr_name in defined:
-                    raise DuplicateFieldError('Duplicate field: %s. It was ' 
-                                'defined in %s already' % (attr_name, 
-                                get_attr_source(attr_name, 
-                                                field_source[attr_name])))
+                    raise DuplicateFieldError('Duplicate field: %s. It was '
+                                    'defined in %s already' % (attr_name,
+                                    get_attr_source(attr_name,
+                                                    field_source[attr_name])))
                 defined.add(attr_name)
                 attr.__config__(name, attr_name)
             new_attrs[attr_name] = attr
@@ -87,17 +93,16 @@ class Model(object):
     """Model is the superclass of all object entities in the datastore.
 
     The programming model is to declare Python subclasses of the Model class,
-    declaring datastore properties as class members of that class.  
-    So if you want to publish a story with title, body, and created date, you 
+    declaring datastore properties as class members of that class.
+    So if you want to publish a story with title, body, and created date, you
     would do it like this:
 
         class Story(db.Model):
-            title   = db.CharField(max_length=255)
-            body    = db.TextField()
+            title = db.CharField(max_length=255)
+            body = db.TextField()
             created = db.DateTimeField(auto_now_add=True)
     """
     __metaclass__ = ModelBase
-
 
     def __init__(self, key_name=None, is_new=True, **kwds):
         """Creates a new instance of this model.
@@ -109,23 +114,23 @@ class Model(object):
             person.name = 'Bret'
             person.put()
 
-        You can initialize properties in the model in the constructor with 
+        You can initialize properties in the model in the constructor with
         keyword arguments:
 
             person = Person(name='Bret')
 
-        We initialize all other properties to the default value (as defined by 
+        We initialize all other properties to the default value (as defined by
         the properties in the model definition) if they are not provided in the
         constructor.
 
         Args:
             key_name:   Name for new model instance.
             is_new:     Indicates all the newly created objects.
-            kwds:       Keyword arguments mapping to properties of model.  
+            kwds:       Keyword arguments mapping to properties of model.
         """
-        self._app       = None
-        self._key_name  = key_name or '_id'
-        self._is_saved  = not is_new
+        self._app = None
+        self._key_name = key_name or '_id'
+        self._is_saved = not is_new
         # Update value
         self.__dict__.update(kwds)
         # Set the default values for unsetted fields
@@ -164,7 +169,7 @@ class Model(object):
         Raises:
             TransactionFailedError if the data could not be committed.
         """
-        fields = dict([(field, self.__dict__[field]) 
+        fields = dict([(field, self.__dict__[field])
                        for field in self._fields])
         datastore.put(self.__class__, fields)
         return self
@@ -190,7 +195,7 @@ class Model(object):
 
     @classmethod
     def get(cls, **keys):
-        """Fetch instance from the datastore of a specific Model type using 
+        """Fetch instance from the datastore of a specific Model type using
         key.
 
         We support Key objects and string keys (we convert them to Key objects
@@ -208,8 +213,8 @@ class Model(object):
 
         Returns:
             If a single key was given: a Model instance associated with key for
-            provided class if it exists in the datastore, otherwise None; 
-            if a list of keys was given: a list whose items are either a Model 
+            provided class if it exists in the datastore, otherwise None;
+            if a list of keys was given: a list whose items are either a Model
             instance or None.
         """
         raise NotImplemented
@@ -233,4 +238,4 @@ class Model(object):
     def properties(cls):
         """Alias for fields.
         """
-        return cls.fields()           
+        return cls.fields()
