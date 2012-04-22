@@ -1,6 +1,7 @@
-from backend import datastore
-from fields import Field
-from operations import AND, NOT, OR
+import operator
+
+from .backend import datastore
+from .fields import Field
 
 
 class Query(object):
@@ -9,8 +10,8 @@ class Query(object):
     __slots__ = ('from_query', 'operation', 'operand', 'model', 'dist',
                  'order', 'offset', 'limit', )
 
-    def __init__(self, operand=None, operation=AND,
-                       from_query=None, model=None):
+    def __init__(self, operand=None, operation=operator.__and__,
+                       from_query=None, offset=0, limit=None, model=None):
         '''Create new query in a form
         from_query operation operand
         '''
@@ -19,14 +20,16 @@ class Query(object):
         self.operand = operand
         self.dist = False
         self.order = None
-        self.offset = 0
-        self.limit = None
+        self.offset = offset
+        self.limit = limit
         if from_query is not None:
             self.model = from_query.model
             self.dist = from_query.dist
             self.order = from_query.order
-            self.offset = from_query.offset
-            self.limit = from_query.limit
+            if from_query.offset > 0:
+                self.offset += from_query.offset
+            if from_query.limit:
+                self.limit = from_query.limit
         elif operand is not None:
             self.model = operand.model
         elif model is not None:
@@ -41,13 +44,19 @@ class Query(object):
             >>> Query(ModelClass.field > 10) & Query(ModelClass.field < 20)
             SELECT * FROM modelclass WHERE field > 10 AND field < 20
         '''
-        return Query(operand=operand, operation=AND, from_query=self)
+        return Query(operand=operand, operation=operator.__and__,
+                     from_query=self)
     __mul__ = __and__
     filter = __and__
     where = __and__
 
     def __neg__(self):
-        return Query(operation=NOT, from_query=self)
+        '''Get query excludes values
+
+            >>> not Query(ModelClass.field > 0)
+            SELECT * FROM modelclass WHERE NOT (field > 0)
+        '''
+        return Query(operation=operator.__not__, from_query=self)
 
     def __sub__(self, operand):
         '''Creates new query from this query with operation AND and specified
@@ -59,15 +68,16 @@ class Query(object):
 
             SELECT * FROM modelclass WHERE field > 10 AND field < 20
         '''
-        return Query(operand=Query(NOT, operand), operation=AND,
-                     from_query=self)
+        return Query(operand=Query(operator.__not__, operand),
+                     operation=operator.__and__, from_query=self)
     exclude = __sub__
 
     def __or__(self, operand):
         '''Creates new query from this query with operation OR and specified
         operand
         '''
-        return Query(operand=operand, operation=OR, from_query=self)
+        return Query(operand=operand, operation=operator.__or__,
+                     from_query=self)
     __add__ = __or__
     include = __or__
 
@@ -86,8 +96,8 @@ class Query(object):
             SELECT * FROM modelclass WHERE field > 0
         '''
         if self.from_query is None:
-            if self.operation == NOT:
-                return '%s (%s)' % (NOT, str(self.operation))
+            if self.operation == operator.__not__:
+                return '%s (%s)' % (operator.__not__, str(self.operation))
             return str(self.operand)
         return '(%s) %s %s' % (str(self.from_query), self.operation,
                                self.operand)
@@ -136,7 +146,7 @@ class Query(object):
         for item in datastore.query(self):
             yield self.model(is_new=False, **item)
 
-    def __getslice__(self, i, j):
-        '''Get slice
+    def __getslice__(self, i=0, j=None):
+        '''Get the query that contains a slice of current query
         '''
-        return datastore.slice(self, i, j)
+        return 

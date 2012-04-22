@@ -1,8 +1,8 @@
 '''Define class for getting and storing data
 '''
-from fields import Field
-from functor import FieldFunctor
-from operations import NOT, AND, OR
+import operator
+from .fields import Field
+from .functor import FieldFunctor
 
 
 class Datastore(object):
@@ -30,14 +30,14 @@ class Datastore(object):
     @staticmethod
     def get_datastore_operation(operation):
         operator_matching = {
-                OR: '||',
-                AND: '&&',
-                NOT: '!',
-                '>': '>',
-                '<': '<',
-                '>=': '>=',
-                '<=': '<=',
-                '==': '=='
+                operator.__or__: '||',
+                operator.__and__: '&&',
+                operator.__not__: '!',
+                operator.__gt__: '>',
+                operator.__lt__: '<',
+                operator.__ge__: '>=',
+                operator.__le__: '<=',
+                operator.__eq__: '=='
         }
         return operator_matching[operation]
 
@@ -71,7 +71,7 @@ class Datastore(object):
             source_query, distinct, order = Datastore.build_query(
                                                             query.from_query)
         if not source_query:
-            if operation == NOT:
+            if operation == operator.__not__:
                 return ('%s (%s)' % (
                             Datastore.get_datastore_operation(query.operation),
                             Datastore.process_operand(query.operand)),
