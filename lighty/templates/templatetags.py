@@ -203,7 +203,7 @@ def spaceless(token, block, context):
         {% endspaceless %}
 
     will be rendered to::
-        
+
         Some text
     """
     results = [command(context).split('\n') for command in block]
@@ -331,7 +331,7 @@ def for_tag(token, block, context):
         {% for a in items %}{{ a }}{% endfor %}
 
     returns for items = [1, 2, 3]::
-        
+
         123
 
     Also forloop variable will be added into scope. It contains few flags can

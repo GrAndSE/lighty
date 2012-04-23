@@ -47,9 +47,11 @@ class ConfTestCase(unittest.TestCase):
         assert apps == apps_req, ('APPS section was not loaded properly: %s' %
                                   apps)
         assert self.settings.section('APP1') == ['app_var'], (
-                'APP1 section was not loaded properly')
+                'APP1 section was not loaded properly: %s' %
+                self.settings.section('APP1'))
         assert self.settings.section('APP2') == ['app_var'], (
-                'APP2 section was not loaded properly')
+                'APP2 section was not loaded properly: %s' %
+                self.settings.section('APP1'))
         assert sorted(self.settings.section('CONFS')) == [
                 'tests/conf/app1.cfg', 'tests/conf/app2.cfg'], (
                         'CONFS section was not loaded properly')

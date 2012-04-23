@@ -1,6 +1,7 @@
 '''Define class for getting and storing data
 '''
 import operator
+from ..utils import string_types
 from .fields import Field
 from .functor import FieldFunctor
 
@@ -45,7 +46,7 @@ class Datastore(object):
     def process_operand(operand):
         if operand is None:
             return ''
-        elif isinstance(operand, basestring):
+        elif isinstance(operand, string_types):
             return '"%s"' % operand
         elif isinstance(operand, int):
             return operand

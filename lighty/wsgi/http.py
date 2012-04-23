@@ -1,9 +1,12 @@
 '''Module contains methods to work with request and response objects
 '''
 import collections
-import Cookie
-import httplib
-import urlparse
+try:
+    import Cookie
+    SimpleCookie = Cookie.SimpleCookie
+except:
+    from http import cookies
+    SimpleCookie = cookies.SimpleCookie
 try:
     import cStringIO
     StringIO = cStringIO.StringIO
@@ -14,6 +17,18 @@ except:
     except:
         import io
         StringIO = io.StringIO
+try:
+    import httplib
+    responses = httplib.responses
+except:
+    from http import client
+    responses = client.responses
+try:
+    import urlparse
+    parse_qsl = urlparse.parse_qsl
+except:
+    from urllib import parse
+    parse_qsl = parse.parse_qsl
 
 
 class Request(collections.Mapping):
@@ -27,7 +42,7 @@ class Request(collections.Mapping):
         '''Init request instance from environment
         '''
         self.app = application
-        cookie_loader = Cookie.SimpleCookie()
+        cookie_loader = SimpleCookie()
         cookie_loader.load(environ['HTTP_COOKIE']
                            if 'HTTP_COOKIE' in environ
                            else '')
@@ -37,7 +52,7 @@ class Request(collections.Mapping):
         self.method = environ['REQUEST_METHOD']
         self.path = environ['PATH_INFO']
         self.params = dict([(name, values[0] if len(values) == 1 else values)
-            for name, values in urlparse.parse_qsl(environ['QUERY_STRING'])])
+                    for name, values in parse_qsl(environ['QUERY_STRING'])])
 
     def get(self, name, default=None):
         '''Get item from params with default value
@@ -83,8 +98,8 @@ class Response(object):
         Returns:
             status associated with code
         '''
-        return ('%s %s' % (self.code, httplib.responses[self.code])
-                if self.code in httplib.responses else '200 OK')
+        return ('%s %s' % (self.code, responses[self.code])
+                if self.code in responses else '200 OK')
 
     def __str__(self):
         '''Get response string representations

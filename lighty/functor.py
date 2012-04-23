@@ -2,6 +2,8 @@
 '''
 import functools
 
+from .utils import with_metaclass
+
 
 def create_operator(operator):
     '''Create operator function
@@ -37,10 +39,9 @@ class FunctorBase(type):
         return super_new(mcls, name, bases, new_attrs)
 
 
-class BaseFunctor(object):
+class BaseFunctor(with_metaclass(FunctorBase)):
     '''Base lazy object class
     '''
-    __metaclass__ = FunctorBase
 
     def create_copy(self, operator, operand):
         '''Create object's copy

@@ -2,7 +2,7 @@
 '''
 import lighty.validators
 
-from functor import BaseField, NumericField, SequenceField
+from .functor import BaseField, NumericField, SequenceField
 
 
 def add_validator(validator, options):

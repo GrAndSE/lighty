@@ -1,16 +1,15 @@
 '''
-This is simple Python ORM that can be used now just with MongoDB. But I think 
+This is simple Python ORM that can be used now just with MongoDB. But I think
 in nearest future it would also support another backends. It looks almost like
 Django's ORM but has a few differences.
-
 
 Data model definition
 ---------------------
 
 To work with data at first you must to define a model class that represents
 database entity structure. For this purpose you can use lighty.db.models.Model
-class and Field's subclasses from lighty.db.fields package. As example we create
-a simple User entity with name, password and age.::
+class and Field's subclasses from lighty.db.fields package. As example we
+create simple User entity with name, password and age::
 
     from lighty.db import fields, models
 
@@ -23,7 +22,7 @@ a simple User entity with name, password and age.::
             return "%s %d" % (self.name, self.age)
 
 This class can be easy mapped from database and into database. As example to
-store the data we need just::
+store the data we need just:::
 
     User(name='Peter', pass='secret_phrase', age=18).put()
 
@@ -38,7 +37,7 @@ or for step by step properties setting::
 save() method is just an alias for put().
 
 To get single entity from database by you can use get() method with name of the
-fields and their values to identify the record::
+fields and their values to identify the record:::
 
     fred = User.get(name='fred', age=17)
 
@@ -62,8 +61,8 @@ To delete all the users from database you can use delete() method::
     User.delete()
 
 But let's back to queries. To make a query it's easy to use pure Python syntax.
-There is not suffixes for name arguments like it was in Django. You just need to
-use model's fields and python operators to make a queries.::
+There is not suffixes for name arguments like it was in Django. You just need
+to use model's fields and python operators to make a queries.::
 
     User.all().where(User.age > 17)
 
@@ -74,7 +73,7 @@ selects all the users with age higher than 17. Or more complex example::
 selects all the users with age higher that 17 and name equals to 'Peter'. For
 now you can use:
 
-- >, >=, <, <=, ==, &, |, +, - operators for all the values, 
+- >, >=, <, <=, ==, &, |, + operators for all the values
 - +, -, /, *, ** operators for mathematical fields
 - slices for sequence fields (like a strings)
 
@@ -99,16 +98,15 @@ would like to fetch the data from database or iterate over query::
 
     User.all().where((User.age > 17) & (User.age <= 20)).fetch()
 
-But do not forget - now there is no caching for query results and multiply 
+But do not forget - now there is no caching for query results and multiply
 fetching or iterations requires multiply requests to database. I would add
 optional query caching in future.
 
-You can also delete query results::
+You can also delete query results:::
 
     User.all().delete() # Delete all the user entities
 
-Or update this data::
+Or update this data:::
 
     User.all().where(User.age < 18).update(age=18)
-
 '''

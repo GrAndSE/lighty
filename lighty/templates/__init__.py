@@ -1,9 +1,9 @@
-"""Lighty-template is very simple template engine for python (python.org). 
-Template syntax looks like django-template or jinja2 template. But template 
-engine code is easier and gives a way to write all needed tags without any 
-hacks. 
+"""Lighty-template is very simple template engine for python (python.org).
+Template syntax looks like django-template or jinja2 template. But template
+engine code is easier and gives a way to write all needed tags without any
+hacks.
 
-Now it does not include all features django-template or jinja2 supports, but 
+Now it does not include all features django-template or jinja2 supports, but
 I'll try to fix it as soon as possible.
 
 Features:
@@ -18,7 +18,7 @@ Features:
 - Template filters with multiply arguments.
 - Basic template filters included (now just 14 template filters).
 - Basic template tags included.
-- Simple but powerfull tag declaration - it's easy to create your own block 
+- Simple but powerfull tag declaration - it's easy to create your own block
   tags with writing single function.
 - Custom template tags can modify template on fly.
 
@@ -44,7 +44,7 @@ Simple template example (let's call it index.html):
     </body>
     </html>
 
-You can load you templates using templates loader. Usualy you need to use 
+You can load you templates using templates loader. Usualy you need to use
 FSLoader class:::
 
     from lighty.templates.loaders import FSLoader

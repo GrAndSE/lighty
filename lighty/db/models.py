@@ -1,3 +1,4 @@
+from ..utils import with_metaclass
 from . import fields, query
 from .backend import datastore
 
@@ -71,7 +72,7 @@ class ModelBase(type):
         return super_new(cls, name, bases, new_attrs)
 
 
-class Model(object):
+class Model(with_metaclass(ModelBase)):
     """Model is the superclass of all object entities in the datastore.
 
     The programming model is to declare Python subclasses of the Model class,
@@ -84,7 +85,6 @@ class Model(object):
             body = db.TextField()
             created = db.DateTimeField(auto_now_add=True)
     """
-    __metaclass__ = ModelBase
 
     def __init__(self, key_name=None, is_new=True, **kwds):
         """Creates a new instance of this model.

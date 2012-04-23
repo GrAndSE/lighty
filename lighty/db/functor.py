@@ -28,8 +28,8 @@ class NumericField(BaseField):
         floats
         decimals
     '''
-    _lazy = (operator.__sub__, operator.__mul__, operator.__div__,
-             operator.__mod__, operator.__pow__, )
+    _lazy = (operator.__sub__, operator.__mul__, operator.__truediv__,
+             operator.__floordiv__, operator.__mod__, operator.__pow__, )
 
 
 class SequenceField(BaseField):

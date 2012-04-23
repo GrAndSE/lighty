@@ -4,7 +4,9 @@ setup.py
 lighty/__init__.py
 lighty/commands.py
 lighty/conf.py
+lighty/functor.py
 lighty/monads.py
+lighty/utils.py
 lighty/validators.py
 lighty/db/__init__.py
 lighty/db/backend.py

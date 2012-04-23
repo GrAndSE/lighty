@@ -20,7 +20,7 @@ def load_commands_from_app(app_name):
                               'commands')
         attrs = [getattr(commands, name) for name in dir(commands)
                  if not name.startswith('_')]
-        return [(attr.func_name, attr) for attr in attrs
+        return [(attr.__name__, attr) for attr in attrs
                 if isinstance(attr, types.FunctionType)]
     except ImportError:
         pass
@@ -82,22 +82,22 @@ def manage():
     parser.add_argument('command', type=command_name,
                         help='command to execute')
     command = commands[args.command]
-    code = command.func_code
+    code = command.__code__
     if code.co_argcount > 0:
         call_args = {}
         call_args[code.co_varnames[0]] = settings
-        defaults = command.func_defaults or ()
+        defaults = command.__defaults__ or ()
         arg_index = 1
         defaults_index = 0
         defaults_start = code.co_argcount - len(defaults)
-        for arg_name in code.co_varnames[1:command.func_code.co_argcount]:
+        for arg_name in code.co_varnames[1:command.__code__.co_argcount]:
             if defaults_start <= arg_index:
                 parser.add_argument(arg_name, default=defaults[defaults_index])
             else:
                 parser.add_argument(arg_name)
             arg_index += 1
         args = parser.parse_args()
-        for arg_name in code.co_varnames[1:command.func_code.co_argcount]:
+        for arg_name in code.co_varnames[1:command.__code__.co_argcount]:
             call_args[arg_name] = getattr(args, arg_name)
         command(**call_args)
     else:

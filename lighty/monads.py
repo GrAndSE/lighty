@@ -5,7 +5,7 @@ import itertools
 import operator
 import sys
 
-from . import functor
+from . import functor, utils
 
 
 def handle_exception(func):
@@ -104,10 +104,10 @@ class ValueMonad(functor.BaseFunctor):
                  '__iter__', '__len__', '__call__', '__str__', 'value', )
     _lazy = (operator.__lt__, operator.__le__, operator.__eq__,
              operator.__ge__, operator.__gt__, operator.__add__,
-             operator.__sub__, operator.__div__, operator.__mod__,
-             operator.__pow__, operator.__mul__, operator.__contains__,
-             __getattr__, operator.__rshift__, operator.__lshift__,
-             operator.__and__, operator.__or__, operator.__xor__)
+             operator.__sub__, operator.__mod__, operator.__pow__,
+             operator.__mul__, operator.__contains__, __getattr__,
+             operator.__rshift__, operator.__lshift__, operator.__and__,
+             operator.__or__, operator.__xor__) + utils.div_operators
 
     def __init__(self, value):
         '''Create new monad including value

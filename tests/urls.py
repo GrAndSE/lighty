@@ -36,7 +36,7 @@ class PatternMatchingTestCase(unittest.TestCase):
     def testSimpleUrl(self):
         '''Test resolving url with no arg'''
         func = resolve(self.urls, '/test/', method='GET').func
-        assert (func.func_name == 'no_arg_func',
+        assert (func.__name__ == 'no_arg_func',
                 'No arguments function for /test/ required')
 
     def testIntArgUrl(self):

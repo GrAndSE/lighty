@@ -4,6 +4,7 @@ import collections
 import itertools
 import os
 import sys
+from .utils import dict_keys
 try:
     # for python 2
     import ConfigParser
@@ -99,7 +100,7 @@ class Settings(collections.Mapping):
         '''Get all keys from section
         '''
         if section in self.sections:
-            return self.sections[section].keys()
+            return dict_keys(self.sections[section].keys())
         raise KeyError('No section "%s" in configuration' % section)
 
     def has_section(self, section):
