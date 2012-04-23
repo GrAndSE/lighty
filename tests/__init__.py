@@ -7,6 +7,7 @@ tests = (
     'parse_token',
     'variable_fields',
     'template',
+#    'partial',
     'loaders',
     'filters',
     'default_filters',

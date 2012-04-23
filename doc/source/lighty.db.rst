@@ -1,12 +1,14 @@
-db Package
-==========
+:mod:`db` Package (Lighty framework ORM layer)
+====================================================
+
+.. automodule:: lighty.db
+    :members
 
 :mod:`backend` Module
 ---------------------
 
 .. automodule:: lighty.db.backend
     :members:
-    :undoc-members:
     :show-inheritance:
 
 :mod:`fields` Module
@@ -14,7 +16,6 @@ db Package
 
 .. automodule:: lighty.db.fields
     :members:
-    :undoc-members:
     :show-inheritance:
 
 :mod:`functor` Module
@@ -22,7 +23,6 @@ db Package
 
 .. automodule:: lighty.db.functor
     :members:
-    :undoc-members:
     :show-inheritance:
 
 :mod:`models` Module
@@ -30,15 +30,6 @@ db Package
 
 .. automodule:: lighty.db.models
     :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`operations` Module
-------------------------
-
-.. automodule:: lighty.db.operations
-    :members:
-    :undoc-members:
     :show-inheritance:
 
 :mod:`query` Module
@@ -46,6 +37,5 @@ db Package
 
 .. automodule:: lighty.db.query
     :members:
-    :undoc-members:
     :show-inheritance:
 

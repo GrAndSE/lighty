@@ -33,4 +33,3 @@ Subpackages
     lighty.db
     lighty.templates
     lighty.wsgi
-

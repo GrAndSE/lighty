@@ -1,4 +1,7 @@
-"""Package provides template class
+"""Module provides template two template classes:
+
+- Template
+- LazyTemplate
 """
 from collections import deque
 from functools import reduce
@@ -21,7 +24,37 @@ from .tag import tag_manager, parse_token
 
 
 class Template(object):
-    """Class represents template
+    """Class represents template. You can create template directrly in code::
+
+        template = Template('<b>Hello, {{ name }}!</b>')
+
+    or load it using template loader::
+
+        template = loader.get_template('simple.html')
+
+    Also you can create template and parse some text later but I do not
+    recomend to do that:
+
+        template = Template()
+        template.parse({{ var }})
+
+    To render the template you can use execute method and pass render context
+    as single arguments to this methods:::
+
+        template.execute({'var': 'test'})
+
+    And you reciveve 'test' string as result of template execution. Or you can
+    just call the template like a function to render template simpler way:::
+
+        template({'var': 'test'})
+
+    You can also access more complex variable in you context from templates, as
+    example dict subclasses or even object fields:::
+
+        >>> template = Template('Hello, {{ user.name }} from {{ var }}')
+        >>> template({'user': {'name': 'Peter', 'is_authenticated': True},
+        ...           'var': 'test'})
+        'Hello, Peter from test'
     """
     TEXT = 1
     TOKEN = 2
@@ -252,7 +285,28 @@ class Template(object):
 
 
 class LazyTemplate(Template):
-    '''Lazy template class can be used to access 
+    '''Lazy template class change the way how template loaded. :class: Template
+    parses template context on template creation if template text provided::
+
+        >>> from lighty.templates.template import Template, LazyTemplate
+        >>> template = Template('{{ var }}')  # template already parsed
+        >>> template.commands
+        [<function print_variable at 0xdda0c8>]
+        >>> lazy = LazyTemplate('{{ var }}')  # not parsed
+        >>> lazy.commands
+        []
+        >>> lazy.execute({'var': 'test'})  # parse on demand and then execute
+        'test'
+        >>> lazy.commands
+        [<function print_variable at 0x1130140>]
+
+    Lazy template class usefull for template loaders like a
+    :class: lighty.templates.loader.FSLoader that requires to get the list of
+    all the templates but does not require to parse all the templates on
+    loading because it causes an error with templates loading order (when
+    child template loaded before parent). Also it speed ups templates loading
+    process because it does not require to parse all the templates when they
+    even not used.
     '''
 
     def prepare(self):

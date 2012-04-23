@@ -6,11 +6,14 @@
 Welcome to Lighty's documentation!
 ==================================
 
-Contents:
+Lighty it's a "all-in-one" framework for web development using python
+programming language (python.org). 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
+   modules
+   todo
 
 
 Indices and tables
@@ -19,4 +22,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

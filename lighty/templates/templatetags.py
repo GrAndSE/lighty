@@ -22,7 +22,8 @@ def exec_with_context(func, context={}, context_diff={}):
 
 
 def exec_block(block, context):
-    '''Execute block
+    '''Helper function that can be used in block tags to execute inner template
+    code on a specified context
     '''
     return "".join([command(context) for command in block])
 
@@ -64,7 +65,51 @@ def replace_command(template, command, replacement):
 
 
 def block(token, block, template, loader):
-    """Block tag
+    """Block tag. This tag provides method to modify chilren template for
+    template inheritance.
+
+    As example for base template called 'base.html'
+
+    .. code-block:: html
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>{{ title }}</title>
+            {% block head %}{% endblock %}
+        </head>
+        <body>
+            {% block content %}Some contents{% endblock %}
+        </body>
+        </html>
+
+    and extended template called 'extended.html'
+
+    .. code-block:: html
+
+        {% extend "base.html" %}
+        {% block head %}<style></style>{% endblock %}
+        {% block content %}<h1>Hello, world!</h1>{% endblock %}
+
+    we can execute extended template with additional context::
+
+        template = loader.get_template('extended.html')
+        template({'title': 'Hello'})
+
+    to get something similar to this:
+
+    .. code-block:: html
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>%s</title>
+            <style></style>
+        </head>
+        <body>
+            <h1>Hello, world!</h1>
+        </body>
+        </html>
     """
     # Create inner template for blocks
     tmpl = Template(name='blocks-' + token, loader=loader)
@@ -95,7 +140,8 @@ tag_manager.register(
 
 
 def extend(token, template, loader):
-    """Tag used to create tamplates hierarhy
+    """Tag used to create tamplates iheritance. To get more information about
+    templates inheritance see :func:`block`.
     """
     tokens = parse_token(token)[0]
     template.parent = loader.get_template(tokens[0])
@@ -119,6 +165,8 @@ def include(token, context, loader):
     '''This tag includes another template inside current position
 
     Example:
+
+    .. code-block:: html
 
         <html>
         <head>
@@ -147,17 +195,16 @@ tag_manager.register(
 def spaceless(token, block, context):
     """This tag removes unused spaces
 
-    Template
+    Template::
         
         {% spaceless %}
             Some
                     text
         {% endspaceless %}
 
-    will be rendered to:
+    will be rendered to::
         
         Some text
-
     """
     results = [command(context).split('\n') for command in block]
     return "".join([line.lstrip() for line in itertools.chain(*results)])
@@ -177,6 +224,8 @@ def with_tag(token, block, context):
     """With tag can be used to set the shorter name for variable used few times
 
     Example:
+
+    .. code-block:: html
 
         {% with request.context.user.name as user_name %}
             <h1>{{ user_name }}'s profile</h1>
@@ -205,11 +254,18 @@ tag_manager.register(
 
 
 def if_tag(token, block, context):
-    """If tag can brings some logic into template.
+    """If tag can brings some logic into template. Now it's has very simple
+    implementations that only checks is variable equivalent of True. There is
+    no way to add additional logic like comparisions or boolean expressions.
+    Hope I'll add this in future.
 
-    Example:
+    Example::
 
         {% if user.is_authenticated %}Hello, {{ user.name }}!{% endif %}
+
+    returns for user = {'is_authenticated': True, 'name': 'Peter'}::
+
+        Hello, Peter!
 
     TODO:
         
@@ -268,18 +324,20 @@ class Forloop:
 
 
 def for_tag(token, block, context):
-    """For tag
+    """For tag used to make loops over all the iterator-like objects.
 
-    Example:
+    Example::
 
         {% for a in items %}{{ a }}{% endfor %}
 
-    returns for items = [1, 2, 3]:
+    returns for items = [1, 2, 3]::
         
         123
 
     Also forloop variable will be added into scope. It contains few flags can
-    be used to render customized templates
+    be used to render customized templates:
+
+    .. code-block:: html
 
         {% for a in items %}
             {% spaceless %}<span
@@ -290,7 +348,9 @@ def for_tag(token, block, context):
             </span>{% endspaceless %}
         {% endfor %}
 
-    returns
+    returns:
+
+    .. code-block:: html
 
         <span class="first">0. 1 from 3</span>
         <span>1. 2 from 3</span>

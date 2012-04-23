@@ -1,20 +1,14 @@
-templates Package
-=================
-
-:mod:`templates` Package
-------------------------
+:mod:`lighty.templates` Package (Lighty Templates system)
+=========================================================
 
 .. automodule:: lighty.templates
     :members:
-    :undoc-members:
-    :show-inheritance:
 
 :mod:`context` Module
 ---------------------
 
 .. automodule:: lighty.templates.context
     :members:
-    :undoc-members:
     :show-inheritance:
 
 :mod:`filter` Module
@@ -22,7 +16,6 @@ templates Package
 
 .. automodule:: lighty.templates.filter
     :members:
-    :undoc-members:
     :show-inheritance:
 
 :mod:`loaders` Module
@@ -30,7 +23,6 @@ templates Package
 
 .. automodule:: lighty.templates.loaders
     :members:
-    :undoc-members:
     :show-inheritance:
 
 :mod:`tag` Module
@@ -38,7 +30,6 @@ templates Package
 
 .. automodule:: lighty.templates.tag
     :members:
-    :undoc-members:
     :show-inheritance:
 
 :mod:`template` Module
@@ -46,7 +37,6 @@ templates Package
 
 .. automodule:: lighty.templates.template
     :members:
-    :undoc-members:
     :show-inheritance:
 
 :mod:`templatefilters` Module
@@ -54,7 +44,6 @@ templates Package
 
 .. automodule:: lighty.templates.templatefilters
     :members:
-    :undoc-members:
     :show-inheritance:
 
 :mod:`templatetags` Module
@@ -62,6 +51,5 @@ templates Package
 
 .. automodule:: lighty.templates.templatetags
     :members:
-    :undoc-members:
     :show-inheritance:
 
