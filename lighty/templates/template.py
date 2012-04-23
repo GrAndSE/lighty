@@ -127,7 +127,7 @@ class Template(object):
                     filters.insert(0, Decimal(variable))
                 except:
                     filters.insert(0, resolve(variable, context))
-            return reduce(apply_filter, filters)
+            return str(reduce(apply_filter, filters))
         return apply_filters
 
     def tag(self, name, token, block):
