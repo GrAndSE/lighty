@@ -12,4 +12,5 @@ Lighty is a simple all in one web framework writen in Python. It includes:
   urls for view name and arguments taken.
 - Bindings to WSGI and Tornado.
 
-It's not a full list of features. To read more look into documentation.
+It's not a full list of features. To read more look into documentation at 
+http://packages.python.org/lighty/index.html.
