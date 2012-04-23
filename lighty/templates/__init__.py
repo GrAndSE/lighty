@@ -71,6 +71,8 @@ usually strict means better and safe.
 from .loaders import TemplateLoader as Loader
 from .template import Template as BaseTemplate
 
+
+from .templatefilters import *
 from .templatetags import *
 
 TemplateLoader = Loader

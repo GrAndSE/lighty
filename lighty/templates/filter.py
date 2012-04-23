@@ -1,5 +1,7 @@
 """Package provides template filters management
 """
+import string
+from .context import resolve
 
 
 class FilterManager(object):

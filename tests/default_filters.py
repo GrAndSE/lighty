@@ -143,6 +143,7 @@ class DefaultFiltersTestCase(unittest.TestCase):
                           '2008-09-03T20:56:35')
 
 
+
 def test():
     suite = unittest.TestSuite()
     suite.addTest(DefaultFiltersTestCase('testSum'))
