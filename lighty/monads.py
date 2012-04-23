@@ -5,6 +5,8 @@ import itertools
 import operator
 import sys
 
+from . import functor
+
 
 def handle_exception(func):
     '''Handle an exception and return ErrorMonad for this exception
@@ -86,18 +88,26 @@ def monad_function(func):
         return ValueMonad(func(self, *nargs, **nkwargs))
     return wrapper
 
+BOOLEAN_OPERATORS = set((operator.__lt__, operator.__le__, operator.__eq__,
+                         operator.__ge__, operator.__gt__, ))
 
-@functools.total_ordering
-class ValueMonad(object):
+
+def __getattr__(self, name):
+    return getattr(self.value, name)
+
+
+class ValueMonad(functor.BaseFunctor):
     '''Base monad class. All the operations except comparisions and few others
     returns monads.
     '''
-    __slots__ = ('__init__', '__lt__', '__gt__', '__le__', '__ge__', '__eq__',
-                 '__ne__', '__add__', '__sub__', '__div__', '__mul__',
-                 '__mod__', '__pow__', '__getitem__', '__delitem__',
-                 '__setitem__', '__iter__', '__contains__', '__len__',
-                 '__and__', '__or__', '__xor__', '__lshift__', '__rshift__',
-                 '__call__', '__str__', '__getattr__', 'value', )
+    __slots__ = ('__init__', '__getitem__', '__delitem__', '__setitem__',
+                 '__iter__', '__len__', '__call__', '__str__', 'value', )
+    _lazy = (operator.__lt__, operator.__le__, operator.__eq__,
+             operator.__ge__, operator.__gt__, operator.__add__,
+             operator.__sub__, operator.__div__, operator.__mod__,
+             operator.__pow__, operator.__mul__, operator.__contains__,
+             __getattr__, operator.__rshift__, operator.__lshift__,
+             operator.__and__, operator.__or__, operator.__xor__)
 
     def __init__(self, value):
         '''Create new monad including value
@@ -105,71 +115,25 @@ class ValueMonad(object):
         super(ValueMonad, self).__init__()
         self.value = value.value if isinstance(value, ValueMonad) else value
 
-    @monad_boolean
-    def __lt__(self, other):
-        return self.value < other
-
-    @monad_boolean
-    def __le__(self, other):
-        return self.value <= other
-
-    @monad_boolean
-    def __eq__(self, other):
-        return self.value == other
-
-    @monad_operator
-    def __add__(self, other):
-        return self.value + other
-
-    @monad_operator
-    def __sub__(self, other):
-        return self.value - other
-
-    @monad_operator
-    def __div__(self, other):
-        return self.value / other
-
-    @monad_operator
-    def __mul__(self, other):
-        return self.value * other
-
-    @monad_operator
-    def __mod__(self, other):
-        return self.value // other
-
-    @monad_operator
-    def __pow__(self, other):
-        return self.value ** other
-
-    @monad_operator
-    def __and__(self, other):
-        return self.value & other
-
-    @monad_operator
-    def __or__(self, other):
-        return self.value | other
-
-    @monad_operator
-    def __xor__(self, other):
-        return self.value % other
-
-    @monad_operator
-    def __lshift__(self, other):
-        return self.value << other
-
-    @monad_operator
-    def __rshift__(self, other):
-        return self.value >> other
+    def create_copy(self, operator, operand):
+        is_boolean = operator in BOOLEAN_OPERATORS
+        if isinstance(operand, NoneMonad):
+            return False if is_boolean else operand
+        value = operator.value if isinstance(operand, ValueMonad) else operand
+        try:
+            result = operator(self.value, value)
+        except Exception as e:
+            return False if is_boolean else ErrorMonad(e)
+        else:
+            return result if is_boolean else ValueMonad(result)
 
     def __len__(self):
         try:
-            return len(self.value)
+            length = len(self)
         except:
             return 1
-
-    @monad_boolean
-    def __contains__(self, item):
-        return item in self.value
+        else:
+            return length
 
     @monad_function
     def __iter__(self):
@@ -195,10 +159,6 @@ class ValueMonad(object):
     @monad_function
     def __call__(self, *args, **kwargs):
         return self.value(*args, **kwargs)
-
-    @monad_operator
-    def __getattr__(self, name):
-        return getattr(self.value, name)
 
     def __str__(self):
         return str(self.value)

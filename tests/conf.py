@@ -4,7 +4,8 @@ import unittest
 
 from lighty.conf import Settings
 
-TEST_APPS = ['lighty.db', 'lighty.templates', 'lighty.wsgi', 'tests']
+TEST_APPS = ['benchmark', 'lighty.db', 'lighty.templates', 'lighty.wsgi',
+             'tests']
 
 
 class ConfTestCase(unittest.TestCase):
