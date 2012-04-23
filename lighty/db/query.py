@@ -149,4 +149,5 @@ class Query(object):
     def __getslice__(self, i=0, j=None):
         '''Get the query that contains a slice of current query
         '''
-        return 
+        return Query(from_query=self.from_query, model=self.model,
+                     offset=i, limit=j)

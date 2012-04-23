@@ -1,23 +1,5 @@
 from . import fields, query
-from backend import datastore
-
-
-class DuplicateFieldError(Exception):
-    '''Error thrown when there are two different fields with the same name
-    '''
-    pass
-
-
-class TransactionFailedError(Exception):
-    '''Error thrown when datastore transaction failed
-    '''
-    pass
-
-
-class NotSavedError(Exception):
-    '''Thrown when trying to get key for object was not stored in database
-    '''
-    pass
+from .backend import datastore
 
 
 def get_attr_source(name, cls):
@@ -56,8 +38,8 @@ class ModelBase(type):
                     old_source = field_source[dupe_field_name]
                     new_source = get_attr_source(dupe_field_name, parent)
                     if old_source != new_source:
-                        raise DuplicateFieldError('Duplicate field, %s, is '
-                                        'inherited from both %s and %s.' % (
+                        raise AttributeError('Duplicate field, %s, is '
+                                    'inherited from both %s and %s.' % (
                                         dupe_field_name, old_source.__name__,
                                         new_source.__name__))
                 defined |= parent._fields
@@ -70,8 +52,8 @@ class ModelBase(type):
             attr = attrs[attr_name]
             if isinstance(attr, fields.Field):
                 if attr_name in defined:
-                    raise DuplicateFieldError('Duplicate field: %s. It was '
-                                    'defined in %s already' % (attr_name,
+                    raise AttributeError('Duplicate field: %s. It was defined '
+                                'in %s already' % (attr_name,
                                     get_attr_source(attr_name,
                                                     field_source[attr_name])))
                 defined.add(attr_name)
@@ -151,11 +133,11 @@ class Model(object):
             Datastore key of persisted entity.
 
         Raises:
-            NotSavedError when entity is not persistent.
+            AttributeError when entity is not persistent.
         """
         if self._is_saved:
             return self.__dict__[self._key_name]
-        raise NotSavedError()
+        raise AttributeError()
 
     def put(self):
         """Writes this model instance to the datastore.
@@ -165,9 +147,6 @@ class Model(object):
 
         Returns:
             The key of the instance (either the existing key or a new key).
-
-        Raises:
-            TransactionFailedError if the data could not be committed.
         """
         fields = dict([(field, self.__dict__[field])
                        for field in self._fields])
@@ -177,12 +156,6 @@ class Model(object):
 
     def delete(self, **kwargs):
         """Deletes this entity from the datastore.
-
-        Args:
-            config: datastore_rpc.Configuration to use for this request.
-
-        Raises:
-            TransactionFailedError if the data could not be committed.
         """
         raise NotImplemented
 

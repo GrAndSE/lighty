@@ -157,6 +157,11 @@ class Field(BaseField):
         """
         return value
 
+    def __str__(self):
+        '''Get string representation
+        '''
+        return self.model + '.' + self.name
+
 
 class IntegerField(Field, NumericField):
     '''An integer. The admin represents this as an <input type="text"> (a

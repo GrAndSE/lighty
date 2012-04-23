@@ -1,39 +1,69 @@
 '''Make functor representation that helps to make queries and another lazy
 evaluations
 '''
+import functools
 import operator
+
+
+class BaseFunctor(object):
+    '''Base lazy object class
+    '''
+
+    def create_copy(self, operator, operand):
+        '''Create object's copy
+        '''
+        raise NotImplemented('"%s" does not overrides create_copy() method' %
+                             self.__class__.__name__)
+
+
+def create_operator(operator):
+    '''Create operator function
+    '''
+    @functools.wraps(operator)
+    def wrap(self, operand):
+        return self.create_copy(operator, operand)
+    return wrap
+
+
+class FunctorBase(type):
+    '''Metaclass used to create a classes includes method to generate lazy
+    methods to access
+    '''
+
+    def __new__(mcls, name, bases, attrs):
+        '''Create new class includes lazy methods to override an operators
+        '''
+        super_new = super(FunctorBase, mcls).__new__
+        parents = [b for b in bases if isinstance(b, FunctorBase)]
+        if not parents:
+            # If this isn't a subclass of Model, don't do anything special.
+            return super_new(mcls, name, bases, attrs)
+        # Analyse an attributes
+        new_attrs = {'_lazy': set(attrs['_lazy']) if '_lazy' in attrs
+                              else set()}
+        for parent in parents:
+            if hasattr(parent, '_lazy'):
+                new_attrs['_lazy'] |= set(parent._lazy)
+        for attr in new_attrs['_lazy']:
+            attrs[attr.__name__] = create_operator(attr)
+        new_attrs.update(attrs)
+        return super_new(mcls, name, bases, new_attrs)
 
 
 class BaseField(object):
     '''Base field class
     '''
+    __metaclass__ = FunctorBase
+    # Declare lazy operations
+    _lazy = (operator.__lt__, operator.__gt__, operator.__le__,
+             operator.__ge__, operator.__eq__, operator.__ne__,
+             operator.__add__, )
 
     def __init__(self):
         super(BaseField, self).__init__()
 
-    def create_functor(self, operator, operand):
+    def create_copy(self, operator, operand):
         return FieldFunctor(self, operator, operand)
-
-    def __lt__(self, other):
-        return self.create_functor(operator.__lt__, other)
-
-    def __gt__(self, other):
-        return self.create_functor(operator.__gt__, other)
-
-    def __le__(self, other):
-        return self.create_functor(operator.__le__, other)
-
-    def __ge__(self, other):
-        return self.create_functor(operator.__ge__, other)
-
-    def __eq__(self, other):
-        return self.create_functor(operator.__eq__, other)
-
-    def __ne__(self, other):
-        return self.create_functor(operator.__ne__, other)
-
-    def __add__(self, other):
-        return self.create_functor('+', other)
 
 
 class NumericField(BaseField):
@@ -43,20 +73,8 @@ class NumericField(BaseField):
         floats
         decimals
     '''
-    def __sub__(self, other):
-        return self.create_functor(operator.__sub__, other)
-
-    def __mul__(self, other):
-        return self.create_functor(operator.__mul__, other)
-
-    def __div__(self, other):
-        return self.create_functor(operator.__div__, other)
-
-    def __mod__(self, other):
-        return self.create_functor(operator.__mod__, other)
-
-    def __pow__(self, other):
-        return self.create_functor(operator.__pow__, other)
+    _lazy = (operator.__sub__, operator.__mul__, operator.__div__,
+             operator.__mod__, operator.__pow__, )
 
 
 class SequenceField(BaseField):
@@ -66,20 +84,18 @@ class SequenceField(BaseField):
         arrays
         dictionaries
     '''
+    _lazy = (operator.__getitem__, operator.__contains__, )
+
     def __len__(self):
         return 'len'
-
-    def __getitem__(self, key):
-        return self.create_functor(operator.__getitem__, key)
-
-    def __contains__(self, item):
-        return self.create_functor(operator.__contains__, item)
 
 
 class FieldFunctor(BaseField):
     '''Class used to keep operations history
     '''
     __slots__ = ('parent', 'operator', 'operand', 'model', )
+    # Lazy operators
+    _lazy = (operator.__and__, operator.__or__, operator.__xor__, )
 
     def __init__(self, parent, operator, operand):
         super(FieldFunctor, self).__init__()
@@ -93,18 +109,9 @@ class FieldFunctor(BaseField):
         self.operand = operand
         self.model = parent.model
 
-    def __and__(self, other):
-        return self.create_functor(operator.__and__, other)
-
-    def __or__(self, other):
-        return self.create_functor(operator.__or__, other)
-
-    def __xor__(self, other):
-        return self.create_functor(operator.__xor__, other)
-
     def __repr__(self):
         return self.__str__()
 
     def __str__(self):
-        return '(%s %s %s)' % (str(self.parent),
-                               self.operator, str(self.operand))
+        return '(%s %s %s)' % (str(self.parent), self.operator.__name__,
+                               str(self.operand))
