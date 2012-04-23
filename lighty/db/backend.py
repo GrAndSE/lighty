@@ -1,22 +1,21 @@
 '''Define class for getting and storing data
 '''
-from fields import Field
-from functor import FieldFunctor
-from operations import NOT, AND, OR
+import operator
+from .fields import Field
+from .functor import FieldFunctor
 
 
 class Datastore(object):
     ''' Class used to get and put data into database
     '''
-    __slots__ = ('name', 'db_name', 'db')
+    __slots__ = ('name', 'db_name', 'db', 'get', 'put', )
 
     def __init__(self, name, db_name):
         from pymongo import Connection
-        connection  = Connection()
-
-        self.name   = name
-        self.db_name= db_name
-        self.db     = connection[db_name]
+        connection = Connection()
+        self.name = name
+        self.db_name = db_name
+        self.db = connection[db_name]
 
     def get(self, model, **kwargs):
         '''Get item using number of arguments
@@ -31,14 +30,14 @@ class Datastore(object):
     @staticmethod
     def get_datastore_operation(operation):
         operator_matching = {
-                OR:     '||',
-                AND:    '&&',
-                NOT:    '!',
-                '>':    '>',
-                '<':    '<',
-                '>=':   '>=',
-                '<=':   '<=',
-                '==':   '=='
+                operator.__or__: '||',
+                operator.__and__: '&&',
+                operator.__not__: '!',
+                operator.__gt__: '>',
+                operator.__lt__: '<',
+                operator.__ge__: '>=',
+                operator.__le__: '<=',
+                operator.__eq__: '=='
         }
         return operator_matching[operation]
 
@@ -55,8 +54,8 @@ class Datastore(object):
         elif issubclass(operand.__class__, Field):
             return 'this.' + operand.name
         elif issubclass(operand.__class__, FieldFunctor):
-            parent  = Datastore.process_operand(operand.parent)
-            operator= Datastore.get_datastore_operation(operand.operator)
+            parent = Datastore.process_operand(operand.parent)
+            operator = Datastore.get_datastore_operation(operand.operator)
             operand = Datastore.process_operand(operand.operand)
             return "(%s %s %s)" % (parent, operator, operand)
         else:
@@ -64,15 +63,15 @@ class Datastore(object):
 
     @staticmethod
     def build_query(query):
-        operation   = Datastore.get_datastore_operation(query.operation)
-        operand     = Datastore.process_operand(query.operand)
+        operation = Datastore.get_datastore_operation(query.operation)
+        operand = Datastore.process_operand(query.operand)
         if query.from_query is None:
             source_query, distinct, order = '', query.dist, query.order
         else:
             source_query, distinct, order = Datastore.build_query(
                                                             query.from_query)
         if not source_query:
-            if operation == NOT:
+            if operation == operator.__not__:
                 return ('%s (%s)' % (
                             Datastore.get_datastore_operation(query.operation),
                             Datastore.process_operand(query.operand)),
@@ -83,7 +82,7 @@ class Datastore(object):
 
     def query(self, query, fields=None):
         items = (fields is None and self.db[query.model.entity_name()].find()
-                 or self.db[query.model.entity_name()].find({}, 
+                 or self.db[query.model.entity_name()].find({},
                             dict([(field_name, 1) for field_name in fields])))
         query_string, distinct, order = Datastore.build_query(query)
         if query_string:

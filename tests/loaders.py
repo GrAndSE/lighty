@@ -36,6 +36,7 @@ class BlockTestCase(unittest.TestCase):
         self.base_template = self.loader.get_template('base.html')
 
     def testExecuteTemplate(self):
+        '''Test template execution'''
         result = self.base_template()
         is_eq = fuzzy_equals(result, BASE_RESULT)
         assert is_eq, "Error template execution:\n%s" % (
@@ -51,6 +52,7 @@ class ExtendTestCase(BlockTestCase):
         self.extend_template = self.loader.get_template('index.html')
 
     def testExecuteTemplate(self):
+        '''Test template execution with templates extending'''
         result = self.extend_template()
         is_eq = fuzzy_equals(result, EXTEND_RESULT)
         assert is_eq, "Error template execution:\n%s" % (

@@ -196,7 +196,7 @@ def spaceless(token, block, context):
     """This tag removes unused spaces
 
     Template::
-        
+
         {% spaceless %}
             Some
                     text
@@ -239,8 +239,8 @@ def with_tag(token, block, context):
     """
     data_field, _, var_name = token.split(' ')
     value = resolve(data_field, context)
-    return exec_with_context(partial(exec_block, block), 
-                               context, {var_name: value})
+    return exec_with_context(partial(exec_block, block), context,
+                             {var_name: value})
 
 tag_manager.register(
         name='with',
@@ -268,7 +268,7 @@ def if_tag(token, block, context):
         Hello, Peter!
 
     TODO:
-        
+
         - add else
         - add conditions
     """
@@ -303,7 +303,7 @@ class Forloop:
     @property
     def last(self):
         return not self.counter0 < self.total
-    
+
     @property
     def first(self):
         return self.counter0 == 0
@@ -317,10 +317,10 @@ class Forloop:
         for v in self.values:
             context[self.var_name] = v
             yield exec_block(self.block, context)
+            self.counter0 += 1
 
     def __call__(self, context):
         return "".join([next for next in self.next(context)])
-
 
 
 def for_tag(token, block, context):
@@ -343,7 +343,7 @@ def for_tag(token, block, context):
             {% spaceless %}<span
                     {% if forloop.first %} class="first"{% endif %}
                     {% if forloop.last %} class="last"{% endif %}>
-                {{ forloop.counter0 }}. 
+                {{ forloop.counter0 }}.
                 {{ forloop.counter }} from {{ forloop.total }}
             </span>{% endspaceless %}
         {% endfor %}

@@ -4,7 +4,7 @@ BUILDDIR      = doc/build
 ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees doc/source
 
 test:
-	python run-tests all
+	python ./manage.py --config tests/test.cfg test all
 
 clean:
 	rm -r build

@@ -4,8 +4,6 @@ import collections
 import itertools
 import os
 import sys
-LIGHTY_CONF_PATH = os.path.realpath(os.path.dirname(__file__))
-
 try:
     # for python 2
     import ConfigParser
@@ -21,7 +19,7 @@ class Settings(collections.Mapping):
     '''
     __slots__ = ('__init__', '__contains__', '__getattr__', '__getitem__',
                  '__eq__', '__iter__', '__len__', '__ne__', 'configs', 'get',
-                 'items', 'keys', 'sections', 'settings', 'values', )
+                 'items', 'keys', 'section', 'sections', 'settings', 'values')
 
     def __init__(self, main_config, defaults={}):
         '''Load main config, parse it and then trying to load applications from
@@ -54,6 +52,19 @@ class Settings(collections.Mapping):
             self.settings.update(self.sections[section])
 
     def __getitem__(self, name):
+        '''Get value from configuration with specified name
+
+        Args:
+            name - option name
+
+        Returns:
+            last defined value for an option with specified from all the
+            configuration files and their sections
+
+        Raises:
+            KeyError - if there is no option with specified name found in all
+            configuration files
+        '''
         name = name.lower()
         if name in self.settings:
             return self.settings[name]
@@ -64,25 +75,60 @@ class Settings(collections.Mapping):
     __getattr__ = __getitem__
 
     def get(self, name, section=None):
+        '''Get configuration parameter from sections
+
+        Args:
+            name: item name
+            section: section name
+
+        Returns:
+            value stored in configuration wit specified name
+        '''
         name = name.lower()
         if section is None:
             if name in self.settings:
                 return self.settings[name]
         else:
-            if section in self.sections and name in self.sections[section]:     
+            if section in self.sections and name in self.sections[section]:
                 return self.sections[section][name]
             else:
                 raise KeyError('No section "%s" in configuration' % section)
         raise KeyError('"%s" not found in configuration' % name)
 
+    def section(self, section):
+        '''Get all keys from section
+        '''
+        if section in self.sections:
+            return self.sections[section].keys()
+        raise KeyError('No section "%s" in configuration' % section)
+
+    def has_section(self, section):
+        '''Check is section in configuration exists
+
+        Args:
+            section - section name
+
+        Returns:
+            True if section exists or False if not
+        '''
+        return section in self.sections
+
     def __iter__(self):
+        '''Get iterator over the settings keys
+        '''
         return self.settings.__iter__()
 
     def __len__(self):
+        '''Get number of unique configuration keys
+        '''
         return len(self.settings)
 
     def keys(self):
+        '''Get unique configuration options names
+        '''
         return self.settings.keys()
 
     def values(self):
+        '''Get all the configuration options values
+        '''
         return self.settings.values()

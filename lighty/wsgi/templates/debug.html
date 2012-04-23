@@ -1,0 +1,111 @@
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+	<title>Lighty Debug</title>
+
+	<style type="text/css" media="screen">
+		/* Reset */
+		html, body, div, span, h1, h2, a, p, code, ol, ul, li, table, tbody, tfoot, thead, tr, th, td { margin: 0; padding: 0; border: 0; outline: 0; vertical-align: baseline; background: transparent; font-family: sans; }
+		body { background: #ffd; font-size: 12px; line-height: 1; padding: 10px; }
+		a { margin: 0; padding: 0; font-size: 100%; vertical-align: baseline; background: transparent; }
+		table { border-collapse: collapse; border-spacing: 0; }
+		h1 { color: red; font-weight: normal; font-size: 24px; margin-bottom: 12px; }
+		h2 { background: #eee; font-size: 20px; }
+		ul { padding-bottom: 8px; }
+		li { margin-bottom: 8px; margin-top: 8px; }
+		li a span { font-weight: bolder; }
+		h2 a.toggle, li a.toggle { color: #333; display: block; padding: 5px; text-decoration: none; }
+		div { border-top: 1px solid #999; border-bottom: 1px solid #999; margin-bottom: 10px; }
+		.hidden { display: none; }
+		pre { margin: 5px; padding: 5px; background: #fefeed; line-height: 9px; }
+		pre span.current { background: #fcc; }
+	</style>
+</head>
+<body>
+	<h1>
+		<span class="type">{{ error_type}}</span>:
+		<span class="message">{{ error_message }}</span>
+	</h1>
+	<div>
+		<h2><a href="javascript:;" data-target-id="environ" class="toggle">Environ:</a></h2>
+		<ul id="environ" class="hidden">
+		</ul>
+	</div>
+	<div>
+		<h2><a href="javascript:;" data-target-id="traceback" class="toggle">Traceback:</a></h2>
+		<ul id="traceback" class="hidden">
+		{% for item in traceback %}
+			<li>
+				<a href="javascript:;" data-target-id="traceback-{{ forloop.counter }}" class="toggle">
+					<span class="num">{{ item.line }}</span> in 
+					<span class="file">{{ item.file }}</span> function 
+					<span class="func">{{ item.func }}</span>:
+					<span class="line">{{ item.code }}</span>
+				</a>
+				<pre id="traceback-{{ forloop.counter }}" class="hidden">{% for line in item.lines %}
+<span class="line-num{% if line.current %} current{% endif %}">{{ line.num }}</span><span class="line-code{% if line.current %} current{% endif %}">{{ line.code }}</span>
+				{% endfor %}</pre>
+			</li>
+		{% endfor %}
+		</ul>
+	</div>
+
+	<script type="text/javascript" charset="utf-8">
+		// Object that gets returned to break out of a iteration.
+		var breaker = {}; 
+		var $ = function(selector, parent) {
+			if (!parent) { parent = document.body; }
+			return parent.querySelectorAll(selector);
+		}
+		// Has own property
+		$.has = function(obj, key) { return hasOwnProperty.call(obj, key); };
+		// For each
+		var nativeForEach = Array.prototype.forEach;
+		$.each = function(obj, iterator, context) {
+			if (obj == null) {
+				return;
+			}
+			if (nativeForEach && obj.forEach === nativeForEach) {
+				obj.forEach(iterator, context);
+			} else if (obj.length === +obj.length) {
+				for (var i = 0, l = obj.length; i < l; i++) {
+					if (i in obj && iterator.call(context, obj[i], i, obj) === breaker) {
+						return;
+					}
+				}
+			} else {
+				for (var key in obj) {
+					if ($.has(obj, key)) {
+						if (iterator.call(context, obj[key], key, obj) === breaker) {
+							return;
+						}
+					}
+				}
+			}
+		};
+		// Attr get/set
+		$.attr = function(obj, name, value) {
+			if (value) {
+				return obj.setAttribute(name, value);
+			} else {
+				return obj.getAttribute(name);
+			}
+		};
+		// On load
+		window.onload = function() {
+			$.each($('a.toggle'), function(item) {
+					var targetId = $.attr(item, 'data-target-id');
+					var target = $('#' + targetId);
+					item.onclick = function() {
+						console.log(target);
+						$.each(target, function(i) {
+							console.log(i);
+							i.classList.toggle('hidden');
+						});
+					};
+			});
+		};
+	</script>
+</body>
+</html>

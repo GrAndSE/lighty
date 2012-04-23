@@ -23,21 +23,25 @@ class VariableFieldTestCase(unittest.TestCase):
                                      result, 'except', self.value))
 
     def testSimpleVariable(self):
+        '''Test simple variable accessing from template'''
         result = self.variable_template.execute({'simple_var': 'value'})
         self.assertResult(result)
 
     def testObjectField(self):
+        '''Test object's field accessing from template'''
         class TestClass(object):
             field = self.value
         result = self.object_field_template.execute({'object': TestClass()})
         self.assertResult(result)
 
     def testDictValue(self):
+        '''Test dict item accessing from template'''
         obj = {'field': self.value}
         result = self.object_field_template.execute({'object': obj})
         self.assertResult(result)
 
     def testMultilevelField(self):
+        '''Test accesing to dict item as object field'''
         class TestClass(object):
             field = {'field': self.value}
         result = self.deep_template.execute({'object': TestClass()})

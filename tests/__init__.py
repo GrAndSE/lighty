@@ -1,5 +1,7 @@
 tests = (
     # core
+    'conf',
+    'command',
     'monad',
     # db
     'mongo',
@@ -14,6 +16,7 @@ tests = (
     'blockextend',
     'default_tags',
     # wsgi
+    'wsgiapps',
     'request',
     'urls',
 )

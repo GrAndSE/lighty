@@ -1,66 +1,103 @@
-from backend import datastore
-from fields import Field
-from operations import AND, NOT, OR
+import operator
+
+from .backend import datastore
+from .fields import Field
 
 
 class Query(object):
     '''Query class
     '''
-    __slots__ = ('from_query', 'operation', 'operand', 'model', 'dist', 'order')
+    __slots__ = ('from_query', 'operation', 'operand', 'model', 'dist',
+                 'order', 'offset', 'limit', )
 
-    def __init__(self, operand=None, operation=AND, 
-                       from_query=None, model=None):
+    def __init__(self, operand=None, operation=operator.__and__,
+                       from_query=None, offset=0, limit=None, model=None):
         '''Create new query in a form
         from_query operation operand
         '''
         self.from_query = from_query
-        self.operation  = operation
-        self.operand    = operand
-        self.dist       = False
-        self.order      = None
+        self.operation = operation
+        self.operand = operand
+        self.dist = False
+        self.order = None
+        self.offset = offset
+        self.limit = limit
         if from_query is not None:
-            self.model  = from_query.model
-            self.dist   = from_query.dist
-            self.order  = from_query.order
+            self.model = from_query.model
+            self.dist = from_query.dist
+            self.order = from_query.order
+            if from_query.offset > 0:
+                self.offset += from_query.offset
+            if from_query.limit:
+                self.limit = from_query.limit
         elif operand is not None:
-            self.model  = operand.model
+            self.model = operand.model
         elif model is not None:
-            self.model  = model
+            self.model = model
         else:
             raise AttributeError('Query requires model to be specified')
 
     def __and__(self, operand):
         '''Creates new query from this query with operation AND and specified
-        operand
+        operand:
+
+            >>> Query(ModelClass.field > 10) & Query(ModelClass.field < 20)
+            SELECT * FROM modelclass WHERE field > 10 AND field < 20
         '''
-        return Query(operand=operand, operation=AND, from_query=self)
+        return Query(operand=operand, operation=operator.__and__,
+                     from_query=self)
     __mul__ = __and__
-    filter  = __and__
-    where   = __and__
+    filter = __and__
+    where = __and__
 
     def __neg__(self):
-        return Query(operation=NOT, from_query=self)
+        '''Get query excludes values
+
+            >>> not Query(ModelClass.field > 0)
+            SELECT * FROM modelclass WHERE NOT (field > 0)
+        '''
+        return Query(operation=operator.__not__, from_query=self)
 
     def __sub__(self, operand):
-        return Query(operand=Query(NOT, operand), operation=AND,
-                     from_query=self)
+        '''Creates new query from this query with operation AND and specified
+        operand:
+
+            Query(ModelClass.field > 10) & Query(ModelClass.field < 20)
+
+        equivalent to:
+
+            SELECT * FROM modelclass WHERE field > 10 AND field < 20
+        '''
+        return Query(operand=Query(operator.__not__, operand),
+                     operation=operator.__and__, from_query=self)
     exclude = __sub__
 
     def __or__(self, operand):
         '''Creates new query from this query with operation OR and specified
         operand
         '''
-        return Query(operand=operand, operation=OR, from_query=self)
+        return Query(operand=operand, operation=operator.__or__,
+                     from_query=self)
     __add__ = __or__
     include = __or__
 
     def __repr__(self):
-        return '<Query: %s>' % self.__str__()
+        '''Get string representation includes class name and query string
+
+            >>> Query(ModelClass.field > 0)
+            <Query: "SELECT * FROM modelclass WHERE field > 0">
+        '''
+        return '<Query: "%s">' % self.__str__()
 
     def __str__(self):
+        '''Get the query string
+
+            >>> str(Query(ModelClass.field > 0))
+            SELECT * FROM modelclass WHERE field > 0
+        '''
         if self.from_query is None:
-            if self.operation == NOT:
-                return '%s (%s)' % (NOT, str(self.operation))
+            if self.operation == operator.__not__:
+                return '%s (%s)' % (operator.__not__, str(self.operation))
             return str(self.operand)
         return '(%s) %s %s' % (str(self.from_query), self.operation,
                                self.operand)
@@ -74,6 +111,8 @@ class Query(object):
         return query
 
     def order_by(self, *args):
+        '''Query ordering
+        '''
         for field in args:
             if not isinstance(field, Field):
                 raise AttributeError('You can sort only by model fields')
@@ -86,7 +125,7 @@ class Query(object):
         return query
 
     def __call__(self):
-        '''Returns the query copy
+        '''Returns the query that copies current query
         '''
         return Query(operand=self.operand, operation=self.operation,
                      from_query=self.from_query, model=self.model)
@@ -107,5 +146,8 @@ class Query(object):
         for item in datastore.query(self):
             yield self.model(is_new=False, **item)
 
-    def __getslice__(self, i, j):
-        return datastore.slice(self, i, j)
+    def __getslice__(self, i=0, j=None):
+        '''Get the query that contains a slice of current query
+        '''
+        return Query(from_query=self.from_query, model=self.model,
+                     offset=i, limit=j)

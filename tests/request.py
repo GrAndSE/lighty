@@ -25,17 +25,21 @@ class RequestTestCase(unittest.TestCase):
         self.request = Request(self, self.environ)
 
     def testApp(self):
+        '''Test request application field'''
         assert self.request.app == self, 'Error setting response application'
 
     def testRequestMethod(self):
+        '''Test request method'''
         assert self.request.method == 'get', ('Wrong request method: %s' % 
                 self.request.method)
 
     def testPathInfo(self):
+        '''Test request path'''
         assert self.request.path == '/hello/world', ('Wrong request path: %s' %
                 self.request.path)
 
     def testCookies(self):
+        '''Test cookies parsing'''
         assert self.request.cookies['csrftoken'].value == CSRFTOKEN, (
                     'Wrong cookie "csrftoken": %s' %
                     self.request.cookies['csrftoken'].value)
@@ -45,20 +49,19 @@ class RequestTestCase(unittest.TestCase):
 
 
     def testHeaders(self):
+        '''Test request headers'''
         # TODO: write valid code here
         pass
 
     def testRequestParams(self):
-        '''Check all the methods to access request as params
-        '''
+        '''Test all the methods to access request as params'''
         assert self.request.params['a'] == '1', ('Wrong param "a" value: %s' %
                 self.request.params['a'])
         assert self.request.params['b'] == 'text', (
                 'Wrong param "b" value: %s' % self.request.params['b'])
 
     def testRequestParamsAccess(self):
-        '''Check all the methods to access request as params
-        '''
+        '''Test all the methods to access request as params'''
         assert self.request['a'] == '1', ('Wrong param "a" value: %s' %
                 self.request['a'])
         assert self.request['b'] == 'text', ('Wrong param "b" value: %s' %

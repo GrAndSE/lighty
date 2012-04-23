@@ -1,15 +1,46 @@
 import functools
+import os
+
+from ..templates.loaders import FSLoader
 
 from .handler import handler
 from .urls import load_urls, resolve
 
 
-def WSGIApplication(settings):
-    '''Create main application handler
+class BaseApplication(object):
+    '''Base application class contains obly settings, urls and resolve_url
+    method
     '''
 
-    class Application(object):
-        urls = load_urls(settings.urls)
-        resolve_url = functools.partial(resolve, urls)
+    def __init__(self, settings):
+        self.settings = settings
+        self.urls = load_urls(settings.urls)
+        self.resolve_url = functools.partial(resolve, self.urls)
 
-    return functools.partial(handler, Application, Application.resolve_url)
+
+class ComplexApplication(BaseApplication):
+    '''Application loads also templates and database connection
+    '''
+
+    def __init__(self, settings):
+        super(ComplexApplication, self).__init__(settings)
+        apps = settings.section('APPS')
+        template_dirs = []
+        for app in apps:
+            module = __import__(app, globals(), locals(), app.split('.')[-1])
+            template_dir = os.path.join(module.__path__[0], 'templates')
+            if os.path.exists(template_dir):
+                template_dirs.append(template_dir)
+        try:
+            template_dirs += settings.section('TEMPLATE_DIRS')
+        except:
+            pass
+        self.template_loader = FSLoader(template_dirs)
+        self.get_template = self.template_loader.get_template
+
+
+def WSGIApplication(app_settings):
+    '''Create main application handler
+    '''
+    application = ComplexApplication(app_settings)
+    return functools.partial(handler, application, application.resolve_url)

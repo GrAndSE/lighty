@@ -7,7 +7,7 @@ import sys
 
 
 def handle_exception(func):
-    '''Handle an exception and return NoneMonad for this exception
+    '''Handle an exception and return ErrorMonad for this exception
     '''
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -15,12 +15,12 @@ def handle_exception(func):
             return func(*args, **kwargs)
         except Exception as e:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            return NoneMonad(e, traceback=exc_traceback)
+            return ErrorMonad(e, traceback=exc_traceback)
     return wrapper
 
 
 def monad_operation(func):
-    '''Wrap method with exception catching and creating NoneMonad if there was
+    '''Wrap method with exception catching and creating ErrorMonad if there was
     an exception
     '''
     @functools.wraps(func)
@@ -31,7 +31,7 @@ def monad_operation(func):
 
 
 def monad_operator(func):
-    '''Decorator that wraps function with one arugment type checking and 
+    '''Decorator that wraps function with one arugment type checking and
     exception catching
     '''
     @functools.wraps(func)
@@ -39,7 +39,7 @@ def monad_operator(func):
     def wrapper(self, value):
         if isinstance(value, NoneMonad):
             return value
-        return ValueMonad(func(self, value.value 
+        return ValueMonad(func(self, value.value
                                      if isinstance(value, ValueMonad)
                                      else value))
     return wrapper
@@ -74,7 +74,7 @@ def check_argument(arg):
 
 
 def monad_function(func):
-    '''Decorator that wraps function with arguments, check all the values and 
+    '''Decorator that wraps function with arguments, check all the values and
     catch all the exceptions
     '''
     @functools.wraps(func)
@@ -97,14 +97,13 @@ class ValueMonad(object):
                  '__mod__', '__pow__', '__getitem__', '__delitem__',
                  '__setitem__', '__iter__', '__contains__', '__len__',
                  '__and__', '__or__', '__xor__', '__lshift__', '__rshift__',
-                 '__call__', '__str__', '__getattr__', 'code', 'value', )
+                 '__call__', '__str__', '__getattr__', 'value', )
 
-    def __init__(self, value, code=200):
-        '''Create new monad including value and store the code
+    def __init__(self, value):
+        '''Create new monad including value
         '''
         super(ValueMonad, self).__init__()
         self.value = value.value if isinstance(value, ValueMonad) else value
-        self.code = code
 
     @monad_boolean
     def __lt__(self, other):
@@ -187,11 +186,11 @@ class ValueMonad(object):
 
     @monad_function
     def __delitem__(self, *args):
-        return operator.delitem(*args)
+        return operator.delitem(self.value, *args)
 
     @monad_function
     def __setitem__(self, *args):
-        return operator.setitem(*args)
+        return operator.setitem(self.value, *args)
 
     @monad_function
     def __call__(self, *args, **kwargs):
@@ -209,16 +208,15 @@ class ValueMonad(object):
 
 
 class NoneMonad(ValueMonad):
-    '''NoneMonad class represents all the methods exceptions and missed values
+    '''NoneMonad class represents empty list, dicts, NoneType or False
     '''
     EMPTY_ITER = itertools.cycle('')
 
-    def __init__(self, value, code=200, traceback=None):
+    def __init__(self, value):
         '''Create new monad including value and store the code
         '''
-        super(NoneMonad, self).__init__(value, code)
-        self.traceback = traceback
-    
+        super(NoneMonad, self).__init__(value)
+
     def __len__(self):
         '''Returns 0
         '''
@@ -238,3 +236,14 @@ class NoneMonad(ValueMonad):
         '''NoneMonad equals zero
         '''
         return False
+
+
+class ErrorMonad(NoneMonad):
+    '''ErrorMonad class represents errors
+    '''
+
+    def __init__(self, value, traceback=None):
+        '''Include traceback representation
+        '''
+        super(ErrorMonad, self).__init__(value)
+        self.traceback = traceback

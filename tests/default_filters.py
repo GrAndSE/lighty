@@ -17,10 +17,12 @@ class DefaultFiltersTestCase(unittest.TestCase):
     # numerical filters
 
     def testSum(self):
+        '''Test sum template filter'''
         result = templatefilters.sum(1, 2, 3, 4)
         self.assertResult('sum', result, 10)
 
     def testFloatFormat(self):
+        '''Test floatformat template filter'''
         value = '12.45'
         result = templatefilters.floatformat(value)
         self.assertResult('floatformat("%s")' % value, result, '12')
@@ -32,6 +34,7 @@ class DefaultFiltersTestCase(unittest.TestCase):
         self.assertResult('floatformat("%s")' % value, result, '12.45')
 
     def testFloatRound(self):
+        '''Test floatround template filter'''
         value = '12.45'
         result = templatefilters.floatround(value)
         self.assertResult('floatround("%s")' % value, result, Decimal('12'))
@@ -41,24 +44,29 @@ class DefaultFiltersTestCase(unittest.TestCase):
     # string filters
 
     def testUpper(self):
+        '''Test upper template filter'''
         result = templatefilters.upper('hello')
         self.assertResult('upper("hello")', result, 'HELLO')
 
     def testLower(self):
+        '''Test lower template filter'''
         result = templatefilters.lower('hello')
         self.assertResult('lower("HELLO")', result, 'hello')
 
     def testCapfirst(self):
+        '''Test capfirst template filter'''
         result = templatefilters.capfirst('hello')
         self.assertResult('capfirst("hello")', result, 'Hello')
 
     def testAddSlashes(self):
+        '''Test addslashes template filter'''
         value = '"Hello\\goodbue \'master\'"'
         result = templatefilters.addslashes(value)
         expected = '\\"Hello\\\\goodbue \\\'master\\\'\\"'
         self.assertResult('addslashes("%s")' % value, result, expected)
 
     def testStringFormat(self):
+        '''Test stringformat template filter'''
         format = '4f'
         value = 3.14
         name = 'stringformat(%s, "%s")' % (value, format)
@@ -68,16 +76,19 @@ class DefaultFiltersTestCase(unittest.TestCase):
     # list filters
 
     def testJoin(self):
+        '''Test join template filter'''
         value = (1, 2, 3, 4)
         result = templatefilters.join(value, ',')
         self.assertResult('join(%s)' % str(value), result, '1,2,3,4')
 
     def testLength(self):
+        '''Test length template filter'''
         value = (1, 2, 3, 4)
         result = templatefilters.length(value)
         self.assertResult('length(%s)' % str(value), result, 4)
 
     def testFirst(self):
+        '''Test first template filter'''
         value = (1, 2, 3, 4)
         result = templatefilters.first(value)
         self.assertResult('first(%s)' % str(value), result, 1)
@@ -86,6 +97,7 @@ class DefaultFiltersTestCase(unittest.TestCase):
         self.assertResult('first(%s)' % str(value), result, 1)
 
     def testLast(self):
+        '''Test last template filter'''
         value = (1, 2, 3, 4)
         result = templatefilters.last(value)
         self.assertResult('last(%s)' % str(value), result, 4)
@@ -94,6 +106,7 @@ class DefaultFiltersTestCase(unittest.TestCase):
         self.assertResult('last(%s)' % str(value), result, 4)
 
     def testSort(self):
+        '''Test sort template filter'''
         value = (4, 5, 3, 1, 2)
         result = templatefilters.sort(value)
         self.assertResult('sort(%s)' % str(value), result, [1, 2, 3, 4, 5])
@@ -102,6 +115,7 @@ class DefaultFiltersTestCase(unittest.TestCase):
                           [5, 4, 3, 2, 1])
 
     def testDictSort(self):
+        '''Test dictsort template filter'''
         value = ({'name': 'first', 'age': 12},
                  {'name': 'second', 'age': 10},
                  {'name': 'third', 'age': 11})
@@ -115,6 +129,18 @@ class DefaultFiltersTestCase(unittest.TestCase):
                           [{'name': 'first', 'age': 12},
                            {'name': 'third', 'age': 11},
                            {'name': 'second', 'age': 10}])
+
+    # Date
+
+    def testDate(self):
+        '''Test data format string
+        '''
+        import datetime
+        value = datetime.datetime(2008, 9, 3, 20, 56, 35)
+        format = "%Y-%m-%dT%H:%M:%S"
+        result = templatefilters.date(value, format)
+        self.assertResult('date("%s", "%s")' % (str(value), format), result,
+                          '2008-09-03T20:56:35')
 
 
 def test():
@@ -133,4 +159,5 @@ def test():
     suite.addTest(DefaultFiltersTestCase('testLast'))
     suite.addTest(DefaultFiltersTestCase('testSort'))
     suite.addTest(DefaultFiltersTestCase('testDictSort'))
+    suite.addTest(DefaultFiltersTestCase('testDate'))
     return suite

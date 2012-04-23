@@ -9,7 +9,7 @@ from distutils.core import setup
 
 setup(
         name='lighty',
-        version='0.4',
+        version='0.4.1',
         description='Simple all-in-one web framework',
         long_description=__doc__,
         keywords='Template HTML XML', 
@@ -25,7 +25,6 @@ setup(
             'License :: OSI Approved :: BSD License',
             'Operating System :: OS Independent',
             'Programming Language :: Python',
-            'Programming Language :: Python :: 3',
             'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
             'Topic :: Software Development :: Libraries :: Python Modules',
             'Topic :: Text Processing :: Markup :: HTML',

@@ -283,7 +283,6 @@ class Template(object):
         return result
 
 
-
 class LazyTemplate(Template):
     '''Lazy template class change the way how template loaded. :class: Template
     parses template context on template creation if template text provided::

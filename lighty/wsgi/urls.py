@@ -25,8 +25,7 @@ HTTP_METHODS = ['GET', 'POST', 'PUT', 'DELETE']
 
 def load_urls(name):
     '''Load urls file. This file requires to contains urlpatterns variable. It
-    could be list or tuple of results of url() function calling. 
-
+    could be list or tuple of results of url() function calling.
 
         from app_name.views import hello_view
 
@@ -40,7 +39,7 @@ def load_urls(name):
 
 
 def load_view(view):
-    '''Load view for name if needed 
+    '''Load view for name if needed
     '''
     if callable(view):
         return view if hasattr(view, 'is_view') else decorators.view(view)
@@ -55,7 +54,7 @@ def load_view(view):
     func = getattr(module, explain.group('function'))
     if not callable(func):
         return TypeError('%s.%s is not callable' % (pack_name, func_name))
-    return func
+    return func if hasattr(func, 'is_view') else decorators.view(func)
 
 
 def escape_url(url):
@@ -103,7 +102,7 @@ def resolve(urls, path, method=None):
     '''Resolve url
     '''
     for expr, url, view, name, defaults, _, _, methods in urls:
-        if method in methods:
+        if not method or method in methods:
             match = expr.match(path)
             if match:
                 call_args = copy.copy(defaults)
