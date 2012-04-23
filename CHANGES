@@ -1,5 +1,31 @@
-Lighty-Template Changelog
-=========================
+Lighty Changelog
+================
+
+
+Version 0.4.1
+-------------
+(released on April 23th 2012)
+- Add date template filter.
+- Make benchmark running command and reorganize the some parts of code.
+- Refactor lighty.db to make it compact: remove non-standart exceptions, add a
+  metaclass for functors, remove some not nessesary fields, write some docs.
+- More documentation.
+
+
+Version 0.4
+-----------
+(merge release on April 13th 2012)
+
+- Merge lighty.wsgi, lighty.db and lighty.templates into on package.
+- Add configuration loading.
+- Add API to run different types of scripts inside the application environment.
+- Basic tornado server support.
+- Monads implementation as wrappers for view functions.
+- URLs routing: url resolving and reversing.
+- Fix a lots of issues.
+- Static file handler for debug mode.
+- Some documentation.
+
 
 Version 0.3.3
 -------------
