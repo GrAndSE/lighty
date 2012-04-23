@@ -31,7 +31,7 @@ def monad_operation(func):
 
 
 def monad_operator(func):
-    '''Decorator that wraps function with one arugment type checking and 
+    '''Decorator that wraps function with one arugment type checking and
     exception catching
     '''
     @functools.wraps(func)
@@ -39,7 +39,7 @@ def monad_operator(func):
     def wrapper(self, value):
         if isinstance(value, NoneMonad):
             return value
-        return ValueMonad(func(self, value.value 
+        return ValueMonad(func(self, value.value
                                      if isinstance(value, ValueMonad)
                                      else value))
     return wrapper
@@ -74,7 +74,7 @@ def check_argument(arg):
 
 
 def monad_function(func):
-    '''Decorator that wraps function with arguments, check all the values and 
+    '''Decorator that wraps function with arguments, check all the values and
     catch all the exceptions
     '''
     @functools.wraps(func)
@@ -216,7 +216,7 @@ class NoneMonad(ValueMonad):
         '''Create new monad including value and store the code
         '''
         super(NoneMonad, self).__init__(value)
-    
+
     def __len__(self):
         '''Returns 0
         '''

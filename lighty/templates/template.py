@@ -250,9 +250,8 @@ class Template(object):
         return result
 
 
-
 class LazyTemplate(Template):
-    '''Lazy template class can be used to access 
+    '''Lazy template class can be used to access
     '''
 
     def prepare(self):

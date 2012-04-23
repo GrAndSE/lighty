@@ -148,14 +148,14 @@ def spaceless(token, block, context):
     """This tag removes unused spaces
 
     Template
-        
+
         {% spaceless %}
             Some
                     text
         {% endspaceless %}
 
     will be rendered to:
-        
+
         Some text
 
     """
@@ -190,8 +190,8 @@ def with_tag(token, block, context):
     """
     data_field, _, var_name = token.split(' ')
     value = resolve(data_field, context)
-    return exec_with_context(partial(exec_block, block), 
-                               context, {var_name: value})
+    return exec_with_context(partial(exec_block, block), context,
+                             {var_name: value})
 
 tag_manager.register(
         name='with',
@@ -212,7 +212,7 @@ def if_tag(token, block, context):
         {% if user.is_authenticated %}Hello, {{ user.name }}!{% endif %}
 
     TODO:
-        
+
         - add else
         - add conditions
     """
@@ -247,7 +247,7 @@ class Forloop:
     @property
     def last(self):
         return not self.counter0 < self.total
-    
+
     @property
     def first(self):
         return self.counter0 == 0
@@ -267,7 +267,6 @@ class Forloop:
         return "".join([next for next in self.next(context)])
 
 
-
 def for_tag(token, block, context):
     """For tag
 
@@ -276,7 +275,7 @@ def for_tag(token, block, context):
         {% for a in items %}{{ a }}{% endfor %}
 
     returns for items = [1, 2, 3]:
-        
+
         123
 
     Also forloop variable will be added into scope. It contains few flags can
@@ -286,7 +285,7 @@ def for_tag(token, block, context):
             {% spaceless %}<span
                     {% if forloop.first %} class="first"{% endif %}
                     {% if forloop.last %} class="last"{% endif %}>
-                {{ forloop.counter0 }}. 
+                {{ forloop.counter0 }}.
                 {{ forloop.counter }} from {{ forloop.total }}
             </span>{% endspaceless %}
         {% endfor %}

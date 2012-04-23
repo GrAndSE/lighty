@@ -20,11 +20,11 @@ filter_manager.register(sum)
 def float_format_args_parse(func, raw_value, format):
     # Parse arguments
     try:
-        digits  = abs(int(format))
+        digits = abs(int(format))
     except:
         raise Exception('%s arguments error: format is not integer' % func)
     try:
-        value   = Decimal(raw_value)
+        value = Decimal(raw_value)
     except:
         raise Exception('%s supports only number values' % func)
     return value, digits
@@ -95,9 +95,9 @@ filter_manager.register(capfirst)
 
 
 def stringformat(value, format):
-    """Formats the variable according to the format, a string formatting 
+    """Formats the variable according to the format, a string formatting
     specifier.
-        
+
     This specifier uses Python string formating syntax, with the exception that
     the leading "%" is dropped.
 

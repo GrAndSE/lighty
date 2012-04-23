@@ -13,6 +13,7 @@ def view(func, **constraints):
     argument values
     '''
     func.is_view = True
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:

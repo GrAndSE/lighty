@@ -1,8 +1,8 @@
-"""Package provides template tags manager and base tags list 
+"""Package provides template tags manager and base tags list
 """
-VARIABLE    = 0
-STRING      = 1
-NUMBER      = 2
+VARIABLE = 0
+STRING = 1
+NUMBER = 2
 
 
 def parse_token(token):
@@ -20,7 +20,7 @@ def parse_token(token):
                 if idx > 0:
                     token_types.append(STRING)
                     tokens.append(word[0:idx])
-                word = word[idx+1:]
+                word = word[idx + 1:]
                 if delim in word:
                     parts = word.split(delim)
                     tokens.append(parts[0])
@@ -55,17 +55,17 @@ def parse_token(token):
 
 
 class TagManager(object):
-    """Class used for tags manipulation 
+    """Class used for tags manipulation
     """
 
     def __init__(self):
-        """Create new tag managet instance 
+        """Create new tag managet instance
         """
         super(TagManager, self).__init__()
         self.tags = {}
 
     def register(self, name, tag, is_block_tag=False, context_required=False,
-                 template_required=False, loader_required=False, 
+                 template_required=False, loader_required=False,
                  is_lazy_tag=True):
         """Register new tag
         """
@@ -98,7 +98,7 @@ class TagManager(object):
         return self.is_tag_exists(name)[5]
 
     def execute(self, name, token, context, block, template, loader):
-        """Execute tag 
+        """Execute tag
         """
         tag = self.is_tag_exists(name)
         args = {'token': token}

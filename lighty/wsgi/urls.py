@@ -25,8 +25,7 @@ HTTP_METHODS = ['GET', 'POST', 'PUT', 'DELETE']
 
 def load_urls(name):
     '''Load urls file. This file requires to contains urlpatterns variable. It
-    could be list or tuple of results of url() function calling. 
-
+    could be list or tuple of results of url() function calling.
 
         from app_name.views import hello_view
 
@@ -40,7 +39,7 @@ def load_urls(name):
 
 
 def load_view(view):
-    '''Load view for name if needed 
+    '''Load view for name if needed
     '''
     if callable(view):
         return view if hasattr(view, 'is_view') else decorators.view(view)

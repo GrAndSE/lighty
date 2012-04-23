@@ -84,7 +84,7 @@ class Settings(collections.Mapping):
             if name in self.settings:
                 return self.settings[name]
         else:
-            if section in self.sections and name in self.sections[section]:     
+            if section in self.sections and name in self.sections[section]:
                 return self.sections[section][name]
             else:
                 raise KeyError('No section "%s" in configuration' % section)

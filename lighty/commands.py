@@ -1,4 +1,4 @@
-'''Tools for run commands in framework environment using simple manage.py 
+'''Tools for run commands in framework environment using simple manage.py
 script
 '''
 import itertools
@@ -54,6 +54,7 @@ def manage():
     except Exception as e:
         print(e)
         return
+
     # Try to get command name
     def error_msg(msg):
         raise argparse.ArgumentTypeError('%s. Commands available:\n\t%s\n' % (
