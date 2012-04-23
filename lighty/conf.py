@@ -53,7 +53,16 @@ class Settings(collections.Mapping):
     def __getitem__(self, name):
         '''Get value from configuration with specified name
 
-        Arguments:
+        Args:
+            name - option name
+
+        Returns:
+            last defined value for an option with specified from all the
+            configuration files and their sections
+
+        Raises:
+            KeyError - if there is no option with specified name found in all
+            configuration files
         '''
         name = name.lower()
         if name in self.settings:
@@ -84,6 +93,17 @@ class Settings(collections.Mapping):
         if section in self.sections:
             return self.sections[section].keys()
         raise KeyError('No section "%s" in configuration' % section)
+
+    def has_section(self, section):
+        '''Check is section in configuration exists
+
+        Args:
+            section - section name
+
+        Returns:
+            True if section exists or False if not
+        '''
+        return section in self.sections
 
     def __iter__(self):
         '''Get iterator over the settings keys
