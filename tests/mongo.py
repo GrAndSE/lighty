@@ -6,7 +6,7 @@ from lighty.db import fields, models, backend
 
 class User(models.Model):
     name = fields.CharField()
-    age  = fields.IntegerField()
+    age = fields.IntegerField()
 
     def __str__(self):
         return "%s %d" % (self.name, self.age)
