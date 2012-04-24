@@ -39,7 +39,7 @@ def view(func, **constraints):
                         fh = open(file, 'r').readlines()[start:end]
                         lines = [{'num': n, 'code': c.rstrip(),
                                   'current': n == line}
-                                 for n, c in enumerate(fh, start)]
+                                 for n, c in enumerate(fh, start + 1)]
                         tb.append({'line': line, 'file': file, 'func': name,
                                    'code': code, 'lines': lines})
                     result = template({
