@@ -21,7 +21,7 @@ class Datastore(object):
     def get(self, model, **kwargs):
         '''Get item using number of arguments
         '''
-        return self.db[model.entity_name].find_one(**kwargs)
+        return self.db[model.entity_name()].find_one(kwargs)
 
     def put(self, model, item):
         '''Put item into datastore

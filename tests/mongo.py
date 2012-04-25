@@ -4,6 +4,7 @@ import unittest
 
 from lighty.db import fields, models, backend
 
+
 class User(models.Model):
     name = fields.CharField()
     age = fields.IntegerField()
@@ -48,9 +49,25 @@ class MongoTestCase(unittest.TestCase):
         assert users[0].name == 'Peter' and users[0].age == 18, (
                  'Wrong result [%s]' % ','.join([str(user) for user in users]))
 
+    def testGet(self):
+        user = User.get(name='Peter')
+        assert user, 'Wrong result searching for name: %s' % user
+        assert user.name == 'Peter', ('Wrong result searching for name: %s' %
+                                      user)
+        assert user.age == 18, 'Wrong result searching for name: %s' % user
+        user = User.get(name='John', age=19)
+        assert user, 'Wrong result searching for two fields: %s' % user
+        assert user.name == 'John', ('Wrong result searching for name: %s' %
+                                     user)
+        assert user.age == 19, 'Wrong result searching for name: %s' % user
+        user = User.get(name='adad')
+        assert not user, 'Wrong not found result: %s' % user
+        assert not user.name, 'Wrong not found result: %s' % user
+
 
 def test():
     suite = unittest.TestSuite()
+    suite.addTest(MongoTestCase('testGet'))
     suite.addTest(MongoTestCase('testGetAll'))
     suite.addTest(MongoTestCase('testOrder'))
     suite.addTest(MongoTestCase('testSimple'))

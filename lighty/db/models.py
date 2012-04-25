@@ -1,4 +1,5 @@
 from ..utils import with_metaclass
+from ..monads import NoneMonad
 from . import fields, query
 from .backend import datastore
 
@@ -185,12 +186,15 @@ class Model(with_metaclass(ModelBase)):
             key; or list of Keys or string keys.
 
         Returns:
-            If a single key was given: a Model instance associated with key for
-            provided class if it exists in the datastore, otherwise None;
-            if a list of keys was given: a list whose items are either a Model
-            instance or None.
+            a Model instance associated with key for
+            provided class if it exists in the datastore, otherwise NoneMonad;
         """
-        raise NotImplemented
+        item = datastore.get(cls, **keys)
+        if item:
+            return cls(is_new=False, **item)
+        else:
+            return (item if isinstance(item, NoneMonad) else
+                    NoneMonad('Item not found for: %s' % keys))
 
     @classmethod
     def all(cls, **kwds):
