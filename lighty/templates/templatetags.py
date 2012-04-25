@@ -1,6 +1,7 @@
 """Basic template tags library
 """
 import collections
+import copy
 from functools import partial
 import itertools
 
@@ -148,8 +149,8 @@ def extend(token, template, loader):
     if not hasattr(template, 'blocks'):
         template.blocks = get_parent_blocks(template).copy()
     else:
-        template.blocks.update(get_parent_blocks(template))
-    template.commands.extend(template.parent.commands)
+        template.blocks.update(get_parent_blocks(template).copy())
+    template.commands.extend(copy.deepcopy(template.parent.commands))
     return None
 
 tag_manager.register(
@@ -362,7 +363,7 @@ def for_tag(token, block, context):
     # Check values
     if not isinstance(values, collections.Iterable):
         raise ValueError('%s: "%s" is not iterable' % (data_field, values))
-
+    # execute inline forloop
     forloop = Forloop(var_name, values, block)
     return exec_with_context(forloop, context, {'forloop': forloop})
 
