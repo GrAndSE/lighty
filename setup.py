@@ -29,6 +29,8 @@ setup(
     license='BSD',
     url='https://github.com/GrAndSE/lighty',
     packages=['lighty', 'lighty.db', 'lighty.templates', 'lighty.wsgi'],
+    data_files=[('lighty/wsgi/templates',
+                 ['lighty/wsgi/templates/debug.html'])],
     platforms="any",
     classifiers=[
         'Environment :: Web Environment',
