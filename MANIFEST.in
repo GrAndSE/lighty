@@ -1,0 +1,3 @@
+include README
+include setup.py
+recursive-include lighty *.py *.html

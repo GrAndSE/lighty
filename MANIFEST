@@ -29,3 +29,4 @@ lighty/wsgi/handler.py
 lighty/wsgi/http.py
 lighty/wsgi/static.py
 lighty/wsgi/urls.py
+lighty/wsgi/templates/debug.html
