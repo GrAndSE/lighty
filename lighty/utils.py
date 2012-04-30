@@ -1,10 +1,10 @@
 '''Some utilitary classes usually used to make working with different python
 versions and different environment easier:
 
-    string_types - basestring for python 2 and str fot python 3
-    dict_keys - convert dict keys to list
-    div_operators - operators for division
-    with_metaclass - metaclasses
+- string_types - basestring for python 2 and str fot python 3
+- dict_keys - convert dict keys to list
+- div_operators - operators for division
+- with_metaclass - metaclasses
 '''
 import sys
 import operator

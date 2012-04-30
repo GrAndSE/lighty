@@ -6,8 +6,8 @@ hacks.
 Now it does not include all features django-template or jinja2 supports, but
 I'll try to fix it as soon as possible.
 
-Features:
----------
+Features
+--------
 
 - Stupid simple syntax almost compatible with django-template.
 - Pure python.
@@ -22,8 +22,8 @@ Features:
   tags with writing single function.
 - Custom template tags can modify template on fly.
 
-Example:
---------
+Example
+-------
 
 Simple template example (let's call it index.html):
 

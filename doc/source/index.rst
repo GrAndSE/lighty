@@ -10,7 +10,7 @@ Lighty it's a "all-in-one" framework for web development using python
 programming language (python.org). 
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 4
 
    modules
    todo

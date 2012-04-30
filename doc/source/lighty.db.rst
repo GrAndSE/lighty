@@ -1,5 +1,5 @@
 :mod:`lighty.db` Package (Lighty framework ORM layer)
-====================================================
+=====================================================
 
 .. automodule:: lighty.db
     :members:

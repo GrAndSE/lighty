@@ -20,7 +20,7 @@ from distutils.core import setup
 
 setup(
     name='lighty',
-    version='0.4.2',
+    version='0.4.3',
     description='Simple all-in-one web framework',
     long_description=__doc__,
     keywords='Template HTML XML', 

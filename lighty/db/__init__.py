@@ -41,9 +41,9 @@ fields and their values to identify the record:::
 
     fred = User.get(name='fred', age=17)
 
-To delete the entity from database you can use python del operator::
+To delete the entity from database you can use delete() method::
 
-    del fred
+    fred.delete()
 
 Selecting the data from database
 --------------------------------
@@ -56,9 +56,9 @@ use all() method of lighty.db.models.Model::
     for user in User.all():
         print user
 
-To delete all the users from database you can use delete() method::
+To delete all the users from database you can use delete() method from Query::
 
-    User.delete()
+    User.all().delete()
 
 But let's back to queries. To make a query it's easy to use pure Python syntax.
 There is not suffixes for name arguments like it was in Django. You just need
@@ -73,8 +73,8 @@ selects all the users with age higher than 17. Or more complex example::
 selects all the users with age higher that 17 and name equals to 'Peter'. For
 now you can use:
 
-- >, >=, <, <=, ==, &, |, + operators for all the values
-- +, -, /, *, ** operators for mathematical fields
+- `>`, `>=`, `<`, `<=`, `==`, `&`, `|` and `+` operators for all the values
+- `+`, `-`, `/`, `*` and `**` operators for mathematical fields
 - slices for sequence fields (like a strings)
 
 Also queries supports ordering::
@@ -99,14 +99,15 @@ would like to fetch the data from database or iterate over query::
     User.all().where((User.age > 17) & (User.age <= 20)).fetch()
 
 But do not forget - now there is no caching for query results and multiply
-fetching or iterations requires multiply requests to database. I would add
-optional query caching in future.
+fetching or iterations requires multiply requests to database. If you would
+like to add caching you can use fetch method with argument cache set to True::
 
-You can also delete query results:::
+    User.all().where((User.age > 17) & (User.age <= 20)).fetch(cache=True)
 
-    User.all().delete() # Delete all the user entities
+After that all other iterations over this query or len() function will work
+with cache. But cacheng uses additional memory and may work with outdated data.
 
-Or update this data:::
+Also you can update data for query::
 
     User.all().where(User.age < 18).update(age=18)
 '''

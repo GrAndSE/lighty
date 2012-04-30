@@ -1,5 +1,5 @@
-wsgi Package
-============
+:mod:`lighty.wsgi` Package (WSGI related modules)
+=================================================
 
 :mod:`wsgi` Package
 -------------------
@@ -15,7 +15,6 @@ wsgi Package
 .. automodule:: lighty.wsgi.commands
     :members:
     :undoc-members:
-    :show-inheritance:
 
 :mod:`decorators` Module
 ------------------------
