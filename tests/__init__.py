@@ -3,6 +3,7 @@ tests = (
     'conf',
     'command',
     'monad',
+    'signals',
     # db
     'mongo',
     # templates

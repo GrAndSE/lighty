@@ -2,6 +2,25 @@ Lighty Changelog
 ================
 
 
+Version 0.4.3
+(bug fix release, in work now)
+- Add delete() method implementation into models and datastore.
+- Add __len__() method into Query class and count() method implementation fix
+  in datastore.
+- Add datastore initialization.
+- Add simple signals implementation.
+
+
+Version 0.4.2
+-------------
+(bug fix release on April 25th 2012)
+- Python 3.2 support.
+- Add some utils to work properly with both Python 2.7 and 3.2.
+- Fix template filter applying.
+- Small fixes in debug template.
+- Working on including template file into installed files tree.
+
+
 Version 0.4.1
 -------------
 (released on April 23th 2012)
