@@ -155,10 +155,10 @@ class Model(with_metaclass(ModelBase)):
         return self
     save = put
 
-    def delete(self, **kwargs):
-        """Deletes this entity from the datastore.
+    def delete(self):
+        """Deletes this entity from the datastore
         """
-        raise NotImplemented
+        return datastore.delete(self, **{self._key_name: self.key()})
 
     @classmethod
     def entity_name(cls):

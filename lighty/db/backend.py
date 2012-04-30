@@ -28,6 +28,9 @@ class Datastore(object):
         '''
         return self.db[model.entity_name()].save(item)
 
+    def delete(self, model, **kwargs):
+        return self.db[model.entity_name()].remove(kwargs)
+
     @staticmethod
     def get_datastore_operation(operation):
         operator_matching = {
@@ -66,11 +69,11 @@ class Datastore(object):
     def build_query(query):
         operation = Datastore.get_datastore_operation(query.operation)
         operand = Datastore.process_operand(query.operand)
-        if query.from_query is None:
+        if query._from_query is None:
             source_query, distinct, order = '', query.dist, query.order
         else:
             source_query, distinct, order = Datastore.build_query(
-                                                            query.from_query)
+                                                            query._from_query)
         if not source_query:
             if operation == operator.__not__:
                 return ('%s (%s)' % (
@@ -91,7 +94,7 @@ class Datastore(object):
         items = distinct and items.distinct('_id') or items
         return order and items.sort([(f.name, 1) for f in order]) or items
 
-    def count(self, query, count):
+    def count(self, query):
         return self.query(query).count()
 
     def slice(self, query, limit=1, offset=0):
