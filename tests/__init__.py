@@ -5,6 +5,7 @@ tests = (
     'monad',
     'signals',
     # db
+    'db',
     'mongo',
     # templates
     'parse_token',

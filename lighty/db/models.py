@@ -46,7 +46,8 @@ class ModelBase(type):
                                         new_source.__name__))
                 defined |= parent._fields
                 field_source.update(dict.fromkeys(parent._fields, parent))
-                new_attrs.update(parent._fields)
+                new_attrs.update([(field_name, getattr(parent, field_name))
+                                  for field_name in parent._fields])
 
         new_attrs['_key_name'] = None
 

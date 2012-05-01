@@ -144,7 +144,7 @@ class Query(object):
     def values(self, fields):
         '''Return's dictionary of fields for specified model
         '''
-        return datastore.query(self, fields)
+        return [item for item in datastore.query(self, fields)]
 
     def __iter__(self):
         '''Returns and iterator throuch data from datastore
