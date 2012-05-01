@@ -19,6 +19,7 @@ class SignalsTestCase(unittest.TestCase):
 
         def filtered(objects):
             self.filtered = objects
+        self._filtered = filtered
 
         self.dispatcher.channel('/test/', handler)
         self.dispatcher.channel('/args/', handler)
@@ -40,8 +41,30 @@ class SignalsTestCase(unittest.TestCase):
         assert self.filtered == [1, 2, 3], ('Error dispatchin signal with '
                 'objects filtered: %s' % self.filtered)
 
+    def testRemoveHandler(self):
+        '''Test handler removing
+        '''
+        self.dispatcher.close('/args/', self._filtered)
+        self.dispatcher.signal('/args/', [0, 1, 2, 3])
+        assert self.objects == [0, 1, 2, 3], (
+                'Error dispatching signal with objects: %s' % self.objects)
+        assert self.filtered == None, ('Error removing handler: %s' %
+                                       self.filtered)
+
+    def testCloseChannel(self):
+        '''Test closing channels
+        '''
+        self.dispatcher.close('/args/')
+        self.dispatcher.signal('/args/', [0, 1, 2, 3])
+        assert self.objects == None, 'Error closing channel: %s' % self.objects
+        assert self.filtered == None, ('Error closing channel: %s' %
+                                       self.filtered)
+
+
 def test():
     suite = unittest.TestSuite()
     suite.addTest(SignalsTestCase('testEmptySignal'))
     suite.addTest(SignalsTestCase('testObjectsSignal'))
+    suite.addTest(SignalsTestCase('testCloseChannel'))
+    suite.addTest(SignalsTestCase('testRemoveHandler'))
     return suite

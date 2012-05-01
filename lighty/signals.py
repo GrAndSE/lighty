@@ -94,3 +94,16 @@ class SignalDispatcher(object):
             return
         for filters, handler in self.channels[key]:
             handler([obj for obj in objects if filters(obj)])
+
+    def close(self, key, handler=None):
+        '''Close channel or detach handler from channel
+        '''
+        if handler:
+            num = 0
+            while num < len(self.channels[key]):
+                if self.channels[key][num][1] == handler:
+                    del self.channels[key][num]
+                else:
+                    num += 1
+        else:
+            del self.channels[key]
