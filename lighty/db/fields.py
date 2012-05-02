@@ -167,8 +167,7 @@ class IntegerField(Field, NumericField):
     '''An integer. The admin represents this as an <input type="text"> (a
     single-line input).
     '''
-    pass
-
+    
 
 class PositiveIntegerField(IntegerField):
     '''Like an IntegerField, but must be positive.
@@ -189,7 +188,6 @@ class AutoField(IntegerField):
     automatically be added to your model if you don't specify otherwise. See
     Automatic primary key fields.
     '''
-    pass
 
 
 class FloatField(Field, NumericField):
@@ -197,7 +195,6 @@ class FloatField(Field, NumericField):
 
     The admin represents this as an <input type="text"> (a single-line input).
     '''
-    pass
 
 
 class DecimalField(Field, NumericField):
@@ -224,7 +221,24 @@ class BooleanField(Field):
 
     The admin represents this as a checkbox
     '''
-    pass
+    def __config__(self, model_name, field_name):
+        '''Configure field
+        '''
+        super(BooleanField, self).__config__(model_name, field_name)
+        self.model_attr_name = '_field_%s_%s' % (model_name, field_name)
+
+    def __set__(self, instance, value):
+        from ..utils import string_types
+        if isinstance(value, string_types):
+            value = value == 'True' or value == 'true' or value == 'TRUE'
+        elif not isinstance(value, bool):
+            value = bool(value)
+        setattr(instance, self.model_attr_name, value)
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        return getattr(instance, self.model_attr_name)
 
 
 class NullBooleanField(BooleanField):

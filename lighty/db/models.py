@@ -115,13 +115,11 @@ class Model(with_metaclass(ModelBase)):
         self._app = None
         self._key_name = key_name or '_id'
         self._is_saved = not is_new
-        # Update value
-        self.__dict__.update(kwds)
         # Set the default values for unsetted fields
         cls = self.__class__
         for field_name in self._fields:
-            if field_name not in kwds:
-                self.__dict__[field_name] = cls.__dict__[field_name].default
+            setattr(self, field_name, kwds[field_name] if field_name in kwds
+                                      else cls.__dict__[field_name].default)
 
     def key(self):
         """Unique key for this entity.
@@ -150,8 +148,8 @@ class Model(with_metaclass(ModelBase)):
         Returns:
             The key of the instance (either the existing key or a new key).
         """
-        fields = dict([(field, self.__dict__[field])
-                       for field in self._fields])
+        fields = dict([(field_name, getattr(self, field_name))
+                       for field_name in self._fields])
         datastore.put(self.__class__, fields)
         return self
     save = put

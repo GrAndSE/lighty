@@ -49,6 +49,8 @@ class Datastore(object):
     def process_operand(operand):
         if operand is None:
             return ''
+        elif isinstance(operand, bool):
+            return str(operand).lower()
         elif isinstance(operand, string_types):
             return '"%s"' % operand
         elif isinstance(operand, int):
