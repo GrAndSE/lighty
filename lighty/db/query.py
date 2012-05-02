@@ -99,7 +99,7 @@ class Query(object):
             >>> str(Query(ModelClass.field > 0))
             SELECT * FROM modelclass WHERE field > 0
         '''
-        if self._from_query is None:
+        if self._from_query is None or self._from_query.operand is None:
             if self.operation == operator.__not__:
                 return '%s (%s)' % (operator.__not__, str(self.operation))
             return str(self.operand)
