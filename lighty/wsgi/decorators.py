@@ -36,12 +36,17 @@ def view(func, **constraints):
                     for file, line, name, code in tb_list:
                         start = line > 9 and line - 10 or 0
                         end = start + 21
-                        fh = open(file, 'r').readlines()[start:end]
-                        lines = [{'num': n, 'code': c.rstrip(),
-                                  'current': n == line}
-                                 for n, c in enumerate(fh, start + 1)]
-                        tb.append({'line': line, 'file': file, 'func': name,
-                                   'code': code, 'lines': lines})
+                        try:
+                            fh = open(file, 'r').readlines()[start:end]
+                            lines = [{'num': n, 'code': c.rstrip(),
+                                      'current': n == line}
+                                     for n, c in enumerate(fh, start + 1)]
+                        except:
+                            lines = []
+                        finally:
+                            tb.append({'line': line, 'file': file,
+                                       'func': name, 'code': code,
+                                       'lines': lines})
                     result = template({
                         'error_type': exc_value.__class__.__name__,
                         'error_message': str(exc_value),
