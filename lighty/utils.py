@@ -155,20 +155,19 @@ class CommandParser(object):
         for alias in self.options:
             option = self.options[alias]
             if option.name not in result:
-                if option.default:
-                    result[option.name] = option.default
+                if option.default or option.default == '':
+                    result[option.name] = option.type(option.default)
                 elif not option.optional:
-                    raise LookupError(option.name + ' value missed')
+                    raise LookupError('Option "%s" value missed' % option.name)
         # Arguments
         index = 0
         for argument in self.arguments:
             if index >= len(args):
                 # Check for default value if there is no value specified
-                if argument.optional:
-                    if argument.default:
-                        result[argument.name] = argument.default
-                else:
-                    raise LookupError(argument.name + ' value missed')
+                if argument.default or argument.default == '':
+                    result[argument.name] = argument.type(argument.default)
+                elif not argument.optional:
+                    raise LookupError('Argument "%s" missed' % argument.name)
             else:
                 if argument.nargs > 1:
                     ni = index + argument.nargs

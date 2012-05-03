@@ -49,10 +49,10 @@ def manage(default_conf='conf.cfg'):
         parser.add_option('config', 'c', default=default_conf, flag=False,
                           help='configuration file')
         if command_arg_type:
-            parser.add_argument('command', type=command_arg_type,
+            parser.add_argument('command', type=command_arg_type, default='',
                                 optional=False, help='command to execute')
         else:
-            parser.add_argument('command', optional=False,
+            parser.add_argument('command',default='',
                                 help='command to execute')
         for args, kwargs in args:
             parser.add_argument(*args, **kwargs)
@@ -70,7 +70,7 @@ def manage(default_conf='conf.cfg'):
 
     # Try to get command name
     def error_msg(msg):
-        raise TypeError('%s. Commands available:\n\t%s\n' % (msg,
+        raise TypeError('%s. Commands available:\n\t%s' % (msg,
                                         "\n\t".join(sorted(commands.keys()))))
 
     def command_name(name):
