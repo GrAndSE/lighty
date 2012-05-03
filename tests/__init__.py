@@ -3,6 +3,7 @@ tests = (
     'conf',
     'command',
     'monad',
+    'optparse',
     'signals',
     # db
     'db',

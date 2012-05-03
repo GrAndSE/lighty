@@ -234,7 +234,7 @@ class BooleanField(FieldDescriptor):
             value = value == 'True' or value == 'true' or value == 'TRUE'
         elif not isinstance(value, bool):
             value = bool(value)
-        super(BooleanField, self).__set__(isinstance, value)
+        super(BooleanField, self).__set__(instance, value)
 
 
 class NullBooleanField(BooleanField):

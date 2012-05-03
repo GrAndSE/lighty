@@ -115,10 +115,11 @@ class Model(with_metaclass(ModelBase)):
         self._app = None
         self._key_name = key_name or '_id'
         self._is_saved = not is_new or self._key_name in kwds
-        cls = self.__class__
+        cls_dict = self.__class__.__dict__
         for field_name in self._fields:
-            setattr(self, field_name, kwds[field_name] if field_name in kwds
-                                      else cls.__dict__[field_name].default)
+            value = (kwds[field_name] if field_name in kwds
+                     else cls_dict[field_name].default)
+            setattr(self, field_name, value)
         if self._is_saved:
             setattr(self, self._key_name, kwds[self._key_name])
 
@@ -138,7 +139,7 @@ class Model(with_metaclass(ModelBase)):
         """
         if self._is_saved:
             return self.__dict__[self._key_name]
-        raise AttributeError()
+        raise AttributeError('Key is not set for entity')
 
     def put(self):
         """Writes this model instance to the datastore.
@@ -149,8 +150,10 @@ class Model(with_metaclass(ModelBase)):
         Returns:
             The key of the instance (either the existing key or a new key).
         """
+        cls_dict = self.__class__.__dict__
         fields = dict([(field_name, getattr(self, field_name))
-                       for field_name in self._fields])
+                       for field_name in self._fields
+                       if self._is_saved or cls_dict[field_name].editable])
         datastore.put(self.__class__, fields)
         return self
     save = put
