@@ -60,21 +60,12 @@ class Field(BaseField):
     db_tablespace = False
     'can be used to set additional datastorage parameter'
     unique = False
-    'add checking for unique value'
-    unique_for_date = False
-    'check is field value unique for some date'
-    unique_for_month = False
-    'check is field value unique for month'
-    unique_for_year = False
-    'check if field value unique for year'
 
     def __init__(self, verbose_name=None, primary_key=False, db_index=False,
-                       unique=False, blank=False, null=False,
-                       choices=None, default=None, editable=True,
-                       error_messages={}, validators=(),
-                       help_text="", db_column=None, db_tablespace=False,
-                       unique_for_date=False, unique_for_month=False,
-                       unique_for_year=False):
+                       unique=False, blank=False, null=False, choices=None,
+                       default=None, editable=True, error_messages={},
+                       validators=(), help_text="", db_column=None,
+                       db_tablespace=False):
         '''Create new Field instance
 
         Args:
@@ -93,15 +84,13 @@ class Field(BaseField):
             help_text:      field description
             db_column:      name of the field inside database
             db_tablespace:  can be used to set additional datastorage parameter
-            unique_for_date: check is field value unique for some date
-            unique_for_month: check is field value unique for month
-            unique_for_year: check if field value unique for year
         '''
         self.null = null
         self.blank = blank
         self.choices = choices
         self.default = default
         self.editable = editable
+        self.unique = unique
         self.db_column = db_column
         self.db_tablespace = db_tablespace
         self.db_index = db_index
@@ -109,30 +98,10 @@ class Field(BaseField):
         self.help_text = help_text
         self.verbose_name = verbose_name
         self.error_messages = error_messages
-        # Add additional choice if needed
+        # Add additional validator for choices if needed
         if choices is not None:
             validators += (lighty.validators.ChoicesValidator(choices),)
         self.validators = validators
-        # Unique params
-        if unique:
-            self.unique = True
-            unique_for_date = False
-            unique_for_month = False
-            unique_for_year = False
-        else:
-            self.unique = False
-            if unique_for_date:
-                self.unique_for_date = unique_for_date
-                self.unique_for_month = False
-                self.unique_for_year = False
-            else:
-                self.unique_for_date = False
-                if unique_for_month:
-                    self.unique_for_month = unique_for_month
-                    self.unique_for_year = False
-                else:
-                    self.unique_for_month = False
-                    self.unique_for_year = unique_for_year
 
     def __config__(self, model_name, field_name):
         """Configure field with model-depended paramenters
@@ -163,11 +132,41 @@ class Field(BaseField):
         return self.model + '.' + self.name
 
 
-class IntegerField(Field, NumericField):
+class FieldDescriptor(Field):
+    '''Field that will be used as a descriptor - on creation creates a field
+    '_field_name' to store the name of the attribute of the model class
+    instance used to store the field value.
+    '''
+
+    def __config__(self, model_name, field_name):
+        '''Set default value
+        '''
+        super(FieldDescriptor, self).__config__(model_name, field_name)
+        self._field_name = '_field_%s_value' % field_name
+
+    def __get__(self, instance, owner):
+        '''Get field value from instance
+        '''
+        if instance is None:
+            return self
+        return getattr(instance, self._field_name)
+
+    def __set__(self, instance, value):
+        '''Store field value in instance
+        '''
+        setattr(instance, self._field_name, value)
+
+
+class IntegerField(FieldDescriptor, NumericField):
     '''An integer. The admin represents this as an <input type="text"> (a
     single-line input).
     '''
-    
+
+    def __set__(self, instance, value):
+        '''Set value as int
+        '''
+        super(IntegerField, self).__set__(instance, int(value))
+
 
 class PositiveIntegerField(IntegerField):
     '''Like an IntegerField, but must be positive.
@@ -190,11 +189,16 @@ class AutoField(IntegerField):
     '''
 
 
-class FloatField(Field, NumericField):
+class FloatField(FieldDescriptor, NumericField):
     '''A floating-point number represented in Python by a float instance.
 
     The admin represents this as an <input type="text"> (a single-line input).
     '''
+
+    def __set__(self, instance, value):
+        '''Set value as int
+        '''
+        super(IntegerField, self).__set__(instance, float(value))
 
 
 class DecimalField(Field, NumericField):
@@ -212,33 +216,25 @@ class DecimalField(Field, NumericField):
             decimal_places: The number of decimal places to store with the
                 number
         '''
-        self.max_digits
+        self.max_digits = max_digits
+        self.decimal_places = decimal_places
         super(DecimalField, self).__init__(**options)
 
 
-class BooleanField(Field):
+class BooleanField(FieldDescriptor):
     '''A true/false field
 
     The admin represents this as a checkbox
     '''
-    def __config__(self, model_name, field_name):
-        '''Configure field
-        '''
-        super(BooleanField, self).__config__(model_name, field_name)
-        self.model_attr_name = '_field_%s_%s' % (model_name, field_name)
-
     def __set__(self, instance, value):
+        '''Convert value to boolean
+        '''
         from ..utils import string_types
         if isinstance(value, string_types):
             value = value == 'True' or value == 'true' or value == 'TRUE'
         elif not isinstance(value, bool):
             value = bool(value)
-        setattr(instance, self.model_attr_name, value)
-
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-        return getattr(instance, self.model_attr_name)
+        super(BooleanField, self).__set__(isinstance, value)
 
 
 class NullBooleanField(BooleanField):

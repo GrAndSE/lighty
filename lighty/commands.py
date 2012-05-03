@@ -36,14 +36,14 @@ def load_commands(apps=[]):
     return dict(itertools.chain(*commands))
 
 
-def manage():
+def manage(default_conf='conf.cfg'):
     '''Process manage command. Load all the commands from applications in
     configuration files and add them into autocompletition
     '''
     import argparse
     # Get config file
     parser = argparse.ArgumentParser(description='Lighty manage script')
-    parser.add_argument('--config', '-c', default='conf.cfg',
+    parser.add_argument('--config', '-c', default=default_conf,
                         help='configuration file')
     parser.add_argument('command', default='', help='command to execute')
     parser.add_argument('arguments', nargs='*', help='command arguments')

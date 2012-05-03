@@ -19,7 +19,7 @@ This prints 'Handle []'. As you can see we can attach objects into signal to
 send messages between different modules::
 
     dispatcher.signal('/test/', [0, 1, 2, 3])
-    
+
 It prints 'Handle [0, 1, 2, 3]'. To add additional options for interactions
 between functions we can use filters. Filter provides a way to subscribe
 multiply handlers to one channel and pass different objects from signal to
