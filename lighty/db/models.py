@@ -154,6 +154,8 @@ class Model(with_metaclass(ModelBase)):
         fields = dict([(field_name, getattr(self, field_name))
                        for field_name in self._fields
                        if self._is_saved or cls_dict[field_name].editable])
+        if self._is_saved:
+            fields[self._key_name] = self.key()
         datastore.put(self.__class__, fields)
         return self
     save = put

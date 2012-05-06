@@ -93,6 +93,17 @@ class MongoTestCase(unittest.TestCase):
                 'Error deleting entity')
         assert len(User.all()) == 2, 'Error deleting entity'
 
+    def testChange(self):
+        '''Test save changes into entity
+        '''
+        user = User.get(name='Peter')
+        user.name = 'Alex'
+        user.save()
+        assert len(User.all().where(User.name == 'Alex')) == 1, (
+                'Error saving entity')
+        assert len(User.all().where(User.name == 'Peter')) == 0, (
+                'Error saving entity')
+
 
 def test():
     suite = unittest.TestSuite()
@@ -103,4 +114,5 @@ def test():
     suite.addTest(MongoTestCase('testQuery'))
     suite.addTest(MongoTestCase('testCount'))
     suite.addTest(MongoTestCase('testDelete'))
+    suite.addTest(MongoTestCase('testChange'))
     return suite

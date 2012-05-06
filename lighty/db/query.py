@@ -1,10 +1,11 @@
+import collections
 import operator
 
 from .backend import datastore
 from .fields import Field
 
 
-class Query(object):
+class Query(collections.Iterable):
     '''Query class
     '''
     __slots__ = ('__add__', '__and__', '__call__', '__init__', '__iter__',
