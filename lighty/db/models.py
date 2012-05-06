@@ -173,7 +173,7 @@ class Model(with_metaclass(ModelBase)):
                 cls.__name__)
 
     @classmethod
-    def get(cls, **keys):
+    def get(cls, _key=None, **keys):
         """Fetch instance from the datastore of a specific Model type using
         key.
 
@@ -194,6 +194,11 @@ class Model(with_metaclass(ModelBase)):
             a Model instance associated with key for
             provided class if it exists in the datastore, otherwise NoneMonad;
         """
+        if _key:
+            keys[cls._key_name] = _key
+        for key in keys:
+            if isinstance(key, NoneMonad):
+                return key
         item = datastore.get(cls, **keys)
         if item:
             return cls(is_new=False, **item)
