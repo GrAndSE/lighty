@@ -197,8 +197,8 @@ class Model(with_metaclass(ModelBase)):
         if _key:
             keys[cls._key_name] = _key
         for key in keys:
-            if isinstance(key, NoneMonad):
-                return key
+            if isinstance(keys[key], NoneMonad):
+                return keys[key]
         item = datastore.get(cls, **keys)
         if item:
             return cls(is_new=False, **item)
