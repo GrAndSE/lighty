@@ -156,7 +156,8 @@ class Model(with_metaclass(ModelBase)):
                        if self._is_saved or cls_dict[field_name].editable])
         if self._is_saved:
             fields[self._key_name] = self.key()
-        datastore.put(self.__class__, fields)
+        setattr(self, self._key_name, datastore.put(self.__class__, fields))
+        self._is_saved = True
         return self
     save = put
 
@@ -207,7 +208,7 @@ class Model(with_metaclass(ModelBase)):
                     NoneMonad('Item not found for: %s' % keys))
 
     @classmethod
-    def all(cls, **kwds):
+    def all(cls):
         """Returns a query over all instances of this model from the datastore.
 
         Returns:
@@ -220,9 +221,4 @@ class Model(with_metaclass(ModelBase)):
         """Get fields list
         """
         return cls._fields
-
-    @classmethod
-    def properties(cls):
-        """Alias for fields.
-        """
-        return cls.fields()
+    properties = fields

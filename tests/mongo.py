@@ -23,6 +23,13 @@ class MongoTestCase(unittest.TestCase):
         User(name='John', age=19).save()
         User(name='Harry', age=17).save()
 
+    def testCreate(self):
+        user = User(name='Harry', age=20)
+        assert not user._is_saved, 'Model saved on creation'
+        user.save()
+        assert user._is_saved, 'Model _is_saved not changes after was saved'
+        assert user.key(), 'Model key error after object was saved'
+
     def testGetAll(self):
         '''Test Model.all() method
         '''
@@ -107,12 +114,13 @@ class MongoTestCase(unittest.TestCase):
 
 def test():
     suite = unittest.TestSuite()
+    suite.addTest(MongoTestCase('testCreate'))
     suite.addTest(MongoTestCase('testGet'))
     suite.addTest(MongoTestCase('testGetAll'))
+    suite.addTest(MongoTestCase('testChange'))
     suite.addTest(MongoTestCase('testOrder'))
     suite.addTest(MongoTestCase('testSimple'))
     suite.addTest(MongoTestCase('testQuery'))
     suite.addTest(MongoTestCase('testCount'))
     suite.addTest(MongoTestCase('testDelete'))
-    suite.addTest(MongoTestCase('testChange'))
     return suite
