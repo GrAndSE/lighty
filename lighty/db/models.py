@@ -49,7 +49,7 @@ class ModelBase(type):
                 new_attrs.update([(field_name, getattr(parent, field_name))
                                   for field_name in parent._fields])
 
-        new_attrs['_key_name'] = None
+        new_attrs['_key_name'] = '_id'
 
         for attr_name in attrs.keys():
             attr = attrs[attr_name]
@@ -88,7 +88,7 @@ class Model(with_metaclass(ModelBase)):
             created = db.DateTimeField(auto_now_add=True)
     """
 
-    def __init__(self, key_name=None, is_new=True, **kwds):
+    def __init__(self, is_new=True, **kwds):
         """Creates a new instance of this model.
 
         To create a new entity, you instantiate a model and then call put(),
@@ -108,12 +108,10 @@ class Model(with_metaclass(ModelBase)):
         constructor.
 
         Args:
-            key_name:   Name for new model instance.
             is_new:     Indicates all the newly created objects.
             kwds:       Keyword arguments mapping to properties of model.
         """
         self._app = None
-        self._key_name = key_name or '_id'
         self._is_saved = not is_new or self._key_name in kwds
         cls_dict = self.__class__.__dict__
         for field_name in self._fields:

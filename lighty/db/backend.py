@@ -47,6 +47,7 @@ class Datastore(object):
 
     @staticmethod
     def process_operand(operand):
+        import bson
         if operand is None:
             return ''
         elif isinstance(operand, bool):
@@ -64,6 +65,8 @@ class Datastore(object):
             operator = Datastore.get_datastore_operation(operand.operator)
             operand = Datastore.process_operand(operand.operand)
             return "(%s %s %s)" % (parent, operator, operand)
+        elif isinstance(operand, bson.objectid.ObjectId):
+            return '"%s"' % operand
         else:
             raise AttributeError('Unsupported type %s' % str(type(operand)))
 
