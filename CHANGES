@@ -3,12 +3,14 @@ Lighty Changelog
 
 
 Version 0.4.3
-(bug fix release, in work now)
+-------------
+(bug fix release, released on May 8th 2012)
 - Add delete() method implementation into models and datastore.
 - Add __len__() method into Query class and count() method implementation fix
   in datastore.
-- Add datastore initialization.
+- Add datastore manager and assigning between datastores and models by names.
 - Add simple signals implementation.
+- Fix a lot of issues
 
 
 Version 0.4.2
