@@ -4,6 +4,8 @@ import unittest
 
 from lighty.db import fields, models, backend
 
+backend.manager.connect('default')
+
 
 class User(models.Model):
     name = fields.CharField()
@@ -17,7 +19,7 @@ class MongoTestCase(unittest.TestCase):
     '''Test case for partial template execution
     '''
     def setUp(self):
-        backend.datastore.db.User.drop()
+        backend.manager.default.db.User.drop()
 
         User(name='Peter', age=18).save()
         User(name='John', age=19).save()

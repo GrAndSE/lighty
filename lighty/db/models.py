@@ -1,7 +1,7 @@
 from ..utils import with_metaclass
 from ..monads import NoneMonad
 from . import fields, query
-from .backend import datastore
+from .backend import manager
 
 
 def get_attr_source(name, cls):
@@ -87,6 +87,8 @@ class Model(with_metaclass(ModelBase)):
             body = db.TextField()
             created = db.DateTimeField(auto_now_add=True)
     """
+    _datastore_name = 'default'
+    '''Name of datastore where t put the values'''
 
     def __init__(self, is_new=True, **kwds):
         """Creates a new instance of this model.
@@ -120,6 +122,11 @@ class Model(with_metaclass(ModelBase)):
             setattr(self, field_name, value)
         if self._is_saved:
             setattr(self, self._key_name, kwds[self._key_name])
+        self.datastore = self.__class__.datastore()
+
+    @classmethod
+    def datastore(cls):
+        return manager.get(cls._datastore_name)
 
     def key(self):
         """Unique key for this entity.
@@ -154,7 +161,8 @@ class Model(with_metaclass(ModelBase)):
                        if self._is_saved or cls_dict[field_name].editable])
         if self._is_saved:
             fields[self._key_name] = self.key()
-        setattr(self, self._key_name, datastore.put(self.__class__, fields))
+        setattr(self, self._key_name,
+                self.datastore.put(self.__class__, fields))
         self._is_saved = True
         return self
     save = put
@@ -162,7 +170,7 @@ class Model(with_metaclass(ModelBase)):
     def delete(self):
         """Deletes this entity from the datastore
         """
-        return datastore.delete(self, **{self._key_name: self.key()})
+        return self.datastore.delete(self, **{self._key_name: self.key()})
 
     @classmethod
     def entity_name(cls):
@@ -198,7 +206,7 @@ class Model(with_metaclass(ModelBase)):
         for key in keys:
             if isinstance(keys[key], NoneMonad):
                 return keys[key]
-        item = datastore.get(cls, **keys)
+        item = cls.datastore().get(cls, **keys)
         if item:
             return cls(is_new=False, **item)
         else:

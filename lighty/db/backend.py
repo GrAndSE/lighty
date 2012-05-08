@@ -106,4 +106,33 @@ class Datastore(object):
         return self.query(query).skip(offset).limit(limit)
 
 
-datastore = Datastore('test', 'test')
+class DatastoreManager(object):
+    '''Class used to assign database connections to names
+    '''
+
+    def __init__(self, default_name='default'):
+        self.datastores = {}
+        self.default_name = default_name
+
+    def connect(self, name, db_name=None, **kwargs):
+        '''Create a connection to database
+        '''
+        if not db_name:
+            db_name = name
+        datastore = Datastore(name, db_name, **kwargs)
+        self.datastores[name] = datastore
+        return datastore
+
+    def get(self, name=None):
+        '''Get datastore with name specified
+        '''
+        return self.datastores[name or self.default_name]
+
+    @property
+    def default(self):
+        '''Default datastore
+        '''
+        return self.datastores[self.default_name]
+
+
+manager = DatastoreManager()

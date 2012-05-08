@@ -1,7 +1,6 @@
 import collections
 import operator
 
-from .backend import datastore
 from .fields import Field
 
 
@@ -145,7 +144,7 @@ class Query(collections.Iterable):
     def values(self, fields):
         '''Return's dictionary of fields for specified model
         '''
-        return [item for item in datastore.query(self, fields)]
+        return [item for item in self.model.datastore().query(self, fields)]
 
     def __iter__(self):
         '''Returns and iterator throuch data from datastore
@@ -153,13 +152,14 @@ class Query(collections.Iterable):
         if self._cache:
             for item in self._cache:
                 yield item
-        for item in datastore.query(self):
+        for item in self.model.datastore().query(self):
             yield self.model(is_new=False, **item)
 
     def __len__(self):
         '''Get number of items in query
         '''
-        return len(self._cache) if self._cache else datastore.count(self)
+        return (len(self._cache) if self._cache
+                else self.model.datastore().count(self))
 
     def __getslice__(self, i=0, j=None):
         '''Get the query that contains a slice of current query
