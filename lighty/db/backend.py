@@ -11,7 +11,7 @@ class Datastore(object):
     '''
     __slots__ = ('name', 'db_name', 'db', 'get', 'put', )
 
-    def __init__(self, name, db_name):
+    def __init__(self, name, db_name, **kwargs):
         from pymongo import Connection
         connection = Connection()
         self.name = name
@@ -114,12 +114,12 @@ class DatastoreManager(object):
         self.datastores = {}
         self.default_name = default_name
 
-    def connect(self, name, db_name=None, **kwargs):
+    def connect(self, name, **kwargs):
         '''Create a connection to database
         '''
-        if not db_name:
-            db_name = name
-        datastore = Datastore(name, db_name, **kwargs)
+        if 'db_name' not in kwargs:
+            kwargs['db_name'] = name
+        datastore = Datastore(name, **kwargs)
         self.datastores[name] = datastore
         return datastore
 

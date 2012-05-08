@@ -19,8 +19,9 @@ class Settings(collections.Mapping):
     '''Get settings for class
     '''
     __slots__ = ('__init__', '__contains__', '__getattr__', '__getitem__',
-                 '__eq__', '__iter__', '__len__', '__ne__', 'configs', 'get',
-                 'items', 'keys', 'section', 'sections', 'settings', 'values')
+                 '__eq__', '__iter__', '__len__', '__ne__', '_sections',
+                 '_settings', 'get', 'items', 'keys', 'section', 'sections',
+                 'values', )
 
     def __init__(self, main_config, defaults={}):
         '''Load main config, parse it and then trying to load applications from
@@ -44,13 +45,13 @@ class Settings(collections.Mapping):
         conf_list.append([main_config])
         conf_list.append(parser.options('CONFS'))
         # Fill dictionaries
-        self.configs = parser.read(itertools.chain(*conf_list))
-        self.sections = {}
-        self.settings = {}
+        parser.read(itertools.chain(*conf_list))
+        self._sections = {}
+        self._settings = {}
         for section in parser.sections():
-            self.sections[section] = dict([(name, parser.get(section, name))
-                                          for name in parser.options(section)])
-            self.settings.update(self.sections[section])
+            self._sections[section] = dict([(name, parser.get(section, name))
+                                        for name in parser.options(section)])
+            self._settings.update(self._sections[section])
 
     def __getitem__(self, name):
         '''Get value from configuration with specified name
@@ -67,11 +68,11 @@ class Settings(collections.Mapping):
             configuration files
         '''
         name = name.lower()
-        if name in self.settings:
-            return self.settings[name]
-        for section_name in self.sections:
-            if name in self.sections[section_name]:
-                return self.sections[section_name][name]
+        if name in self._settings:
+            return self._settings[name]
+        for section_name in self._sections:
+            if name in self._sections[section_name]:
+                return self._sections[section_name][name]
         raise KeyError('"%s" not found in configuration' % name)
     __getattr__ = __getitem__
 
@@ -87,20 +88,39 @@ class Settings(collections.Mapping):
         '''
         name = name.lower()
         if section is None:
-            if name in self.settings:
-                return self.settings[name]
+            if name in self._settings:
+                return self._settings[name]
         else:
-            if section in self.sections and name in self.sections[section]:
-                return self.sections[section][name]
+            if section in self._sections and name in self._sections[section]:
+                return self._sections[section][name]
             else:
                 raise KeyError('No section "%s" in configuration' % section)
         raise KeyError('"%s" not found in configuration' % name)
 
-    def section(self, section):
+    def section_options(self, section):
         '''Get all keys from section
+
+        Args:
+            section - section name
+
+        Returns:
+            dictionary contains all the settings names from section
         '''
-        if section in self.sections:
-            return dict_keys(self.sections[section].keys())
+        if section in self._sections:
+            return dict_keys(self._sections[section].keys())
+        raise KeyError('No section "%s" in configuration' % section)
+
+    def section(self, section):
+        '''Get the dictionary of keys and values from section
+
+        Args:
+            section - section name
+
+        Returns:
+            dictionary contains all the settings from sections
+        '''
+        if section in self._sections:
+            return self._sections[section].copy()
         raise KeyError('No section "%s" in configuration' % section)
 
     def has_section(self, section):
@@ -112,24 +132,29 @@ class Settings(collections.Mapping):
         Returns:
             True if section exists or False if not
         '''
-        return section in self.sections
+        return section in self._sections
+
+    def sections(self):
+        '''Get a section names list
+        '''
+        return self._sections.keys()
 
     def __iter__(self):
         '''Get iterator over the settings keys
         '''
-        return self.settings.__iter__()
+        return self._settings.__iter__()
 
     def __len__(self):
         '''Get number of unique configuration keys
         '''
-        return len(self.settings)
+        return len(self._settings)
 
     def keys(self):
         '''Get unique configuration options names
         '''
-        return self.settings.keys()
+        return self._settings.keys()
 
     def values(self):
         '''Get all the configuration options values
         '''
-        return self.settings.values()
+        return self._settings.values()

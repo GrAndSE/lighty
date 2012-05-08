@@ -62,7 +62,7 @@ def manage(default_conf='conf.cfg'):
     parser, args = parse_args()
     try:
         settings = Settings(args['config'])
-        commands = load_commands(settings.section('APPS'))
+        commands = load_commands(settings.section_options('APPS'))
     except Exception as e:
         print_func(e)
         print_func(parser.help_text())

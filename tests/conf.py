@@ -17,8 +17,8 @@ class ConfTestCase(unittest.TestCase):
 
     def testGetFromMainConf(self):
         '''Test getting options from main config file'''
-        assert self.settings.value == 'test', (
-                'Get returns wrong value %s except test' % self.settings.value)
+        assert self.settings.value == 'test', ('Get returns wrong value %s '
+                'except test' % self.settings.value)
         assert self.settings.value == self.settings.get('value'), (
                 '__getitem__ and get returns different values')
         assert self.settings.VALUE == 'test', 'Lower case error'
@@ -43,16 +43,16 @@ class ConfTestCase(unittest.TestCase):
     def testSections(self):
         '''Test is all values in sections'''
         apps_req = TEST_APPS
-        apps = sorted(self.settings.section('APPS'))
+        apps = sorted(self.settings.section_options('APPS'))
         assert apps == apps_req, ('APPS section was not loaded properly: %s' %
                                   apps)
-        assert self.settings.section('APP1') == ['app_var'], (
+        assert self.settings.section_options('APP1') == ['app_var'], (
                 'APP1 section was not loaded properly: %s' %
-                self.settings.section('APP1'))
-        assert self.settings.section('APP2') == ['app_var'], (
+                self.settings.section_options('APP1'))
+        assert self.settings.section_options('APP2') == ['app_var'], (
                 'APP2 section was not loaded properly: %s' %
-                self.settings.section('APP1'))
-        assert sorted(self.settings.section('CONFS')) == [
+                self.settings.section_options('APP1'))
+        assert sorted(self.settings.section_options('CONFS')) == [
                 'tests/conf/app1.cfg', 'tests/conf/app2.cfg'], (
                         'CONFS section was not loaded properly')
 

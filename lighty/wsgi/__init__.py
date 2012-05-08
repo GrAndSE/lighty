@@ -24,6 +24,7 @@ class ComplexApplication(BaseApplication):
 
     def __init__(self, settings):
         super(ComplexApplication, self).__init__(settings)
+        # process an applications and get a template directories
         apps = settings.section('APPS')
         template_dirs = []
         for app in apps:
@@ -31,12 +32,18 @@ class ComplexApplication(BaseApplication):
             template_dir = os.path.join(module.__path__[0], 'templates')
             if os.path.exists(template_dir):
                 template_dirs.append(template_dir)
-        try:
-            template_dirs += settings.section('TEMPLATE_DIRS')
-        except:
-            pass
+        # get template directories from settings
+        if settings.has_section('TEMPLATE_DIRS'):
+            template_dirs += settings.section_options('TEMPLATE_DIRS')
         self.template_loader = FSLoader(template_dirs)
         self.get_template = self.template_loader.get_template
+        # get databse connections
+        from ..db.backend import manager
+        for section in settings.sections():
+            if section.startswith('DATABASE:'):
+                name = section.replace('DATABASE:', '')
+                args = settings.section(section)
+                manager.connect(name, **args)
 
 
 def WSGIApplication(app_settings):
