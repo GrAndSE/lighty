@@ -9,7 +9,9 @@ Version 0.4.3
 - Add __len__() method into Query class and count() method implementation fix
   in datastore.
 - Add datastore manager and assigning between datastores and models by names.
+- Add datastore manager initialization in wshi complex application.
 - Add simple signals implementation.
+- Switch to own argument parser implementation from argparse standart module.
 - Fix a lot of issues
 
 

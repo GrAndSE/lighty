@@ -55,7 +55,8 @@ class FieldFunctor(BaseField):
     def __init__(self, parent, operator, operand):
         super(FieldFunctor, self).__init__()
         if (issubclass(operand.__class__, BaseField) and
-                parent.model != operand.model):
+            not (issubclass(parent.model.__class__, operand.model.__class__) or
+                 issubclass(operand.model.__class__, parent.model.__class__))):
             raise AttributeError('Different model classes %s and %s for '
                                  'operator %s' % (parent.model,
                                  operand.model, operator))

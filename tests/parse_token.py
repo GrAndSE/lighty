@@ -13,30 +13,40 @@ class ParseTokenTestCase(unittest.TestCase):
         pass
 
     def testCleanBrackets(self):
+        '''Test brackets cleanup on parsing token
+        '''
         parsed = parse_token('"test.html"')
         needed = ['test.html'], [STRING]
         assert parsed == needed, 'Brackets cleaning failed: %s except %s' % (
                                  parsed, needed)
 
     def testCleanInnerBrackets(self):
+        '''Test inner brackets cleaning on token parsing
+        '''
         parsed = parse_token('"test\'html"')
         needed = ['test\'html'], [STRING]
         assert parsed == needed, 'Brackets cleaning failed: %s except %s' % (
                                  parsed, needed)
 
     def testParseSimpleTokens(self):
+        '''Test simple tokens parsing
+        '''
         parsed = parse_token('a in b')
         needed = ['a', 'in', 'b'], [VARIABLE, VARIABLE, VARIABLE]
         assert parsed == needed, 'Token parsing failed: %s except %s' % (
                                  parsed, needed)
 
     def testParseTokensWithSentence(self):
+        '''Test parsing tokens with included string in brackets
+        '''
         parsed = parse_token('a as "Let me in"')
         needed = ['a', 'as', 'Let me in'], [VARIABLE, VARIABLE, STRING]
         assert parsed == needed, 'Token with sentence parsing failed: %s' % (
                                 ' '.join((str(parsed), 'except', str(needed))))
 
     def testParseTokensWithNumbers(self):
+        '''Test parsing tokens with numbers
+        '''
         parsed = parse_token('1 as a')
         needed = ['1', 'as', 'a'], [NUMBER, VARIABLE, VARIABLE]
         assert parsed == needed, 'Token with number parsing failse: %s' % (
