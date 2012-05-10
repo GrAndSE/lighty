@@ -33,7 +33,6 @@ class ComplexApplication(BaseApplication):
     '''
 
     def __init__(self, settings):
-        super(ComplexApplication, self).__init__(settings)
         # get databse connections
         for section in settings.sections():
             if section.startswith('DATABASE:'):
@@ -52,6 +51,8 @@ class ComplexApplication(BaseApplication):
         if settings.has_section('TEMPLATE_DIRS'):
             template_dirs += settings.section_options('TEMPLATE_DIRS')
         self.template_loader = FSLoader(template_dirs)
+        # Finish initialization here to prevent database import errors
+        super(ComplexApplication, self).__init__(settings)
 
     def get_template(self, name):
         '''Get template for name
