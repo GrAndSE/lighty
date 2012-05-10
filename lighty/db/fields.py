@@ -22,68 +22,33 @@ def add_validator(validator, options):
 class Field(BaseField):
     '''Base field class. Declares basic methods an fields for all the field
     classes and fields
+
+    Args:
+        verbose_name:   human readable field name
+        primary_key:    is field would be a primary key
+        db_index:       is field a part of database index
+        unique:         add checking for unique value
+        blank:          is field can be empty on model saving
+        null:           it field can be None on model saving
+        choices:        list of values available for this field
+        default:        default value
+        editable:       check is value can be changed
+        validators:     list of validators used to check field value before
+                        store it into database
+        help_text:      field description
+        db_column:      name of the field inside database
+        db_tablespace:  can be used to set additional datastorage parameter
     '''
     __slots__ = ('name', 'model', 'verbose_name', 'primary_key', 'db_index',
                  'unique', 'blank', 'null', 'choices', 'default', 'editable',
-                 'error_messages', 'validators', 'help_text', 'db_column',
-                 'db_tablespace', 'unique_for_date', 'unique_for_month',
-                 'unique_for_year', )
-    model = None
-    'Model contains field'
-    name = None
-    'Field name'
-    verbose_name = name
-    'human readable field name'
-    help_text = name
-    'field detailed description'
-    editable = False
-    'check is field value can be changed'
-    default = None
-    'default field value'
-    choices = None
-    'list of values available for this field'
-    blank = False
-    'is field can be empty on model saving'
-    null = False
-    'is field can be None on model saving'
-    error_messages = {}
-    'error messages for validations'
-    validators = ()
-    '''list of the validators used to check field value before store it into
-    the datastore'''
-    primary_key = False
-    'is field would be a primary key'
-    db_index = False
-    'is field a part of database index'
-    db_column = name
-    'name of the field inside database'
-    db_tablespace = False
-    'can be used to set additional datastorage parameter'
-    unique = False
+                 'validators', 'help_text', 'db_column', 'db_tablespace', )
 
     def __init__(self, verbose_name=None, primary_key=False, db_index=False,
                        unique=False, blank=False, null=False, choices=None,
-                       default=None, editable=True, error_messages={},
-                       validators=(), help_text="", db_column=None,
-                       db_tablespace=False):
+                       default=None, editable=True, validators=(),
+                       help_text="", db_column=None, db_tablespace=False):
         '''Create new Field instance
 
-        Args:
-            verbose_name:   human readable field name
-            primary_key:    is field would be a primary key
-            db_index:       is field a part of database index
-            unique:         add checking for unique value
-            blank:          is field can be empty on model saving
-            null:           it field can be None on model saving
-            choices:        list of values available for this field
-            default:        default value
-            editable:       check is value can be changed
-            error_messages: error messages for validations
-            validators:     list of validators used to check field value before
-                            store it into database
-            help_text:      field description
-            db_column:      name of the field inside database
-            db_tablespace:  can be used to set additional datastorage parameter
         '''
         self.null = null
         self.blank = blank
@@ -97,7 +62,6 @@ class Field(BaseField):
         self.primary_key = primary_key
         self.help_text = help_text
         self.verbose_name = verbose_name
-        self.error_messages = error_messages
         # Add additional validator for choices if needed
         if choices is not None:
             validators += (lighty.validators.ChoicesValidator(choices),)

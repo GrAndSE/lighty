@@ -1,6 +1,12 @@
+'''Commands can be used to easy run server or create an application
+'''
+import functools
+
 def make_application(settings):
-    from . import WSGIApplication
-    return WSGIApplication(settings)
+    from . import ComplexApplication
+    from .handler import handler
+    application = ComplexApplication(settings)
+    return functools.partial(handler, application, application.resolve_url)
 
 
 def run_server(settings):

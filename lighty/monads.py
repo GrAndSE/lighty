@@ -13,11 +13,13 @@ def handle_exception(func):
     '''
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+        '''Catch an exception an return ErrorMonad for it
+        '''
         try:
             return func(*args, **kwargs)
-        except Exception as e:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            return ErrorMonad(e, traceback=exc_traceback)
+        except Exception as exc:
+            _, _, exc_traceback = sys.exc_info()
+            return ErrorMonad(exc, traceback=exc_traceback)
     return wrapper
 
 
@@ -25,11 +27,8 @@ def monad_operation(func):
     '''Wrap method with exception catching and creating ErrorMonad if there was
     an exception
     '''
-    @functools.wraps(func)
-    @handle_exception
-    def wrapper(self):
-        return ValueMonad(func(self))
-    return wrapper
+    return functools.wraps(handle_exception(lambda self:
+                                            ValueMonad(func(self))), func)
 
 
 def monad_operator(func):
@@ -39,6 +38,8 @@ def monad_operator(func):
     @functools.wraps(func)
     @handle_exception
     def wrapper(self, value):
+        '''Check an argument type
+        '''
         if isinstance(value, NoneMonad):
             return value
         return ValueMonad(func(self, value.value

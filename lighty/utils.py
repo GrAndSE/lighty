@@ -10,10 +10,10 @@ import getopt
 import operator
 import sys
 
-
 def print_func(*args):
     sys.stdout.write(' '.join([str(arg) for arg in args]))
     sys.stdout.write('\n')
+
 
 PY3 = sys.version_info[0] == 3
 div_operators = (operator.__truediv__, operator.__floordiv__)
@@ -24,6 +24,16 @@ else:
     string_types = basestring
     dict_keys = lambda keys: keys
     div_operators += (operator.__div__, )
+try:
+    import cStringIO
+    StringIO = cStringIO.StringIO
+except:
+    try:
+        import StringIO as IO
+        StringIO = IO.StringIO
+    except:
+        import io
+        StringIO = io.StringIO
 
 
 def with_metaclass(meta, base=object):

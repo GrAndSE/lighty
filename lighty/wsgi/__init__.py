@@ -1,10 +1,11 @@
-import functools
+'''Module contains methods to interact with WSGI
+'''
 import os
 
+from ..db.backend import manager as db_manager
 from ..templates.loaders import FSLoader
 
-from .handler import handler
-from .urls import load_urls, resolve
+from .urls import load_urls, resolve, reverse
 
 
 class BaseApplication(object):
@@ -15,7 +16,16 @@ class BaseApplication(object):
     def __init__(self, settings):
         self.settings = settings
         self.urls = load_urls(settings.urls)
-        self.resolve_url = functools.partial(resolve, self.urls)
+
+    def resolve_url(self, url):
+        '''Resolve url
+        '''
+        return resolve(self.urls, url)
+
+    def reverse_url(self, name, args=None):
+        '''Reverse url for name and arguments
+        '''
+        return reverse(self.urls, name, args)
 
 
 class ComplexApplication(BaseApplication):
@@ -36,18 +46,19 @@ class ComplexApplication(BaseApplication):
         if settings.has_section('TEMPLATE_DIRS'):
             template_dirs += settings.section_options('TEMPLATE_DIRS')
         self.template_loader = FSLoader(template_dirs)
-        self.get_template = self.template_loader.get_template
         # get databse connections
-        from ..db.backend import manager
         for section in settings.sections():
             if section.startswith('DATABASE:'):
                 name = section.replace('DATABASE:', '')
                 args = settings.section(section)
-                manager.connect(name, **args)
+                db_manager.connect(name, **args)
 
+    def get_template(self, name):
+        '''Get template for name
+        '''
+        return self.template_loader.get_template(name)
 
-def WSGIApplication(app_settings):
-    '''Create main application handler
-    '''
-    application = ComplexApplication(app_settings)
-    return functools.partial(handler, application, application.resolve_url)
+    def get_datastore(self, name):
+        '''Get datastore for name
+        '''
+        return db_manager.get(name)

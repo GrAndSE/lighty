@@ -6,17 +6,7 @@
 from collections import deque
 from functools import reduce
 from decimal import Decimal
-try:
-    import cStringIO
-    StringIO = cStringIO.StringIO
-except:
-    try:
-        import StringIO as sio
-        StringIO = sio.StringIO
-    except:
-        import io
-        StringIO = io.StringIO
-
+from ..utils import StringIO
 from .context import resolve
 from .loaders import TemplateLoader
 from .filter import filter_manager

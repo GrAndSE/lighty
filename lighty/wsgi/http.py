@@ -8,16 +8,6 @@ except:
     from http import cookies
     SimpleCookie = cookies.SimpleCookie
 try:
-    import cStringIO
-    StringIO = cStringIO.StringIO
-except:
-    try:
-        import StringIO as IO
-        StringIO = IO.StringIO
-    except:
-        import io
-        StringIO = io.StringIO
-try:
     import httplib
     responses = httplib.responses
 except:
@@ -83,13 +73,12 @@ class Request(collections.Mapping):
 class Response(object):
     '''Class represents response
     '''
-    __slots__ = ('data', 'code', 'headers', 'status', )
+    __slots__ = ('__init__', '__str__', 'data', 'code', 'headers', 'status', )
 
-    def __init__(self, data='', code=200,
-                 headers=[('Content-Type', 'text/html')]):
+    def __init__(self, data='', code=200, headers=None):
         self.data = data
         self.code = code
-        self.headers = headers
+        self.headers = headers if headers else [('Content-Type', 'text/html')]
 
     @property
     def status(self):
@@ -101,10 +90,11 @@ class Response(object):
         return ('%s %s' % (self.code, responses[self.code])
                 if self.code in responses else '200 OK')
 
-    def __str__(self):
+    def finish(self):
         '''Get response string representations
 
         Returns:
             data stored in response converted to string
         '''
         return str(self.data)
+    __str__ = finish

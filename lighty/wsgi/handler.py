@@ -1,3 +1,5 @@
+'''Provides a handler to accept the requests
+'''
 from .http import Request
 
 
