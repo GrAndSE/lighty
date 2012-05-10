@@ -2,6 +2,14 @@ Lighty Changelog
 ================
 
 
+Version 0.4.4
+-------------
+(released on May 2012)
+- Fix some issues.
+- Some code clean up and refactoring.
+- Rewrite validators and validate() function.
+
+
 Version 0.4.3
 -------------
 (bug fix release, released on May 8th 2012)
@@ -9,10 +17,10 @@ Version 0.4.3
 - Add __len__() method into Query class and count() method implementation fix
   in datastore.
 - Add datastore manager and assigning between datastores and models by names.
-- Add datastore manager initialization in wshi complex application.
+- Add datastore manager initialization in wsgi complex application.
 - Add simple signals implementation.
 - Switch to own argument parser implementation from argparse standart module.
-- Fix a lot of issues
+- Fix a lot of issues.
 
 
 Version 0.4.2

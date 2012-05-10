@@ -67,7 +67,7 @@ class ChoicesValidator(object):
         '''Create new ChoicesValidator with specified choices.
         '''
         self.choices = choices
-        super(self, ChoicesValidator).__init__(message if message
+        super(ChoicesValidator, self).__init__(message if message
                                             else '%s is not in choices list')
 
     def validate(self, value):
