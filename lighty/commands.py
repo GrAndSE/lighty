@@ -7,6 +7,7 @@ import traceback
 import types
 
 from lighty.conf import Settings
+from lighty.db import init_db_manager
 from lighty.utils import CommandParser, print_func
 
 
@@ -52,7 +53,7 @@ def manage(default_conf='conf.cfg'):
             parser.add_argument('command', type=command_arg_type, default='',
                                 optional=False, help='command to execute')
         else:
-            parser.add_argument('command',default='',
+            parser.add_argument('command', default='',
                                 help='command to execute')
         for args, kwargs in args:
             parser.add_argument(*args, **kwargs)
@@ -62,6 +63,7 @@ def manage(default_conf='conf.cfg'):
     parser, args = parse_args()
     try:
         settings = Settings(args['config'])
+        init_db_manager(settings)
         commands = load_commands(settings.section_options('APPS'))
     except Exception as e:
         print_func(e)

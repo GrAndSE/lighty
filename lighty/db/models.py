@@ -228,3 +228,8 @@ class Model(with_metaclass(ModelBase)):
         """
         return cls._fields
     properties = fields
+
+    @classmethod
+    def validators(cls):
+        '''Get a dictinary view contains validators for fields
+        '''

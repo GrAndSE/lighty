@@ -111,3 +111,15 @@ Also you can update data for query::
 
     User.all().where(User.age < 18).update(age=18)
 '''
+from .backend import manager
+
+
+def init_db_manager(settings):
+    '''Get database connections from settings
+    '''
+    for section in settings.sections():
+        if section.startswith('DATABASE:'):
+            name = section.replace('DATABASE:', '')
+            args = settings.section(section)
+            manager.connect(name, **args)
+

@@ -2,6 +2,7 @@
 '''
 import os
 
+from ..db import init_db_manager
 from ..db.backend import manager as db_manager
 from ..templates.loaders import FSLoader
 
@@ -33,12 +34,7 @@ class ComplexApplication(BaseApplication):
     '''
 
     def __init__(self, settings):
-        # get databse connections
-        for section in settings.sections():
-            if section.startswith('DATABASE:'):
-                name = section.replace('DATABASE:', '')
-                args = settings.section(section)
-                db_manager.connect(name, **args)
+        init_db_manager(settings)
         # process an applications and get a template directories
         apps = settings.section('APPS')
         template_dirs = []
