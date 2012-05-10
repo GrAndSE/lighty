@@ -7,7 +7,7 @@ from lighty.validators import Validator, validate
 
 
 class TrueFalseValidator(Validator):
-    def check(self, value):
+    def validate(self, value):
         return value if value else self.error(value)
 
 
@@ -26,7 +26,7 @@ class ValidatorTestCase(unittest.TestCase):
         validator = TrueFalseValidator()
         assert validator(True), 'Error validating True or False'
         assert isinstance(validator(False), ErrorMonad), ('Wrong validation '
-                'result type')
+                'result type: %s' % type(validator(False)))
         assert str(validator(False)) == 'Validation error', (
                 'Wrong validation default error message')
 
