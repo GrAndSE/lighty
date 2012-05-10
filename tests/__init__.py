@@ -5,6 +5,7 @@ tests = (
     'monad',
     'optparse',
     'signals',
+    'validators',
     # db
     'db',
     'mongo',
