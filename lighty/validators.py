@@ -4,6 +4,7 @@ import re
 import urllib
 
 from . import monads
+from . import utils
 
 
 class ValidationError(monads.ErrorMonad):
@@ -222,5 +223,30 @@ class MinLengthValidator(Validator):
         return self.error(value) if len(value) < self.min_length else value
 
 
-def validate():
-    pass
+def validate(validators, data, transform=None):
+    '''Validate data using validators
+    '''
+    if not transform:
+        transform = {}
+    results = {}
+    for field in validators.keys():
+        if field in transform:
+            if isinstance(transform[field], utils.string_types):
+                value = data.get(transform[field], monads.NoneMonad(
+                            'No data for %s (%s)' % (transform[field], field)))
+            else:
+                value = transform[field](data)
+        else:
+            value = data.get(field, monads.NoneMonad('No data for %s' % field))
+        result = value
+        errors = []
+        for validator in validators[field]:
+            result = validator(result)
+            if not result:
+                errors.append(result)
+                result = value
+            else:
+                value = result
+        results[field] = (monads.ErrorMonad(errors) if len(errors) > 0
+                          else result)
+    return results

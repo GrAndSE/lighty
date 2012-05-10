@@ -43,9 +43,21 @@ class ValidatorTestCase(unittest.TestCase):
         assert message == 'Value: False', (
                 'Wrong validation custom error message: %s' % message)
 
+    def testValidateFunction(self):
+        '''Test validate function
+        '''
+        validators = {'field': [TrueFalseValidator()]}
+        results = validate(validators, {'field': True})
+        assert results['field'] is True, ('Wrong validation results: %s' %
+                                          results)
+        results = validate(validators, {'field': False})
+        assert isinstance(results['field'], ErrorMonad), (
+                'Wrong validation results: %s' % results)
+
 
 def test():
     suite = unittest.TestSuite()
     suite.addTest(ValidatorTestCase('testSimpleValidator'))
     suite.addTest(ValidatorTestCase('testCustomErrorMessage'))
+    suite.addTest(ValidatorTestCase('testValidateFunction'))
     return suite
