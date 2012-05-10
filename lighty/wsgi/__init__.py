@@ -34,6 +34,12 @@ class ComplexApplication(BaseApplication):
 
     def __init__(self, settings):
         super(ComplexApplication, self).__init__(settings)
+        # get databse connections
+        for section in settings.sections():
+            if section.startswith('DATABASE:'):
+                name = section.replace('DATABASE:', '')
+                args = settings.section(section)
+                db_manager.connect(name, **args)
         # process an applications and get a template directories
         apps = settings.section('APPS')
         template_dirs = []
@@ -46,12 +52,6 @@ class ComplexApplication(BaseApplication):
         if settings.has_section('TEMPLATE_DIRS'):
             template_dirs += settings.section_options('TEMPLATE_DIRS')
         self.template_loader = FSLoader(template_dirs)
-        # get databse connections
-        for section in settings.sections():
-            if section.startswith('DATABASE:'):
-                name = section.replace('DATABASE:', '')
-                args = settings.section(section)
-                db_manager.connect(name, **args)
 
     def get_template(self, name):
         '''Get template for name
