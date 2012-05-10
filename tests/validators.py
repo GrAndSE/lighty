@@ -3,10 +3,10 @@
 import unittest
 
 from lighty.monads import ErrorMonad
-from lighty.validators import Validator, validate
+from lighty import validators
 
 
-class TrueFalseValidator(Validator):
+class TrueFalseValidator(validators.Validator):
     def validate(self, value):
         return value if value else self.error(value)
 
@@ -16,7 +16,7 @@ class CustomErrorMessageValidator(TrueFalseValidator):
         return 'Value: %s' % value
 
 
-class ValidatorTestCase(unittest.TestCase):
+class ValidatorClassTestCase(unittest.TestCase):
     """Test case for Validator class and validate function
     """
 
@@ -43,21 +43,43 @@ class ValidatorTestCase(unittest.TestCase):
         assert message == 'Value: False', (
                 'Wrong validation custom error message: %s' % message)
 
+
+class ValidatorsTestCase(unittest.TestCase):
+    '''Test case for standart validators included in distribution
+    '''
+
+    def testChoicesValidator(self):
+        '''Test ChoicesValidator class
+        '''
+        validator = validators.ChoicesValidator([(1, 'One'), (2, 'Two')])
+        result = validator(1)
+        assert result, 'Unexpected validation error: %s' % result
+        result = validator(2)
+        assert result, 'Unexpected validation error: %s' % result
+        result = validator(3)
+        assert not result, 'Validation error missed: %s' % result
+
+
+class ValidateTestCase(unittest.TestCase):
+    '''Test case used to check validate function
+    '''
+
     def testValidateFunction(self):
         '''Test validate function
         '''
-        validators = {'field': [TrueFalseValidator()]}
-        results = validate(validators, {'field': True})
+        valids = {'field': [TrueFalseValidator()]}
+        results = validators.validate(valids, {'field': True})
         assert results['field'] is True, ('Wrong validation results: %s' %
                                           results)
-        results = validate(validators, {'field': False})
+        results = validators.validate(valids, {'field': False})
         assert isinstance(results['field'], ErrorMonad), (
                 'Wrong validation results: %s' % results)
 
 
 def test():
     suite = unittest.TestSuite()
-    suite.addTest(ValidatorTestCase('testSimpleValidator'))
-    suite.addTest(ValidatorTestCase('testCustomErrorMessage'))
-    suite.addTest(ValidatorTestCase('testValidateFunction'))
+    suite.addTest(ValidatorClassTestCase('testSimpleValidator'))
+    suite.addTest(ValidatorClassTestCase('testCustomErrorMessage'))
+    suite.addTest(ValidatorsTestCase('testChoicesValidator'))
+    suite.addTest(ValidateTestCase('testValidateFunction'))
     return suite

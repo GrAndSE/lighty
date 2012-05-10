@@ -51,7 +51,7 @@ class Validator(object):
         return self.validate(value)
 
 
-class ChoicesValidator(object):
+class ChoicesValidator(Validator):
     '''Validator used to validate choices list
 
     choices
