@@ -16,12 +16,14 @@ class BaseApplication(object):
 
     def __init__(self, settings):
         self.settings = settings
-        self.urls = load_urls(settings.urls)
+        self.urls = None
 
-    def resolve_url(self, url):
+    def resolve_url(self, url, method=None):
         '''Resolve url
         '''
-        return resolve(self.urls, url)
+        if not self.urls:
+            self.urls = load_urls(self.settings.urls)
+        return resolve(self.urls, url, method=None)
 
     def reverse_url(self, name, args=None):
         '''Reverse url for name and arguments
