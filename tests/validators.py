@@ -2,8 +2,9 @@
 """
 import unittest
 
+from lighty.db import fields, models
 from lighty.monads import ErrorMonad
-from lighty import validators
+from lighty import utils, validators
 
 
 class TrueFalseValidator(validators.Validator):
@@ -14,6 +15,11 @@ class TrueFalseValidator(validators.Validator):
 class CustomErrorMessageValidator(TrueFalseValidator):
     def message(self, value):
         return 'Value: %s' % value
+
+
+class TestModel(models.Model):
+    test_type = fields.CharField(choices=[('t', 'test'), ('c', 'test case')])
+    positive = fields.PositiveIntegerField()
 
 
 class ValidatorClassTestCase(unittest.TestCase):
@@ -60,6 +66,25 @@ class ValidatorsTestCase(unittest.TestCase):
         assert not result, 'Validation error missed: %s' % result
 
 
+class ModelValidatorsTestCase(unittest.TestCase):
+    '''Test case to check model validators
+    '''
+
+    def testModelValidator(self):
+        '''Test validators() method in model class
+        '''
+        validators = TestModel.validators()
+        assert len(validators) == 2, ('Wrong validator groups number: %s' %
+                                      len(validators))
+        names = sorted(utils.dict_keys(validators.keys()))
+        assert names == sorted(TestModel._fields), ('Wrong validator groups '
+                                                    'names: %s' % names)
+        assert len(validators['test_type']) == 2, ('Wrong validators number '
+                'for CharField with choices: %s' % validators['test_type'])
+        assert len(validators['positive']) == 1, ('Wrong validators number '
+                'for PositiveIntegerField: %s' % validators['positive'])
+
+
 class ValidateTestCase(unittest.TestCase):
     '''Test case used to check validate function
     '''
@@ -81,5 +106,6 @@ def test():
     suite.addTest(ValidatorClassTestCase('testSimpleValidator'))
     suite.addTest(ValidatorClassTestCase('testCustomErrorMessage'))
     suite.addTest(ValidatorsTestCase('testChoicesValidator'))
+    suite.addTest(ModelValidatorsTestCase('testModelValidator'))
     suite.addTest(ValidateTestCase('testValidateFunction'))
     return suite

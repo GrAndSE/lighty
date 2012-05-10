@@ -233,3 +233,5 @@ class Model(with_metaclass(ModelBase)):
     def validators(cls):
         '''Get a dictinary view contains validators for fields
         '''
+        return dict([(field_name, getattr(cls, field_name).validators)
+                     for field_name in cls._fields])
