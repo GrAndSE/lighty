@@ -99,6 +99,7 @@ class ValidateTestCase(unittest.TestCase):
         results = validators.validate(valids, {'field': False})
         assert isinstance(results['field'], ErrorMonad), (
                 'Wrong validation results: %s' % results)
+        assert not results, 'Wrong validation results: %s' % repr(results)
 
 
 def test():

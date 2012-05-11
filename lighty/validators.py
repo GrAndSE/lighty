@@ -229,6 +229,7 @@ def validate(validators, data, transform=None):
     if not transform:
         transform = {}
     results = {}
+    errors_num = 0
     for field in validators.keys():
         if field in transform:
             if isinstance(transform[field], utils.string_types):
@@ -247,6 +248,9 @@ def validate(validators, data, transform=None):
                 result = value
             else:
                 value = result
-        results[field] = (monads.ErrorMonad(errors) if len(errors) > 0
-                          else result)
-    return results
+        if len(errors) > 0:
+            results[field] = ValidationError(errors)
+            errors_num += 1
+        else:
+            results[field] = result
+    return ValidationError(results) if errors_num > 0 else results

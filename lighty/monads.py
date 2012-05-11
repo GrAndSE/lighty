@@ -86,7 +86,8 @@ def monad_function(func):
         nargs = [check_argument(args) for args in args]
         nkwargs = dict([(name, check_argument(kwargs[name]))
                         for name in kwargs])
-        return ValueMonad(func(self, *nargs, **nkwargs))
+        result = func(self, *nargs, **nkwargs)
+        return result if isinstance(result, ValueMonad) else ValueMonad(result)
     return wrapper
 
 BOOLEAN_OPERATORS = set((operator.__lt__, operator.__le__, operator.__eq__,
