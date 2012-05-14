@@ -77,8 +77,19 @@ class MongoTestCase(unittest.TestCase):
         assert users[0].name == 'Peter' and users[0].age == 18, (
                  'Wrong result [%s]' % ','.join([str(user) for user in users]))
 
+    def testGetByKey(self):
+        '''Test Model.get(object_key) method
+        '''
+        key = User(name='Kevin', age=20).save().key()
+        user = User.get(key)
+        assert user, 'Wrong result getting entity for key: %s' % user
+        assert user.name == 'Kevin', ('Wrong result getting entity name for '
+                                      'key: %s' % user.name)
+        assert user.age == 20, ('Wrong result getting entity name for '
+                                'key: %s' % user.age)
+
     def testGet(self):
-        '''Test Model.get() method
+        '''Test Model.get(field_name=value) method
         '''
         user = User.get(name='Peter')
         assert user, 'Wrong result searching for name: %s' % user
@@ -118,6 +129,7 @@ def test():
     suite = unittest.TestSuite()
     suite.addTest(MongoTestCase('testCreate'))
     suite.addTest(MongoTestCase('testGet'))
+    suite.addTest(MongoTestCase('testGetByKey'))
     suite.addTest(MongoTestCase('testGetAll'))
     suite.addTest(MongoTestCase('testChange'))
     suite.addTest(MongoTestCase('testOrder'))
