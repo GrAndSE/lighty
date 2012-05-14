@@ -21,11 +21,18 @@ class Datastore(object):
     def get(self, model, **kwargs):
         '''Get item using number of arguments
         '''
+        if '_id' in kwargs:
+            import bson
+            print kwargs
+            kwargs['_id'] = bson.objectid.ObjectId(kwargs['_id'])
         return self.db[model.entity_name()].find_one(kwargs)
 
     def put(self, model, item):
         '''Put item into datastore
         '''
+        if '_id' in item:
+            import bson
+            item['_id'] = bson.objectid.ObjectId(item['_id'])
         return self.db[model.entity_name()].save(item)
 
     def delete(self, model, **kwargs):
@@ -133,6 +140,15 @@ class DatastoreManager(object):
         '''Default datastore
         '''
         return self.datastores[self.default_name]
+
+    def swap(self, first_name, second_name=None):
+        '''Swaps two datastores with specified name
+        '''
+        if not second_name:
+            second_name = self.default_name
+        db = self.datastores[first_name].db
+        self.datastores[first_name].db = self.datastores[second_name].db
+        self.datastores[second_name].db = db
 
 
 manager = DatastoreManager()
