@@ -1,6 +1,10 @@
 '''Define class for getting and storing data
 '''
+import datetime
 import operator
+
+import bson
+
 from ..utils import string_types
 from .fields import Field
 from .functor import FieldFunctor
@@ -22,8 +26,6 @@ class Datastore(object):
         '''Get item using number of arguments
         '''
         if '_id' in kwargs:
-            import bson
-            print kwargs
             kwargs['_id'] = bson.objectid.ObjectId(kwargs['_id'])
         return self.db[model.entity_name()].find_one(kwargs)
 
@@ -31,7 +33,6 @@ class Datastore(object):
         '''Put item into datastore
         '''
         if '_id' in item:
-            import bson
             item['_id'] = bson.objectid.ObjectId(item['_id'])
         return self.db[model.entity_name()].save(item)
 
@@ -54,16 +55,13 @@ class Datastore(object):
 
     @staticmethod
     def process_operand(operand):
-        import bson
         if operand is None:
             return ''
         elif isinstance(operand, bool):
             return str(operand).lower()
         elif isinstance(operand, string_types):
             return '"%s"' % operand
-        elif isinstance(operand, int):
-            return operand
-        elif isinstance(operand, float):
+        elif isinstance(operand, (int, float)):
             return operand
         elif issubclass(operand.__class__, Field):
             return 'this.' + operand.name
@@ -74,6 +72,12 @@ class Datastore(object):
             return "(%s %s %s)" % (parent, operator, operand)
         elif isinstance(operand, bson.objectid.ObjectId):
             return '"%s"' % operand
+        elif isinstance(operand, datetime.datetime):
+            return operand.strftime('"%Y-%m-%d %H:%M:%S"')
+        elif isinstance(operand, datetime.date):
+            return operand.strftime('"%Y-%m-%d"')
+        elif isinstance(operand, datetime.time):
+            return operand.strftime('"%H:%M:%S"')
         else:
             raise AttributeError('Unsupported type %s' % str(type(operand)))
 
@@ -102,6 +106,7 @@ class Datastore(object):
                             dict([(field_name, 1) for field_name in fields])))
         query_string, distinct, order = Datastore.build_query(query)
         if query_string:
+            print query_string
             items = items.where(query_string)
         items = distinct and items.distinct('_id') or items
         return order and items.sort([(f.name, 1) for f in order]) or items

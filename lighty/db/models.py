@@ -128,6 +128,11 @@ class Model(with_metaclass(ModelBase)):
     def datastore(cls):
         return manager.get(cls._datastore_name)
 
+    def is_saved(self):
+        '''Check is model was saved
+        '''
+        return self._is_saved
+
     def key(self):
         """Unique key for this entity.
 
@@ -156,7 +161,8 @@ class Model(with_metaclass(ModelBase)):
             The key of the instance (either the existing key or a new key).
         """
         cls_dict = self.__class__.__dict__
-        fields = dict([(field_name, getattr(self, field_name))
+        fields = dict([(field_name,
+                        cls_dict[field_name].get_value_for_datastore(self))
                        for field_name in self._fields
                        if self._is_saved or cls_dict[field_name].editable])
         if self._is_saved:
@@ -207,8 +213,16 @@ class Model(with_metaclass(ModelBase)):
             if isinstance(keys[key], NoneMonad):
                 return keys[key]
         item = cls.datastore().get(cls, **keys)
+        cls_dict = cls.__dict__
         if item:
-            return cls(is_new=False, **item)
+            kwargs = {}
+            for field_name in item:
+                if field_name in cls._fields:
+                    make_val = cls_dict[field_name].make_value_from_datastore
+                    kwargs[field_name] = make_val(item[field_name])
+                else:
+                    kwargs[field_name] = item[field_name]
+            return cls(is_new=False, **kwargs)
         else:
             return (item if isinstance(item, NoneMonad) else
                     NoneMonad('Item not found for: %s' % keys))

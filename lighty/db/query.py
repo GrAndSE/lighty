@@ -99,12 +99,14 @@ class Query(collections.Iterable):
             >>> str(Query(ModelClass.field > 0))
             SELECT * FROM modelclass WHERE field > 0
         '''
+        operand_to_str = self.model.datastore().process_operand
         if self._from_query is None or self._from_query.operand is None:
             if self.operation == operator.__not__:
-                return '%s (%s)' % (operator.__not__, str(self.operation))
+                return '%s (%s)' % (operand_to_str(operator.__not__),
+                                    str(self.operation))
             return str(self.operand)
-        return '(%s) %s %s' % (str(self._from_query), self.operation,
-                               self.operand)
+        return '(%s) %s %s' % (str(self._from_query),
+                               operand_to_str(self.operation), self.operand)
 
     def distinct(self):
         '''Return's a query copy with distinct modifier

@@ -83,7 +83,7 @@ class Field(BaseField):
         Args:
             model:  model instance to take value from
         """
-        return model.__dict__[self.name]
+        return getattr(model, self.name)
 
     def make_value_from_datastore(self, value):
         """Create object from value was taken from datastore
@@ -340,12 +340,12 @@ class DateField(Field, NumericField):
     def get_value_for_datastore(self, model):
         if self.auto_now or (self.auto_now_add and not model.is_saved()):
             from datetime import date
-            model.__dict__[self.name] = date.today()
-        return model.__dict__[self.name].strptime("%Y-%m-%d")
+            setattr(model, self.name, date.today())
+        return getattr(model, self.name).strftime("%Y-%m-%d")
 
     def make_value_from_datastore(self, value):
-        from datetime import date
-        return date.strptime(value, "%Y-%m-%d")
+        from datetime import datetime
+        return datetime.strptime(value, "%Y-%m-%d").date()
 
 
 class DateTimeField(DateField, NumericField):
@@ -361,8 +361,8 @@ class DateTimeField(DateField, NumericField):
         '''
         from datetime import datetime
         if self.auto_now or (self.auto_now_add and not model.is_saved()):
-            model.__dict__[self.name] = datetime.now()
-        return datetime.strftime(model.__dict__[self.name],
+            setattr(model, self.name, datetime.now())
+        return datetime.strftime(getattr(model, self.name),
                                  "%Y-%m-%d %H:%M:%S")
 
     def make_value_from_datastore(self, value):

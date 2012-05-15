@@ -10,9 +10,17 @@ backend.manager.connect('default')
 class User(models.Model):
     name = fields.CharField()
     age = fields.IntegerField()
+    created = fields.DateField(auto_now_add=True)
+    changed = fields.DateTimeField(auto_now=True)
 
     def __str__(self):
         return "%s %d" % (self.name, self.age)
+
+
+def datetime_equals(first, second):
+    return (first.year == second.year and first.month == second.month and
+            first.day == second.day and first.hour == second.hour and
+            first.minute == second.minute and first.second == second.second)
 
 
 class MongoTestCase(unittest.TestCase):
@@ -26,6 +34,8 @@ class MongoTestCase(unittest.TestCase):
         User(name='Harry', age=17).save()
 
     def testCreate(self):
+        '''Test model creation method
+        '''
         user = User(name='Harry', age=20)
         assert not user._is_saved, 'Model saved on creation'
         user.save()
@@ -124,6 +134,29 @@ class MongoTestCase(unittest.TestCase):
         assert len(User.all().where(User.name == 'Peter')) == 0, (
                 'Error saving entity')
 
+    def testDateTime(self):
+        '''Test different date/time fields
+        '''
+        from datetime import date, datetime
+        now = datetime.now()
+        today = date.today()
+        user = User(name='Kevin', age=20).save()
+        # Check dates
+        assert user.created == today, ('auto_now_add value error: %s except '
+                                       '%s' % (user.created, today))
+        assert datetime_equals(user.changed, now), ('auto_now value error: %s'
+                                        ' except %s' % (user.changed, now))
+        # Update user and save
+        changed = user.changed
+        user.name = 'Kevin'
+        user.save()
+        assert user.changed > changed, 'Error changed auto_now: %s' % changed
+        # Check queries
+        changed = User.all().where(User.changed > changed)
+        assert len(changed) == 1, ('Wrong query results number: %s' %
+                                   len(changed))
+        assert changed[0].name == 'Kevin', ('Wrong result item: %s' % changed)
+
 
 def test():
     suite = unittest.TestSuite()
@@ -137,4 +170,5 @@ def test():
     suite.addTest(MongoTestCase('testQuery'))
     suite.addTest(MongoTestCase('testCount'))
     suite.addTest(MongoTestCase('testDelete'))
+    suite.addTest(MongoTestCase('testDateTime'))
     return suite
