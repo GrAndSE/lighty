@@ -1,6 +1,7 @@
 import collections
 import operator
 
+from .. import monads
 from .fields import Field
 
 
@@ -168,3 +169,12 @@ class Query(collections.Iterable):
         '''
         return Query(from_query=self._from_query, model=self.model,
                      offset=i, limit=j)
+
+    def __getitem__(self, index):
+        '''Get item with specified number
+        '''
+        if len(self) > index:
+            self.fetch(cache=True)
+            return self._cache[index]
+        return monads.NoneMonad('Not enought results in query to get item '
+                                'with index: %d' % index)

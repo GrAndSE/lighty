@@ -338,14 +338,13 @@ class DateField(Field, NumericField):
         super(DateField, self).__init__(**options)
 
     def get_value_for_datastore(self, model):
+        import datetime
         if self.auto_now or (self.auto_now_add and not model.is_saved()):
-            from datetime import date
-            setattr(model, self.name, date.today())
-        return getattr(model, self.name).strftime("%Y-%m-%d")
+            setattr(model, self.name, datetime.date.today())
+        return datetime.datetime(*getattr(model, self.name).timetuple()[:-2])
 
     def make_value_from_datastore(self, value):
-        from datetime import datetime
-        return datetime.strptime(value, "%Y-%m-%d").date()
+        return value.date()
 
 
 class DateTimeField(DateField, NumericField):
@@ -359,22 +358,10 @@ class DateTimeField(DateField, NumericField):
         Returns:
             string represents field value in format "%Y-%m-%d %H:%M:%S"
         '''
-        from datetime import datetime
         if self.auto_now or (self.auto_now_add and not model.is_saved()):
+            from datetime import datetime
             setattr(model, self.name, datetime.now())
-        return datetime.strftime(getattr(model, self.name),
-                                 "%Y-%m-%d %H:%M:%S")
-
-    def make_value_from_datastore(self, value):
-        '''Create date from value taken from datastore
-
-        Returns:
-            parsed DateTime object
-        '''
-        from datetime import datetime
-        if isinstance(value, datetime):
-            return value
-        return datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+        return getattr(model, self.name)
 
 
 class TimeField(DateField, NumericField):
@@ -388,19 +375,10 @@ class TimeField(DateField, NumericField):
         Returns:
             string represents field value in format "%Y-%m-%d %H:%M:%S"
         '''
-        from time import gmtime, strftime
+        from time import gmtime
         if self.auto_now or (self.auto_now_add and not model.is_saved()):
-            model.__dict__[self.name] = gmtime()
-        return strftime("%H:%M:%S", model.__dict__[self.name])
-
-    def make_value_from_datastore(self, value):
-        '''Create date from value taken from datastore
-
-        Returns:
-            parsed Time object
-        '''
-        from time import strptime
-        return strptime(value, "%H:%M:%S")
+            setattr(model, self.name, gmtime())
+        return getattr(model, self.name)
 
 
 class TextField(Field, SequenceField):

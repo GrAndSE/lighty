@@ -137,25 +137,37 @@ class MongoTestCase(unittest.TestCase):
     def testDateTime(self):
         '''Test different date/time fields
         '''
-        from datetime import date, datetime
+        # This method so big becouse it requires to take some time to execute
+        # to check change time properly, exceptially in queries
+        from datetime import date, datetime, timedelta
         now = datetime.now()
         today = date.today()
         user = User(name='Kevin', age=20).save()
+        changed = user.changed
         # Check dates
         assert user.created == today, ('auto_now_add value error: %s except '
                                        '%s' % (user.created, today))
         assert datetime_equals(user.changed, now), ('auto_now value error: %s'
                                         ' except %s' % (user.changed, now))
-        # Update user and save
-        changed = user.changed
+        # Test few queries with date objects
+        selected = User.all().where(User.created <= today)
+        assert len(selected) == 4, ('Wrong date query results number: %s' %
+                                    len(selected))
+        user.created = today + timedelta(days=2)
+        user.save()
+        selected = User.all().where(User.created > today)
+        assert len(selected) == 1, ('Wrong date query results number: %s' %
+                                    len(selected))
+        # Update user, save and check changed time
         user.name = 'Kevin'
         user.save()
         assert user.changed > changed, 'Error changed auto_now: %s' % changed
         # Check queries
-        changed = User.all().where(User.changed > changed)
-        assert len(changed) == 1, ('Wrong query results number: %s' %
-                                   len(changed))
-        assert changed[0].name == 'Kevin', ('Wrong result item: %s' % changed)
+        updated = User.all().where(User.changed > changed)
+        assert len(updated) == 1, ('Wrong query results number: %s' %
+                                   len(updated))
+        assert updated[0].name == 'Kevin', ('Wrong result item: %s' %
+                                            updated[0].name)
 
 
 def test():

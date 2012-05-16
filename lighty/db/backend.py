@@ -73,9 +73,10 @@ class Datastore(object):
         elif isinstance(operand, bson.objectid.ObjectId):
             return '"%s"' % operand
         elif isinstance(operand, datetime.datetime):
-            return operand.strftime('"%Y-%m-%d %H:%M:%S"')
+            return (operand.strftime('ISODate("%Y-%m-%dT%H:%M:%S.%%sZ")') %
+                    operand.strftime('%f')[:3])
         elif isinstance(operand, datetime.date):
-            return operand.strftime('"%Y-%m-%d"')
+            return operand.strftime('ISODate("%Y-%m-%dT00:00:00.000Z")')
         elif isinstance(operand, datetime.time):
             return operand.strftime('"%H:%M:%S"')
         else:
@@ -106,7 +107,6 @@ class Datastore(object):
                             dict([(field_name, 1) for field_name in fields])))
         query_string, distinct, order = Datastore.build_query(query)
         if query_string:
-            print query_string
             items = items.where(query_string)
         items = distinct and items.distinct('_id') or items
         return order and items.sort([(f.name, 1) for f in order]) or items
