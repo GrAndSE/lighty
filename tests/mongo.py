@@ -12,6 +12,7 @@ class User(models.Model):
     age = fields.IntegerField()
     created = fields.DateField(auto_now_add=True)
     changed = fields.DateTimeField(auto_now=True)
+    birthday = fields.DateField(null=True)
 
     def __str__(self):
         return "%s %d" % (self.name, self.age)
@@ -142,9 +143,12 @@ class MongoTestCase(unittest.TestCase):
         from datetime import date, datetime, timedelta
         now = datetime.now()
         today = date.today()
-        user = User(name='Kevin', age=20).save()
+        birthday = birthday=today - timedelta(days=20*366)
+        user = User(name='Kevin', age=20, birthday=birthday).save()
         changed = user.changed
-        # Check dates
+        # Check auto filled dates
+        assert user.birthday == birthday, ('Manually setted value error: %s'
+                                   ' except %s' % (user.birthday, birthday))
         assert user.created == today, ('auto_now_add value error: %s except '
                                        '%s' % (user.created, today))
         assert datetime_equals(user.changed, now), ('auto_now value error: %s'

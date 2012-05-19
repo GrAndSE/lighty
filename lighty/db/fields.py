@@ -83,7 +83,10 @@ class Field(BaseField):
         Args:
             model:  model instance to take value from
         """
-        return getattr(model, self.name)
+        value = getattr(model, self.name)
+        if value is None and not self.null:
+            raise ValueError('%s does not accept None value' % str(self))
+        return value
 
     def make_value_from_datastore(self, value):
         """Create object from value was taken from datastore
@@ -341,10 +344,11 @@ class DateField(Field, NumericField):
         import datetime
         if self.auto_now or (self.auto_now_add and not model.is_saved()):
             setattr(model, self.name, datetime.date.today())
-        return datetime.datetime(*getattr(model, self.name).timetuple()[:-2])
+        value = super(DateField, self).get_value_for_datastore(model)
+        return datetime.datetime(*value.timetuple()[:-2]) if value else None
 
     def make_value_from_datastore(self, value):
-        return value.date()
+        return value.date() if value else value
 
 
 class DateTimeField(DateField, NumericField):
@@ -361,7 +365,7 @@ class DateTimeField(DateField, NumericField):
         if self.auto_now or (self.auto_now_add and not model.is_saved()):
             from datetime import datetime
             setattr(model, self.name, datetime.now())
-        return getattr(model, self.name)
+        return super(DateField, self).get_value_for_datastore(model)
 
 
 class TimeField(DateField, NumericField):
@@ -378,7 +382,7 @@ class TimeField(DateField, NumericField):
         from time import gmtime
         if self.auto_now or (self.auto_now_add and not model.is_saved()):
             setattr(model, self.name, gmtime())
-        return getattr(model, self.name)
+        return super(DateField, self).get_value_for_datastore(model)
 
 
 class TextField(Field, SequenceField):
