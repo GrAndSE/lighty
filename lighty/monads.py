@@ -137,7 +137,7 @@ class ValueMonad(functor.BaseFunctor):
         else:
             return length
 
-    @monad_function
+    @handle_exception
     def __iter__(self):
         return self.value.iter()
 
@@ -187,7 +187,7 @@ class NoneMonad(ValueMonad):
     def __iter__(self):
         '''Return's empty iterator
         '''
-        return ValueMonad(NoneMonad.EMPTY_ITER)
+        return NoneMonad.EMPTY_ITER
 
     def __index__(self):
         '''None as index

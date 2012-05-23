@@ -243,7 +243,7 @@ def validate(validators, data, transform=None):
         errors = []
         for validator in validators[field]:
             result = validator(result)
-            if not result:
+            if isinstance(result, monads.NoneMonad):
                 errors.append(result)
                 result = value
             else:
