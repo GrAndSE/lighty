@@ -172,6 +172,8 @@ class MongoTestCase(unittest.TestCase):
                                    len(updated))
         assert updated[0].name == 'Kevin', ('Wrong result item: %s' %
                                             updated[0].name)
+        assert isinstance(updated[0].changed, datetime), ('Wrong resut item field'
+                                            'type: %s' % type(updated[0].changed))
 
 
 def test():

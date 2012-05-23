@@ -367,6 +367,9 @@ class DateTimeField(DateField, NumericField):
             setattr(model, self.name, datetime.now())
         return super(DateField, self).get_value_for_datastore(model)
 
+    def make_value_from_datastore(self, value):
+        return value
+
 
 class TimeField(DateField, NumericField):
     '''A time, represented in Python by a datetime.time instance. Accepts the
