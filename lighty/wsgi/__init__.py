@@ -23,7 +23,7 @@ class BaseApplication(object):
         '''
         if not self.urls:
             self.urls = load_urls(self.settings.urls)
-        return resolve(self.urls, url, method=None)
+        return resolve(self.urls, url, method)
 
     def reverse_url(self, name, args=None):
         '''Reverse url for name and arguments
