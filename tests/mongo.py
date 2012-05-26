@@ -102,6 +102,8 @@ class MongoTestCase(unittest.TestCase):
     def testGet(self):
         '''Test Model.get(field_name=value) method
         '''
+        user = User.get(None)
+        assert not user, 'Wrong result for getting empty modal: %s' % user
         user = User.get(name='Peter')
         assert user, 'Wrong result searching for name: %s' % user
         assert user.name == 'Peter', ('Wrong result searching for name: %s' %

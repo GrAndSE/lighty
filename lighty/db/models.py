@@ -212,7 +212,9 @@ class Model(with_metaclass(ModelBase)):
         for key in keys:
             if isinstance(keys[key], NoneMonad):
                 return keys[key]
-        item = cls.datastore().get(cls, **keys)
+        if len(keys) == 0:
+            return NoneMonad('Item not found')
+        item = cls.datastore().get(cls, keys)
         cls_dict = cls.__dict__
         if item:
             kwargs = {}

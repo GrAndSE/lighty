@@ -22,7 +22,7 @@ class Datastore(object):
         self.db_name = db_name
         self.db = connection[db_name]
 
-    def get(self, model, **kwargs):
+    def get(self, model, kwargs):
         '''Get item using number of arguments
         '''
         if '_id' in kwargs:
