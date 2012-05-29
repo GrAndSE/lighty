@@ -66,8 +66,22 @@ class FieldFunctor(BaseField):
         self.model = parent.model
 
     def __repr__(self):
-        return self.__str__()
+        '''Get string representation
+        '''
+        return '<FieldFunctor: "%s">' % self.__str__()
 
-    def __str__(self):
-        return '(%s %s %s)' % (str(self.parent), self.operator.__name__,
-                               str(self.operand))
+    def __str__(self, model=None):
+        '''Convert to string
+        '''
+        if model:
+            parent = (self.parent.__str__(model)
+                      if isinstance(self.parent, FieldFunctor)
+                      else str(self.parent))
+            datastore = model.datastore()
+            operator = (datastore.get_datastore_operation(self.operator)
+                        if model else str(self.operator))
+            operand = (self.operand.__str__(model)
+                       if isinstance(self.operand, FieldFunctor)
+                       else datastore.process_operand(self.operand))
+            return '(%s %s %s)' % (parent, operator, operand)
+        return '(%s %s %s)' % (self.parent, self.operator, self.operand)

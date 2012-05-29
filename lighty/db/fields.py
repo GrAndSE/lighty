@@ -67,15 +67,16 @@ class Field(BaseField):
             validators += (lighty.validators.ChoicesValidator(choices),)
         self.validators = validators
 
-    def __config__(self, model_name, field_name):
+    def configure(self, model_name, field_name):
         """Configure field with model-depended paramenters
 
         Args:
+            mmodel: model class
             model_name: model class name
             field_name: name of this field
         """
-        self.model = model_name
         self.name = field_name
+        self.model = model_name
 
     def get_value_for_datastore(self, model):
         """Get value prepared for saving in datastore
@@ -93,7 +94,7 @@ class Field(BaseField):
         """
         return value
 
-    def __str__(self):
+    def __str__(self, model=None):
         '''Get string representation
         '''
         return self.model + '.' + self.name
@@ -105,10 +106,10 @@ class FieldDescriptor(Field):
     instance used to store the field value.
     '''
 
-    def __config__(self, model_name, field_name):
+    def configure(self, model_name, field_name):
         '''Set default value
         '''
-        super(FieldDescriptor, self).__config__(model_name, field_name)
+        super(FieldDescriptor, self).configure(model_name, field_name)
         self._field_name = '_field_%s_value' % field_name
 
     def __get__(self, instance, owner):
@@ -410,7 +411,7 @@ class ForeignKey(Field):
         """
         """
         super(ForeignKey, self).__init__(kwargs)
-        self.model = model
+        self.foreign = model
 
     def get_value_for_datastore(self, model):
         """Get object's key
@@ -420,4 +421,4 @@ class ForeignKey(Field):
     def make_value_from_datastore(self, value):
         """Get object for key
         """
-        return self.model.get(value)
+        return self.foreign.get(value)

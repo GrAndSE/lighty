@@ -80,6 +80,14 @@ class MongoTestCase(unittest.TestCase):
         assert users[0].age == 18 and users[1].age == 19, (
                 'Wrong result [%s]' % ','.join([str(user) for user in users]))
 
+    def testQueryToString(self):
+        '''Test query to string convertion
+        '''
+        query = str(User.all().where((User.age > 17) & (User.name == 'Peter')))
+        right_query = '((User.age > 17) && (User.name == "Peter"))'
+        assert (query == right_query), 'Wrong query string: %s ex %s' % (query,
+                                                                right_query)
+
     def testQuery(self):
         '''Test queries with some logic
         '''
@@ -174,12 +182,13 @@ class MongoTestCase(unittest.TestCase):
                                    len(updated))
         assert updated[0].name == 'Kevin', ('Wrong result item: %s' %
                                             updated[0].name)
-        assert isinstance(updated[0].changed, datetime), ('Wrong resut item field'
-                                            'type: %s' % type(updated[0].changed))
+        assert isinstance(updated[0].changed, datetime), (
+                'Wrong resut item field type: %s' % type(updated[0].changed))
 
 
 def test():
     suite = unittest.TestSuite()
+    suite.addTest(MongoTestCase('testQueryToString'))
     suite.addTest(MongoTestCase('testCreate'))
     suite.addTest(MongoTestCase('testGet'))
     suite.addTest(MongoTestCase('testGetByKey'))

@@ -41,6 +41,8 @@ class Datastore(object):
 
     @staticmethod
     def get_datastore_operation(operation):
+        '''Get representation of operation for datastore query
+        '''
         operator_matching = {
                 operator.__or__: '||',
                 operator.__and__: '&&',
