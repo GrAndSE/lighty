@@ -44,14 +44,15 @@ class Datastore(object):
         '''Get representation of operation for datastore query
         '''
         operator_matching = {
-                operator.__or__: '||',
-                operator.__and__: '&&',
-                operator.__not__: '!',
-                operator.__gt__: '>',
-                operator.__lt__: '<',
-                operator.__ge__: '>=',
-                operator.__le__: '<=',
-                operator.__eq__: '=='
+                operator.__or__: '(%s || %s)',
+                operator.__and__: '(%s && %s)',
+                operator.__not__: '!(%s)',
+                operator.__gt__: '(%s > %s)',
+                operator.__lt__: '(%s < %s)',
+                operator.__ge__: '(%s >= %s)',
+                operator.__le__: '(%s <= %s)',
+                operator.__eq__: '(%s == %s)',
+                operator.__contains__: '%s.match(%s)'
         }
         return operator_matching[operation]
 
@@ -71,7 +72,7 @@ class Datastore(object):
             parent = Datastore.process_operand(operand.parent)
             operator = Datastore.get_datastore_operation(operand.operator)
             operand = Datastore.process_operand(operand.operand)
-            return "(%s %s %s)" % (parent, operator, operand)
+            return operator % (parent, operand)
         elif isinstance(operand, bson.objectid.ObjectId):
             return '"%s"' % operand
         elif isinstance(operand, datetime.datetime):
@@ -82,6 +83,7 @@ class Datastore(object):
         elif isinstance(operand, datetime.time):
             return operand.strftime('"%H:%M:%S"')
         else:
+            print operand, type(operand)
             raise AttributeError('Unsupported type %s' % str(type(operand)))
 
     @staticmethod
@@ -95,13 +97,11 @@ class Datastore(object):
                                                             query._from_query)
         if not source_query:
             if operation == operator.__not__:
-                return ('%s (%s)' % (
-                            Datastore.get_datastore_operation(query.operation),
-                            Datastore.process_operand(query.operand)),
+                return (Datastore.get_datastore_operation(query.operation) %
+                        Datastore.process_operand(query.operand),
                         distinct, order)
             return operand, distinct, order
-        return ('(%s) %s %s' % (source_query, operation, operand),
-                distinct, order)
+        return (operation % (source_query, operand), distinct, order)
 
     def query(self, query, fields=None):
         items = (fields is None and self.db[query.model.entity_name()].find()

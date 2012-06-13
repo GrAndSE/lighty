@@ -41,6 +41,11 @@ class SequenceField(BaseField):
     '''
     _lazy = (operator.__getitem__, operator.__contains__, )
 
+    def contains(self, operand):
+        '''Check is object contains
+        '''
+        return self.create_copy(operator.__contains__, operand)
+
     def __len__(self):
         return 'len'
 
@@ -83,5 +88,5 @@ class FieldFunctor(BaseField):
             operand = (self.operand.__str__(model)
                        if isinstance(self.operand, FieldFunctor)
                        else datastore.process_operand(self.operand))
-            return '(%s %s %s)' % (parent, operator, operand)
+            return operator % (parent, operand)
         return '(%s %s %s)' % (self.parent, self.operator, self.operand)
