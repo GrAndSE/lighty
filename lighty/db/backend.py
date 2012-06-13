@@ -40,7 +40,7 @@ class Datastore(object):
         return self.db[model.entity_name()].remove(kwargs)
 
     @staticmethod
-    def get_datastore_operation(operation):
+    def get_datastore_operation(operation, operand=None):
         '''Get representation of operation for datastore query
         '''
         operator_matching = {
@@ -52,7 +52,9 @@ class Datastore(object):
                 operator.__ge__: '(%s >= %s)',
                 operator.__le__: '(%s <= %s)',
                 operator.__eq__: '(%s == %s)',
-                operator.__contains__: '%s.match(%s)'
+                operator.__contains__: ('%s.match(%s)'
+                                        if isinstance(operand, string_types)
+                                        else '%s.indexOf(%s) > -1')
         }
         return operator_matching[operation]
 
@@ -70,7 +72,8 @@ class Datastore(object):
             return 'this.' + operand.name
         elif issubclass(operand.__class__, FieldFunctor):
             parent = Datastore.process_operand(operand.parent)
-            operator = Datastore.get_datastore_operation(operand.operator)
+            operator = Datastore.get_datastore_operation(operand.operator,
+                                                         operand.operand)
             operand = Datastore.process_operand(operand.operand)
             return operator % (parent, operand)
         elif isinstance(operand, bson.objectid.ObjectId):
@@ -82,6 +85,9 @@ class Datastore(object):
             return operand.strftime('ISODate("%Y-%m-%dT00:00:00.000Z")')
         elif isinstance(operand, datetime.time):
             return operand.strftime('"%H:%M:%S"')
+        elif isinstance(operand, (list, tuple)):
+            return '["%s"]' % ', '.join([Datastore.process_operand(op)
+                                         for op in operand])
         else:
             print operand, type(operand)
             raise AttributeError('Unsupported type %s' % str(type(operand)))

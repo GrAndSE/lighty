@@ -145,6 +145,15 @@ class MongoTestCase(unittest.TestCase):
         assert len(User.all().where(User.name == 'Peter')) == 0, (
                 'Error saving entity')
 
+    def testContains(self):
+        '''Test contains for strings and lists
+        '''
+        query = User.all().where(User.name.contains('eter'))
+        users = [user for user in query]
+        assert len(users) == 1, 'Wrong results for\n%s\n%s' % (query, users)
+        assert users[0].name == 'Peter', 'Wrong result: %s' % users[0]
+        # TODO: write a test case for arrays
+
     def testDateTime(self):
         '''Test different date/time fields
         '''
@@ -198,6 +207,7 @@ def test():
     suite.addTest(MongoTestCase('testSimple'))
     suite.addTest(MongoTestCase('testQuery'))
     suite.addTest(MongoTestCase('testCount'))
+    suite.addTest(MongoTestCase('testContains'))
     suite.addTest(MongoTestCase('testDelete'))
     suite.addTest(MongoTestCase('testDateTime'))
     return suite
