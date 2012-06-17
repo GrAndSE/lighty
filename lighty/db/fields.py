@@ -133,7 +133,7 @@ class IntegerField(FieldDescriptor, NumericField):
     def __init__(self, **options):
         '''Create new field. Adds validator that checks is value passed integer
         '''
-        options = add_validator(lighty.validators.IntegerValidator, options)
+        options = add_validator(lighty.validators.INTEGER_VALIDATOR, options)
         super(IntegerField, self).__init__(**options)
 
     def __set__(self, instance, value):
@@ -172,7 +172,7 @@ class FloatField(FieldDescriptor, NumericField):
     def __init__(self, **options):
         '''Create new field. Adds validator that checks is value passed integer
         '''
-        options = add_validator(lighty.validators.FloatValidator, options)
+        options = add_validator(lighty.validators.FLOAT_VALIDATOR, options)
         super(FloatField, self).__init__(**options)
 
     def __set__(self, instance, value):

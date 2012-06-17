@@ -165,7 +165,7 @@ validate_ipv4_address = RegexValidator(IPV4_REGEX)
 validate_comma_separated_integer_list = RegexValidator("^(([\d]+\,)*[\d]+)$")
 
 
-class IntegerValidator(ValueError):
+class IntegerValidator(Validator):
     '''Check is value can be safelly converted to int
     '''
 
@@ -176,9 +176,10 @@ class IntegerValidator(ValueError):
             return self.error(value)
         else:
             return result
+INTEGER_VALIDATOR = IntegerValidator()
 
 
-class FloatValidator(ValueError):
+class FloatValidator(Validator):
     '''Check is value can be safelly converted to int
     '''
 
@@ -189,6 +190,7 @@ class FloatValidator(ValueError):
             return self.error(value)
         else:
             return result
+FLOAT_VALIDATOR = FloatValidator()
 
 
 class MaxValueValidator(Validator):
