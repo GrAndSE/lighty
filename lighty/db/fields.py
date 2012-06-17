@@ -130,6 +130,12 @@ class IntegerField(FieldDescriptor, NumericField):
     single-line input).
     '''
 
+    def __init__(self, **options):
+        '''Create new field. Adds validator that checks is value passed integer
+        '''
+        options = add_validator(lighty.validators.IntegerValidator, options)
+        super(IntegerField, self).__init__(**options)
+
     def __set__(self, instance, value):
         '''Set value as int
         '''
@@ -163,10 +169,16 @@ class FloatField(FieldDescriptor, NumericField):
     The admin represents this as an <input type="text"> (a single-line input).
     '''
 
+    def __init__(self, **options):
+        '''Create new field. Adds validator that checks is value passed integer
+        '''
+        options = add_validator(lighty.validators.FloatValidator, options)
+        super(FloatField, self).__init__(**options)
+
     def __set__(self, instance, value):
         '''Set value as int
         '''
-        super(IntegerField, self).__set__(instance, float(value))
+        super(FloatField, self).__set__(instance, float(value))
 
 
 class DecimalField(Field, NumericField):

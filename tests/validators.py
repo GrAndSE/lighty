@@ -81,7 +81,7 @@ class ModelValidatorsTestCase(unittest.TestCase):
                                                     'names: %s' % names)
         assert len(validators['test_type']) == 2, ('Wrong validators number '
                 'for CharField with choices: %s' % validators['test_type'])
-        assert len(validators['positive']) == 1, ('Wrong validators number '
+        assert len(validators['positive']) == 2, ('Wrong validators number '
                 'for PositiveIntegerField: %s' % validators['positive'])
 
 
