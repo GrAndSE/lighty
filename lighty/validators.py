@@ -232,7 +232,8 @@ class MaxLengthValidator(Validator):
                                                  else "Not allowed length")
 
     def validate(self, value):
-        return self.error(value) if len(value) > self.max_length else value
+        return (self.error(value) if not value or len(value) > self.max_length
+                else value)
 
 
 class MinLengthValidator(Validator):
@@ -248,7 +249,8 @@ class MinLengthValidator(Validator):
                                                  else "Not allowed length")
 
     def validate(self, value):
-        return self.error(value) if len(value) < self.min_length else value
+        return (self.error(value) if not value or len(value) < self.min_length
+                else value)
 
 
 def validate(validators, data, transform=None):
