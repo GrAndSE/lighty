@@ -52,9 +52,10 @@ class Datastore(object):
                 operator.__ge__: '(%s >= %s)',
                 operator.__le__: '(%s <= %s)',
                 operator.__eq__: '(%s == %s)',
-                operator.__contains__: ('%s.match(%s)'
-                                        if isinstance(operand, string_types)
-                                        else '%s.indexOf(%s) > -1')
+                operator.__contains__: (
+                                    '(%s && (new RegExp(%s, "ig")).exec(%s))'
+                                    if isinstance(operand, string_types)
+                                    else '(%s && %s.indexOf(%s) > -1)')
         }
         return operator_matching[operation]
 
@@ -69,13 +70,18 @@ class Datastore(object):
         elif isinstance(operand, (int, float)):
             return operand
         elif issubclass(operand.__class__, Field):
-            return 'this.' + operand.name
+            return 'this["%s"]' % operand.name
         elif issubclass(operand.__class__, FieldFunctor):
             parent = Datastore.process_operand(operand.parent)
-            operator = Datastore.get_datastore_operation(operand.operator,
-                                                         operand.operand)
-            operand = Datastore.process_operand(operand.operand)
-            return operator % (parent, operand)
+            operator_str = Datastore.get_datastore_operation(operand.operator,
+                                                             operand.operand)
+            operand_value = Datastore.process_operand(operand.operand)
+            if operand.operator == operator.__contains__:
+                if isinstance(operand, string_types):
+                    return operator_str % (parent, parent, operand_value)
+                else:
+                    return operator_str % (parent, operand_value, parent)
+            return operator_str % (parent, operand_value)
         elif isinstance(operand, bson.objectid.ObjectId):
             return '"%s"' % operand
         elif isinstance(operand, datetime.datetime):
