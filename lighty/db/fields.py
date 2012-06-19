@@ -86,6 +86,8 @@ class Field(BaseField):
         """
         value = getattr(model, self.name)
         if value is None and not self.null:
+            if self.blank and self.default is not None:
+                return self.default
             raise ValueError('%s does not accept None value' % str(self))
         return value
 
@@ -252,6 +254,10 @@ class CharField(Field, SequenceField):
         # Add MaxLengthValidator
         options = add_validator(
                     lighty.validators.MaxLengthValidator(max_length), options)
+        if (options.get('default', None) is None and
+                not options.get('null', False)):
+            options = add_validator(lighty.validators.MinLengthValidator(1),
+                                    options)
         # Then create usual field
         super(CharField, self).__init__(**options)
 
