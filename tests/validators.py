@@ -18,6 +18,7 @@ class CustomErrorMessageValidator(TrueFalseValidator):
 
 
 class TestModel(models.Model):
+    name = fields.CharField(unique=True)
     test_type = fields.CharField(choices=[('t', 'test'), ('c', 'test case')])
     positive = fields.PositiveIntegerField()
 
@@ -74,7 +75,7 @@ class ModelValidatorsTestCase(unittest.TestCase):
         '''Test validators() method in model class
         '''
         validators = TestModel.validators()
-        assert len(validators) == 2, ('Wrong validator groups number: %s' %
+        assert len(validators) == 3, ('Wrong validator groups number: %s' %
                                       len(validators))
         names = sorted(utils.dict_keys(validators.keys()))
         assert names == sorted(TestModel._fields), ('Wrong validator groups '
@@ -83,6 +84,12 @@ class ModelValidatorsTestCase(unittest.TestCase):
                 'for CharField with choices: %s' % validators['test_type'])
         assert len(validators['positive']) == 2, ('Wrong validators number '
                 'for PositiveIntegerField: %s' % validators['positive'])
+#        assert len(validators['name']) == 2, ('Wrong validators number '
+#                'for uniquer char field: %s' % validators['name'])
+#
+#    def testUniqueField(self):
+#        exists = TestModel(name="1", test_type='t', positive=1).save()
+        
 
 
 class ValidateTestCase(unittest.TestCase):

@@ -4,6 +4,7 @@ evaluations
 import operator
 
 from .. import functor
+from ..utils import string_types
 
 
 class BaseField(functor.BaseFunctor):
@@ -17,8 +18,8 @@ class BaseField(functor.BaseFunctor):
     def __init__(self):
         super(BaseField, self).__init__()
 
-    def create_copy(self, operator, operand):
-        return FieldFunctor(self, operator, operand)
+    def create_copy(self, operation, operand):
+        return FieldFunctor(self, operation, operand)
 
 
 class NumericField(BaseField):
@@ -57,16 +58,16 @@ class FieldFunctor(BaseField):
     # Lazy operators
     _lazy = (operator.__and__, operator.__or__, operator.__xor__, )
 
-    def __init__(self, parent, operator, operand):
+    def __init__(self, parent, operation, operand):
         super(FieldFunctor, self).__init__()
         if (issubclass(operand.__class__, BaseField) and
             not (issubclass(parent.model.__class__, operand.model.__class__) or
                  issubclass(operand.model.__class__, parent.model.__class__))):
             raise AttributeError('Different model classes %s and %s for '
                                  'operator %s' % (parent.model,
-                                 operand.model, operator))
+                                 operand.model, operation))
         self.parent = parent
-        self.operator = operator
+        self.operator = operation
         self.operand = operand
         self.model = parent.model
 
@@ -83,10 +84,14 @@ class FieldFunctor(BaseField):
                       if isinstance(self.parent, FieldFunctor)
                       else str(self.parent))
             datastore = model.datastore()
-            operator = (datastore.get_datastore_operation(self.operator)
-                        if model else str(self.operator))
+            operation = datastore.get_datastore_operation(self.operator)
             operand = (self.operand.__str__(model)
                        if isinstance(self.operand, FieldFunctor)
                        else datastore.process_operand(self.operand))
-            return operator % (parent, operand)
+            if self.operator == operator.__contains__:
+                if isinstance(operand, string_types):
+                    return operation % (parent, parent, operand)
+                else:
+                    return operation % (parent, operand, parent)
+            return operation % (parent, operand)
         return '(%s %s %s)' % (self.parent, self.operator, self.operand)
