@@ -232,7 +232,8 @@ class MaxLengthValidator(Validator):
                                                  else "Not allowed length")
 
     def validate(self, value):
-        return (self.error(value) if not value or len(value) > self.max_length
+        return (self.error(value)
+                if not value is None and len(value) > self.max_length
                 else value)
 
 
@@ -251,6 +252,18 @@ class MinLengthValidator(Validator):
     def validate(self, value):
         return (self.error(value) if not value or len(value) < self.min_length
                 else value)
+
+
+class NotNoneValidator(Validator):
+    '''Raises a ValidationError for value is None
+    '''
+
+    def __init__(self, message=None):
+        super(NotNoneValidator, self).__init__(message if message
+                                               else 'No value')
+
+    def validate(self, value):
+        return self.error(value) if value is None else value
 
 
 def validate(validators, data, transform=None):

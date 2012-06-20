@@ -65,6 +65,8 @@ class Field(BaseField):
         # Add additional validator for choices if needed
         if choices is not None:
             validators += (lighty.validators.ChoicesValidator(choices),)
+        if not self.null and not (self.blank and self.default is not None):
+            validators += (lighty.validators.NotNoneValidator(), )
         self.validators = validators
 
     def configure(self, model_name, field_name):
@@ -254,10 +256,6 @@ class CharField(Field, SequenceField):
         # Add MaxLengthValidator
         options = add_validator(
                     lighty.validators.MaxLengthValidator(max_length), options)
-        if (options.get('default', None) is None and
-                not options.get('null', False)):
-            options = add_validator(lighty.validators.MinLengthValidator(1),
-                                    options)
         # Then create usual field
         super(CharField, self).__init__(**options)
 
@@ -364,6 +362,7 @@ class DateField(Field, NumericField):
         if self.auto_now or (self.auto_now_add and not model.is_saved()):
             setattr(model, self.name, datetime.date.today())
         value = super(DateField, self).get_value_for_datastore(model)
+        print 'get_value_for_datastore', value, datetime.datetime(*value.timetuple()[:-2])
         return datetime.datetime(*value.timetuple()[:-2]) if value else None
 
     def make_value_from_datastore(self, value):
@@ -384,7 +383,7 @@ class DateTimeField(DateField, NumericField):
         if self.auto_now or (self.auto_now_add and not model.is_saved()):
             from datetime import datetime
             setattr(model, self.name, datetime.now())
-        return super(DateField, self).get_value_for_datastore(model)
+        return super(DateTimeField, self).get_value_for_datastore(model)
 
     def make_value_from_datastore(self, value):
         return value
