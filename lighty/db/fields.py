@@ -362,7 +362,6 @@ class DateField(Field, NumericField):
         if self.auto_now or (self.auto_now_add and not model.is_saved()):
             setattr(model, self.name, datetime.date.today())
         value = super(DateField, self).get_value_for_datastore(model)
-        print 'get_value_for_datastore', value, datetime.datetime(*value.timetuple()[:-2])
         return datetime.datetime(*value.timetuple()[:-2]) if value else None
 
     def make_value_from_datastore(self, value):
