@@ -123,7 +123,8 @@ class Datastore(object):
         if query_string:
             items = items.where(query_string)
         items = distinct and items.distinct('_id') or items
-        return order and items.sort([(f.name, 1) for f in order]) or items
+        return (items.sort([(f.name, 1) for f in order]) if order
+                else items.sort('_id', 1))
 
     def count(self, query):
         return self.query(query).count()
