@@ -239,7 +239,7 @@ class NullBooleanField(BooleanField):
         from ..utils import string_types
         if value is None:
             value = None
-        if isinstance(value, string_types):
+        elif isinstance(value, string_types):
             value = value == 'True' or value == 'true' or value == 'TRUE'
         elif not isinstance(value, bool):
             value = bool(value)
