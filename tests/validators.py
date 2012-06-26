@@ -80,10 +80,10 @@ class ModelValidatorsTestCase(unittest.TestCase):
         names = sorted(utils.dict_keys(validators.keys()))
         assert names == sorted(TestModel._fields), ('Wrong validator groups '
                                                     'names: %s' % names)
-        assert len(validators['test_type']) == 2, ('Wrong validators number '
-                'for CharField with choices: %s' % validators['test_type'])
-        assert len(validators['positive']) == 2, ('Wrong validators number '
-                'for PositiveIntegerField: %s' % validators['positive'])
+        assert len(validators['test_type']) == 3, ('Wrong validators number '
+                'for CharField with choices: %s' % (validators['test_type'], ))
+        assert len(validators['positive']) == 3, ('Wrong validators number '
+                'for PositiveIntegerField: %s' % (validators['positive'], ))
 #        assert len(validators['name']) == 2, ('Wrong validators number '
 #                'for uniquer char field: %s' % validators['name'])
 #

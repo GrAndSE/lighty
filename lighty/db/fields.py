@@ -233,6 +233,18 @@ class NullBooleanField(BooleanField):
         options['null'] = True
         super(NullBooleanField, self).__init__(**options)
 
+    def __set__(self, instance, value):
+        '''Convert value to boolean
+        '''
+        from ..utils import string_types
+        if value is None:
+            value = None
+        if isinstance(value, string_types):
+            value = value == 'True' or value == 'true' or value == 'TRUE'
+        elif not isinstance(value, bool):
+            value = bool(value)
+        super(BooleanField, self).__set__(instance, value)
+
 
 class CharField(Field, SequenceField):
     '''A string field, for small- to large-sized strings.
@@ -382,7 +394,7 @@ class DateTimeField(DateField, NumericField):
         if self.auto_now or (self.auto_now_add and not model.is_saved()):
             from datetime import datetime
             setattr(model, self.name, datetime.now())
-        return super(DateTimeField, self).get_value_for_datastore(model)
+        return Field.get_value_for_datastore(self, model)
 
     def make_value_from_datastore(self, value):
         return value

@@ -162,7 +162,7 @@ class MongoTestCase(unittest.TestCase):
         from datetime import date, datetime, timedelta
         now = datetime.now()
         today = date.today()
-        birthday = birthday=today - timedelta(days=20*366)
+        birthday = today - timedelta(days=20*366)
         user = User(name='Kevin', age=20, birthday=birthday).save()
         changed = user.changed
         # Check auto filled dates
@@ -170,6 +170,7 @@ class MongoTestCase(unittest.TestCase):
                                    ' except %s' % (user.birthday, birthday))
         assert user.created == today, ('auto_now_add value error: %s except '
                                        '%s' % (user.created, today))
+        print user.changed, now
         assert datetime_equals(user.changed, now), ('auto_now value error: %s'
                                         ' except %s' % (user.changed, now))
         # Test few queries with date objects
