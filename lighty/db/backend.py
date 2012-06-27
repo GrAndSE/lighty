@@ -75,13 +75,13 @@ class Datastore(object):
             parent = Datastore.process_operand(operand.parent)
             operator_str = Datastore.get_datastore_operation(operand.operator,
                                                              operand.operand)
-            operand_value = Datastore.process_operand(operand.operand)
+            operand_val = Datastore.process_operand(operand.operand) or 'null'
             if operand.operator == operator.__contains__:
                 if isinstance(operand, string_types):
-                    return operator_str % (parent, parent, operand_value)
+                    return operator_str % (parent, parent, operand_val)
                 else:
-                    return operator_str % (parent, operand_value, parent)
-            return operator_str % (parent, operand_value)
+                    return operator_str % (parent, operand_val, parent)
+            return operator_str % (parent, operand_val)
         elif isinstance(operand, bson.objectid.ObjectId):
             return '"%s"' % operand
         elif isinstance(operand, datetime.datetime):
