@@ -107,6 +107,8 @@ class Datastore(object):
         else:
             source_query, distinct, order = Datastore.build_query(
                                                             query._from_query)
+            if query.order:
+                order = order and order + query.order or query.order
         if not source_query:
             if operation == operator.__not__:
                 return (Datastore.get_datastore_operation(query.operation) %
